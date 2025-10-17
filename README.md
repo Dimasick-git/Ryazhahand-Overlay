@@ -1,111 +1,69 @@
-# Ultrahand Overlay (HOS 16.0.0+)
-[![platform](https://img.shields.io/badge/platform-Switch-898c8c?logo=C++.svg)](https://gbatemp.net/forums/nintendo-switch.283/?prefix_id=44)
-[![language](https://img.shields.io/badge/language-C++-ba1632?logo=C++.svg)](https://github.com/topics/cpp)
-[![GPLv2 License](https://img.shields.io/badge/license-GPLv2-189c11.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-[![Latest Version](https://img.shields.io/github/v/release/ppkantorski/Ultrahand-Overlay?label=latest&color=blue)](https://github.com/ppkantorski/Ultrahand-Overlay/releases/latest)
-[![GitHub Downloads](https://img.shields.io/github/downloads/ppkantorski/Ultrahand-Overlay/total?color=6f42c1)](https://somsubhra.github.io/github-release-stats/?username=ppkantorski&repository=Ultrahand-Overlay&page=1&per_page=300)
-[![HB App Store](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ppkantorski/Ultrahand-Overlay/main/.github/hbappstore.json&label=hb%20app%20store&color=6f42c1)](https://hb-app.store/switch/UltrahandOverlay)
-[![GitHub issues](https://img.shields.io/github/issues/ppkantorski/Ultrahand-Overlay?color=222222)](https://github.com/ppkantorski/Ultrahand-Overlay/issues)
-[![GitHub stars](https://img.shields.io/github/stars/ppkantorski/Ultrahand-Overlay)](https://github.com/ppkantorski/Ultrahand-Overlay/stargazers)
+Ryazhahand Overlay (HOS 16.0.0+)
+— Поддержка кастомных автозагрузочных команд через /switch/.packages/boot_package.ini с секцией boot. Позволяет запускать цепочку команд сразу после загрузки устройства.
 
-Create directories, manage files, and customize configurations effortlessly using simple ini files.
+🚀 Начало работы
+Использование
+Установи nx-ovlloader или nx-ovlloader+.
 
-[![Ultrahand Logo](.pics/banner.gif)](https://gbatemp.net/threads/ultrahand-overlay-the-fully-craft-able-overlay-executor.633560/)
+nx-ovlloader+ требует на 2MB больше памяти, но предоставляет расширенные функции. Переключение между версиями доступно в меню настроек Ryazhahand.
 
-Ultrahand Overlay is an overlay menu ecosystem built from the ground up off of [libultrahand](https://github.com/ppkantorski/libultrahand) (an expanded fork of [libtesla](https://github.com/WerWolv/libtesla)) that provides powerful C/C++ commands through the usage of its own custom interpretive [programming language](https://github.com/ppkantorski/Ultrahand-Overlay/wiki/Command-Reference) (similar to Shell/BASH).  It is a versatile tool that enables users to create and share custom command-based packages, providing enhanced functionality for managing settings, files and directories on your Nintendo Switch.
+Скачай ovlmenu.ovl и помести в /switch/.overlays/.
 
-With Ultrahand, you have the flexibility to customize and shape your file management system according to your needs, empowering you with greater control over your system configurations.
+⚠️ Это перезапишет Tesla Menu, если он установлен.
 
-## Screenshots
-![Slideshow](.pics/slideshow.gif)
+После установки появится папка /config/ultrahand/ с config.ini — базовые настройки Ryazhahand.
 
-## Features
+Запусти Ryazhahand через хоткей ZL + ZR + ↓ (или Tesla). Будет создана папка /switch/.packages/ с шаблонным package.ini.
 
-Ultrahand Overlay currently offers the following features:
+Помести свой package.ini в /switch/.packages/<PACKAGE_NAME>/. Он содержит команды для твоего кастомного пакета.
 
-- Create Directories:
-  - Effortlessly create directories on your SD card by specifying the directory path. Ultrahand will handle the creation process for you.
+Если пакет не отображается — запусти Fix Bit Archive в Hekate.
 
-- Copy Files or Directories:
-  - Easily copy files or directories from one location to another on your SD card. Just provide the source and destination paths, and Ultrahand will seamlessly handle the copying process.
+Смотри Ultrahand Packages для готовых решений.
 
-- Delete Files or Directories:
-  - Simplify file and directory deletion on your SD card. By specifying the path of the file or directory you want to delete, Ultrahand promptly removes it, making the deletion process hassle-free.
+Команды появятся в меню пакетов Ryazhahand.
 
-- Move Files or Directories:
-  - Seamlessly move files or directories between locations on your SD card. Provide the source path and the destination directory path, and Ultrahand takes care of the moving process, ensuring smooth relocation.
+⚙️ Дополнительные функции
+A — запуск команды.
 
-- Download Files:
-  - Download files to your SD card with ease. Efficiently retrieve files from repositories or URLs to your desired location. Whether you need to download/update homebrew or transfer files between locations, this feature simplifies the process, making repository management a breeze.
+MINUS — просмотр и запуск отдельных строк из ini.
 
-- Unzip Files:
-  - Extract compressed zip files on your SD card by unzipping archived files, preserving their original structure. Whether you have downloaded zip archives or received compressed files, this command simplifies the process of extracting them, making it effortless to access the contents within.
+PLUS — вход в настройки.
 
-- Modify INI Files:
-  - Edit INI files on your SD card with ease. Take full control over your configurations by updating existing key-value pairs, adding new entries, or creating new sections within the INI file using Ultrahand.
+X — избранное.
 
-- Hex Edit Files:
-  - Perform hexadecimal editing of files on your SD card. Edit the binary data directly, allowing for precise control over your data. Ultrahand's Hex Edit Files feature enables you to analyze, modify, and customize files in their raw form.
+Y — конфигурация пакета/оверлея.
 
-- Convert Mods:
-  - Convert `pchtxt` mods into `ips` or `cheats` format.
+Для расширенной информации — Ryazhahand Wiki.
 
-- System Commands:
-  - There are a variety of system commands that users can utilize.  These include functions to shutdown, reboot, reboot directly into Hekate entries/modes, manipulate the screen's backlight, volume settings, and turn off all bluetooth controllers.
+🎮 Совместимость
+Требуется Atmosphere и прошивка HOS 16.0.0+. После установки окружения можно запускать .ovl через хоткей Tesla.
 
-- Run Commmands On Boot:
-  - Users can also utilize their own `/switch/.packages/boot_package.ini` file (with a command section `boot`) to run a series of commands once upon device boot-up.
+⚠️ Использование homebrew может аннулировать гарантию. Работай осознанно.
 
-## Getting Started
+🧱 Зависимости для компиляции
+Установи следующие C/C++ библиотеки:
 
-### Usage
+Библиотека	Ссылка на исходники
+libultrahand	GitHub
+libnx	GitHub
+switch-curl	curl.se
+switch-zlib	zlib.net
+switch-mbedtls	GitHub
+💡 Рекомендуется установка через devkitPro:
 
-To use Ultrahand, follow these steps:
+bash
+sudo pacman -S switch-dev switch-libnx switch-curl switch-zlib switch-mbedtls
+🤝 Вклад
+Открыт к предложениям, багрепортам и пулл-реквестам:
 
-1. Download and install the latest [nx-ovlloader](https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader.zip) / [nx-ovlloader+](https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader+.zip).
-    - **Sidenote:** nx-ovlloader+ consumes 2MB more of system memory than nx-ovlloader and provides expanded features. Users can also switch between the two within the Ultrahand Settings Menu.
-2. Download the latest Ultrahand [ovlmenu.ovl](https://github.com/ppkantorski/Ultrahand-Overlay/releases/latest/download/ovlmenu.ovl) and place it within `/switch/.overlays/`.
-    - **WARNING:** This will overwrite `Tesla Menu` if already installed.
-3. After installing Ultrahand Overlay, a new folder named `ultrahand` will be created within the root config folder on your SD card (`/config/ultrahand/`) along with a `config.ini` file containing various Ultrahand settings.
-4. Launch Ultrahand (similarly to `Tesla Menu`) with Ultrahand's default hotkeys (`ZL+ZR+DDOWN`) or Tesla's.  A new folder will be made (`/switch/.packages/`) with a preset `package.ini` file for your base menu commands.
+Создать issue
 
-5. Place your custom `package.ini` package file in your Ultrahand package directory (`/switch/.packages/<PACKAGE_NAME>/`). This file will contains the commands for your custom Ultrahand package.
-    - **Sidenote:** If your Ultrahand package does not show up, you may need to run `Fix Bit Archive` in Hekate.
-    - See [Ultrahand Packages](https://github.com/ppkantorski/Ultrahand-Packages) for a comprehensive list of known packages.
+Сравнить и отправить PR
 
-6. Your commands will now show up on the packages menu within Ultrahand.
+Обсуждение на GBATemp
 
-## Additional Features
-- You can click `A` to execute any command as well as click `MINUS` to view/execute the individual command lines written in the ini for execution.
-- You can click `PLUS` on the main menu to enter the settings menu.
-- You can click `X` on top of an overlay/package to star them.
-- You can click `Y` on top of an overlay/package to configure additional settings.
+📜 Лицензия
+Проект распространяется под GPLv2, с кастомной библиотекой libultra под CC-BY-4.0.
 
-For additional assistance with custom packages, feel free to checkout the [Ultrahand Overlay Wiki](https://github.com/ppkantorski/Ultrahand-Overlay/wiki).
-
-### Nintendo Switch Compatibility
-To run Ultrahand Overlay on the Nintendo Switch, you need to have the necessary [homebrew environment](https://github.com/Atmosphere-NX/Atmosphere) set up on your console running HOS 16.0.0+. Once you have the homebrew environment set up, you can transfer the compiled .ovl to your Switch and launch it using your old `Tesla Menu` hotkeys.
-
-Please note that running homebrew software on your Nintendo Switch may void your warranty and can carry certain risks. Ensure that you understand the implications and follow the appropriate guidelines and precautions when using homebrew software.
-
-### Compilation Prerequisites
-
-To compile and run the software, you need to have the following C/C++ dependencies installed:
-
-- [libultrahand](https://github.com/ppkantorski/libultrahand)
-- libnx
-- switch-curl
-- switch-zlib
-- switch-mbedtls
-
-## Contributing
-
-Contributions are welcome! If you have any ideas, suggestions, or bug reports, please raise an [issue](https://github.com/ppkantorski/Ultrahand-Overlay/issues/new/choose), submit a [pull request](https://github.com/ppkantorski/Ultrahand-Overlay/compare) or reach out to me directly on [GBATemp](https://gbatemp.net/threads/ultrahand-overlay-the-fully-craft-able-overlay-executor.633560/).
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X3VR194)
-
-## License
-
-This project is licensed and distributed under [GPLv2](LICENSE) with a [custom library](https://github.com/ppkantorski/libultrahand/tree/main/libultra) utilizing [CC-BY-4.0](SUB_LICENSE).
-
-Copyright (c) 2024 ppkantorski
+© 2025 Dimasick-git
