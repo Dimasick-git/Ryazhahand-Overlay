@@ -1,6 +1,6 @@
 /********************************************************************************
  * File: main.cpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description: 
  *   This file contains the main program logic for the Ultrahand Overlay project,
  *   an overlay executor designed for versatile crafting and management of overlays.
@@ -14,13 +14,13 @@
  *   - Toggles for enabling/disabling specific commands.
  * 
  *   For the latest updates and contributions, visit the project's GitHub repository.
- *   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
  * 
  *   Note: Please be aware that this notice cannot be altered or removed. It is a part
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 ppkantorski
+ *  Copyright (c) 2025 Dimasick-git
  ********************************************************************************/
 
 #define NDEBUG
@@ -7119,3 +7119,4 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
