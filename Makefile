@@ -1,17 +1,17 @@
 ##################################################################################
-# Makefile for Ultrahand Overlay
-# Author: ppkantorski
+# Makefile for Ryazhahand Overlay
+# Author: Dimasick-git
 # Description:
-#   This Makefile is used to build the Ultrahand Overlay homebrew application for
+#   This Makefile is used to build the Ryazhahand Overlay homebrew application for
 #   Nintendo Switch.
 #
 #   For more details and usage instructions, please refer to the project's
 #   documentation and README.md.
 #
-#   GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay
+#   GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay
 #
 # Licensed under GPLv2
-# Copyright (c) 2024 ppkantorski
+# Copyright (c) 2025 Dimasick-git
 ##################################################################################
 
 #---------------------------------------------------------------------------------
@@ -55,9 +55,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well. #lib/Atmosphere-libs/libexosphere/source/pmic
 #---------------------------------------------------------------------------------
-APP_TITLE	:= Ultrahand
-APP_AUTHOR	:= ppkantorski
-APP_VERSION	:= 2.1.5-pre-release
+APP_TITLE	:= Ryazhahand
+APP_AUTHOR	:= Dimasick-git
+APP_VERSION	:= 1.0.0-pre-release
 TARGET		:= ovlmenu
 BUILD		:= build
 SOURCES		:= source common
@@ -82,7 +82,7 @@ CFLAGS += $(INCLUDE) -D__SWITCH__ -DAPP_VERSION="\"$(APP_VERSION)\"" -D_FORTIFY_
 #---------------------------------------------------------------------------------
 # options for libultrahand
 #---------------------------------------------------------------------------------
-# For compiling Ultrahand Overlay only
+# For compiling Ryazhahand Overlay only
 IS_LAUNCHER_DIRECTIVE := 1
 CFLAGS += -DIS_LAUNCHER_DIRECTIVE=$(IS_LAUNCHER_DIRECTIVE)
 
@@ -286,8 +286,8 @@ all : $(OUTPUT).ovl
 $(OUTPUT).ovl: $(OUTPUT).elf $(OUTPUT).nacp 
 	@elf2nro $< $@ $(NROFLAGS)
 	@echo "built ... $(notdir $(OUTPUT).ovl)"
-	@printf 'ULTR' >> $@
-	@printf "Ultrahand signature has been added.\n"
+	@printf 'RYZH' >> $@
+	@printf "Ryazhahand signature has been added.\n"
 
 
 $(OUTPUT).elf: $(OFILES)
