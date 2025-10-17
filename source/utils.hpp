@@ -1,6 +1,6 @@
 /********************************************************************************
  * File: utils.hpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description:
  *   This header file contains utility functions and macros used in the
  *   Ultrahand Overlay project. These functions and macros include definitions for
@@ -13,7 +13,7 @@
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 ppkantorski
+ *  Copyright (c) 2025 Dimasick-git
  ********************************************************************************/
 
 #pragma once
@@ -71,7 +71,7 @@ static bool usingEmunand = true;
 
 
 /**
- * @brief Ultrahand-Overlay Configuration Paths
+ * @brief Ryazhahand-Overlay Configuration Paths
  *
  * This block of code defines string variables for various configuration and directory paths
  * used in the Ultrahand-Overlay project. These paths include:
@@ -84,7 +84,7 @@ static bool usingEmunand = true;
  * - `OVERLAY_PATH`: The base directory for overlays ("sdmc:/switch/.overlays/").
  * - `TESLA_CONFIG_INI_PATH`: The full path to the Tesla settings configuration file.
  *
- * These paths are used within the Ultrahand-Overlay project to manage configuration files
+ * These paths are used within the Ryazhahand-Overlay project to manage configuration files
  * and directories.
  */
 
