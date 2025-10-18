@@ -845,10 +845,10 @@ public:
             addUpdateButton(list, UPDATE_LANGUAGES, ULTRAHAND_REPO_URL + "releases/latest/download/lang.zip", DOWNLOADS_PATH+"lang.zip", LANG_PATH, fullVersionLabel);
 
             PackageHeader overlayHeader;
-            overlayHeader.title = "Ultrahand Overlay";
+            overlayHeader.title = "Ryazhahand Overlay";
             overlayHeader.version = APP_VERSION;
-            overlayHeader.creator = "ppkantorski";
-            overlayHeader.about = "Ultrahand Overlay is a versatile tool that enables you to create and share custom command-based packages.";
+            overlayHeader.creator = "Dimasick-git";
+            overlayHeader.about = "Ryazhahand Overlay is a versatile tool that enables you to create and share custom command-based packages.";
             overlayHeader.credits = "Special thanks to B3711, ComplexNarrative, ssky, MasaGratoR, meha, WerWolv, HookedBehemoth and many others. ♥";
             addPackageInfo(list, overlayHeader, OVERLAY_STR);
             overlayHeader.clear();
@@ -7119,4 +7119,5 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
 
