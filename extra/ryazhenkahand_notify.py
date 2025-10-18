@@ -2,9 +2,9 @@ import json
 import time
 import os
 import platform
-
 from ftplib import FTP
 import sys
+
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.formatted_text import HTML
@@ -15,7 +15,7 @@ FTP_HOST = "192.168.3.3"
 FTP_PORT = 5000
 FTP_USERNAME = "root"
 FTP_PASSWORD = ""
-REMOTE_PATH = "/config/ultrahand/notifications/"
+REMOTE_PATH = "/config/ryazhenkahand/notifications/"
 
 def generate_and_upload_notify(text, font_size=28):
     """
@@ -25,7 +25,7 @@ def generate_and_upload_notify(text, font_size=28):
 
     program_folder = os.path.dirname(os.path.abspath(__file__))
     timestamp = int(time.time())
-    filename = f"ultrahand_notify-{timestamp}.notify"
+    filename = f"ryazhenkahand_notify-{timestamp}.notify"
     local_file = os.path.join(program_folder, filename)
 
     notify_data = {
@@ -44,6 +44,7 @@ def generate_and_upload_notify(text, font_size=28):
     remote_dir = REMOTE_PATH
     if not remote_dir.endswith("/"):
         remote_dir += "/"
+
     ftp.cwd(remote_dir)
 
     with open(local_file, "rb") as f:
@@ -67,7 +68,7 @@ def clear_screen():
 
 def print_banner():
     banner = """
-  \033[37multra\033[31mhand\033[0m \033[35mnotify\033[0m \033[37m¯\\_(ツ)_/¯ \033[0m
+  \033[37mryazhenka\033[31mhand\033[0m \033[35mnotify\033[0m \033[37m¯\\_(\u30c4)_/¯ \033[0m
       \033[93m***\033[0m \033[93m*\033[0m    \033[93m**\033[0m    R    R   
    \033[93m* \033[93m*\033[0m   \033[93m*  **\033[0m       X    X   
   \033[93m* \033[93m*\033[0m         \033[93m*  \033[93m*  \033[93m*0\033[0m    0\033[93m*\033[0m  
@@ -94,7 +95,6 @@ Available commands:
 Just type any other text to send it as a notification.
 """)
 
-
 # --- Interactive mode ---
 def interactive_mode():
     clear_screen()
@@ -102,7 +102,6 @@ def interactive_mode():
     print_help()
 
     history_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".notify_history")
-
     commands = ["/quit", "/exit", "/clear", "/font_size", "/help"]
     command_completer = WordCompleter(
         commands,
@@ -121,7 +120,7 @@ def interactive_mode():
 
     while True:
         try:
-            text = session.prompt(HTML('<ansimagenta><u>notify</u> > </ansimagenta>'))
+            text = session.prompt(HTML('notify &gt; '))
         except (EOFError, KeyboardInterrupt):
             break
 
@@ -158,11 +157,12 @@ if __name__ == "__main__":
         interactive_mode()
     else:
         if len(sys.argv) < 2:
-            print("Usage: python3 ultrahand_notify.py 'Your notification text here' [font_size]")
-            print("   or: python3 ultrahand_notify.py -i   (interactive mode)")
+            print("Usage: python3 ryazhenkahand_notify.py 'Your notification text here' [font_size]")
+            print("   or: python3 ryazhenkahand_notify.py -i   (interactive mode)")
             sys.exit(1)
 
         notification_text = sys.argv[1]
+
         if len(sys.argv) >= 3:
             try:
                 font_size = int(sys.argv[2])
