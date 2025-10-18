@@ -1,6 +1,6 @@
 """
 File: rar2zip.py
-Author: ppkantorski
+Author: Dimasick-git
 Description:
     This script converts .rar files to .zip files. It recursively searches a specified
     directory for .rar files, extracts their contents, and then compresses them into .zip
@@ -8,13 +8,13 @@ Description:
     leftover folders from the extraction process.
 
     For the latest updates and contributions, visit the project's GitHub repository.
-    (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+    (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
 
     Note: Please be aware that this notice cannot be altered or removed. It is a part
     of the project's documentation and must remain intact.
     
 Licensed under CC-BY-NC-SA-4.0
-Copyright (c) 2024 ppkantorski
+Copyright (c) 2025 Dimasick-git
 """
 
 import os
