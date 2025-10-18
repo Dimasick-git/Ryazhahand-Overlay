@@ -63,8 +63,8 @@ SOURCES		:= source common
 INCLUDES	:= source common include
 NO_ICON		:= 1
 
-# This location should reflect where you place the libryazhenkahand directory (lib can vary between projects).
-include ${TOPDIR}/lib/libultrahand/ryazhenkahand.mk
+# This location should reflect where you place the libultraahand directory (lib can vary between projects).
+include ${TOPDIR}/lib/libultrahand/ultrahand.mk
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -77,7 +77,7 @@ CFLAGS := -g -Wall -Os -ffunction-sections -fdata-sections -flto -fuse-linker-pl
 CFLAGS += $(INCLUDE) -D__SWITCH__ -DAPP_VERSION=\"$(APP_VERSION)\" -D_FORTIFY_SOURCE=2
 
 #---------------------------------------------------------------------------------
-# options for libryazhenkahand
+# options for libultrahand
 #---------------------------------------------------------------------------------
 # For compiling Ryazhahand Overlay only
 IS_LAUNCHER_DIRECTIVE := 1
