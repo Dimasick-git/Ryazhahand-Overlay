@@ -95,15 +95,15 @@ def main():
         # Step 1: Create sdout folder structure
         print("Creating folder structure...")
         folders = [
-            "config/ultrahand",
-            "config/ultrahand/downloads",
-            "config/ultrahand/expansion",
-            "config/ultrahand/flags",
-            "config/ultrahand/lang",
-            "config/ultrahand/notifications",
-            "config/ultrahand/payloads",
-            "config/ultrahand/themes",
-            "config/ultrahand/wallpapers",
+            "config/ryazhenkahand",
+            "config/ryazhenkahand/downloads",
+            "config/ryazhenkahand/expansion",
+            "config/ryazhenkahand/flags",
+            "config/ryazhenkahand/lang",
+            "config/ryazhenkahand/notifications",
+            "config/ryazhenkahand/payloads",
+            "config/ryazhenkahand/themes",
+            "config/ryazhenkahand/wallpapers",
             "switch/.overlays",
             "switch/.packages"
         ]
@@ -123,7 +123,7 @@ def main():
         
         # Step 3: Download nx-ovlloader.zip and nx-ovlloader+.zip for expansion folder
         print("Downloading nx-ovlloader packages for expansion folder...")
-        expansion_dir = sdout_dir / "config/ultrahand/expansion"
+        expansion_dir = sdout_dir / "config/ryazhenkahand/expansion"
         
         ovlloader_zip_dest = expansion_dir / "nx-ovlloader.zip"
         download_file(
@@ -138,25 +138,25 @@ def main():
         )
         
         # Step 4: Download and process Ryazhahand-Overlay
-        ultrahand_zip = Path(temp_dir) / "ultrahand-main.zip"
-        ultrahand_temp = Path(temp_dir) / "ultrahand_temp"
+        ryazhenkahand_zip = Path(temp_dir) / "ryazhenkahand-main.zip"
+        ryazhenkahand_temp = Path(temp_dir) / "ryazhenkahand_temp"
         
         download_file(
             "https://github.com/Dimasick-git/Ryazhahand-Overlay/archive/refs/heads/main.zip",
-            ultrahand_zip
+            ryazhenkahand_zip
         )
-        extract_zip(ultrahand_zip, ultrahand_temp)
+        extract_zip(ryazhenkahand_zip, ryazhenkahand_temp)
         
-        # Find the extracted folder (it will be Ultrahand-Overlay-main)
-        extracted_folders = [f for f in ultrahand_temp.iterdir() if f.is_dir()]
+        # Find the extracted folder (it will be Ryazhahand-Overlay-main)
+        extracted_folders = [f for f in ryazhenkahand_temp.iterdir() if f.is_dir()]
         if not extracted_folders:
-            raise Exception("Could not find extracted Ultrahand folder")
+            raise Exception("Could not find extracted Ryazhahand folder")
         
-        ultrahand_root = extracted_folders[0]
+        ryazhenkahand_root = extracted_folders[0]
         
         # Step 5: Copy lang files
-        lang_source = ultrahand_root / "lang"
-        lang_dest = sdout_dir / "config/ultrahand/lang"
+        lang_source = ryazhenkahand_root / "lang"
+        lang_dest = sdout_dir / "config/ryazhenkahand/lang"
         
         if lang_source.exists():
             print("Copying language files...")
@@ -164,19 +164,19 @@ def main():
                 shutil.copy2(json_file, lang_dest)
                 print(f"Copied {json_file.name}")
         
-        # Step 6: Copy ultrahand_updater.bin
-        payload_source = ultrahand_root / "payloads/ultrahand_updater.bin"
-        payload_dest = sdout_dir / "config/ultrahand/payloads"
+        # Step 6: Copy ryazhenkahand_updater.bin
+        payload_source = ryazhenkahand_root / "payloads/ryazhenkahand_updater.bin"
+        payload_dest = sdout_dir / "config/ryazhenkahand/payloads"
         
         if payload_source.exists():
             print("Copying payload file...")
             shutil.copy2(payload_source, payload_dest)
-            print(f"Copied ultrahand_updater.bin")
+            print(f"Copied ryazhenkahand_updater.bin")
         
         # Step 7: Copy theme files from the downloaded repository
         print("Copying theme files...")
-        theme_source = ultrahand_root / "themes"
-        theme_dest = sdout_dir / "config/ultrahand/themes"
+        theme_source = ryazhenkahand_root / "themes"
+        theme_dest = sdout_dir / "config/ryazhenkahand/themes"
         theme_files = ["ultra.ini", "ultra-blue.ini"]
         
         if theme_source.exists():
@@ -188,7 +188,7 @@ def main():
                 else:
                     print(f"Warning: {theme_file} not found in themes folder")
         else:
-            print("Warning: themes folder not found in Ultrahand repository")
+            print("Warning: themes folder not found in Ryazhahand repository")
         
         # Step 8: Copy ovlmenu.ovl
         print("Copying ovlmenu.ovl...")
