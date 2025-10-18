@@ -6894,28 +6894,32 @@ public:
 
         unpackDeviceInfo();
 
+   
+        
         // read commands from root package's boot_package.ini
-        if (firstBoot) {
-            // Delete all pending notification jsons
-            {
-                std::lock_guard<std::mutex> jsonLock(tsl::notificationJsonMutex);
-                deleteFileOrDirectoryByPattern(ult::NOTIFICATIONS_PATH + "*.notify");
-            }
+if (firstBoot) {
+    // Удаление всех .notify JSON-ов
+    {
+        std::lock_guard<std::mutex> jsonLock(tsl::notificationJsonMutex);
+        deleteFileOrDirectoryByPattern(ult::NOTIFICATIONS_PATH + "*.notify");
+    }
 
-            // Load and execute "initial_boot" commands if they exist
-            executeIniCommands(PACKAGE_PATH + BOOT_PACKAGE_FILENAME, "boot");
-            
-            const bool disableFuseReload = (parseValueFromIniSection(FUSE_DATA_INI_PATH, FUSE_STR, "disable_reload") == TRUE_STR);
-            if (!disableFuseReload)
-                deleteFileOrDirectory(FUSE_DATA_INI_PATH);
+    // Загрузка и выполнение команд из секции "boot"
+    executeIniCommands(PACKAGE_PATH + BOOT_PACKAGE_FILENAME, "boot");
 
-            // initialize expanded memory on boot
-            setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? TRUE_STR : FALSE_STR);
+    // Проверка флага disable_reload
+    const bool disableFuseReload = (parseValueFromIniSection(FUSE_DATA_INI_PATH, ult::FUSE_STR, "disable_reload") == ult::TRUE_STR);
+    if (!disableFuseReload)
+        deleteFileOrDirectory(FUSE_DATA_INI_PATH);
 
-            if (tsl::notification)
-                tsl::notification->show(RYAZHAHAND_HAS_STARTED);
-            
-        }
+    // Инициализация расширенной памяти
+    setIniFileValue(ult::ULTRAHAND_CONFIG_INI_PATH, ult::ULTRAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? ult::TRUE_STR : ult::FALSE_STR);
+
+    // Показ уведомления о запуске Ryazhahand
+    if (tsl::notification)
+        tsl::notification->show(ult::RYAZHAHAND_HAS_STARTED);
+}
+
         
         
         //startInterpreterThread();
@@ -7119,5 +7123,6 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
 
 
