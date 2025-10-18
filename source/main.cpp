@@ -6917,7 +6917,7 @@ if (firstBoot) {
 
     // Показ уведомления о запуске Ryazhahand
     if (tsl::notification)
-        tsl::notification->show(ult::RYAZHAHAND_HAS_STARTED);
+        tsl::notification->show(ult::ULTRAHAND_HAS_STARTED);
 }
 
         
@@ -7123,6 +7123,7 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
 
 
 
