@@ -1,8 +1,8 @@
 /********************************************************************************
  * File: main.cpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description: 
- *   This file contains the main program logic for the Ultrahand Overlay project,
+ *   This file contains the main program logic for the Ryazhahand Overlay project,
  *   an overlay executor designed for versatile crafting and management of overlays.
  *   It defines various functions, menu structures, and interaction logic to
  *   facilitate the seamless execution and customization of overlays within the project.
@@ -14,13 +14,13 @@
  *   - Toggles for enabling/disabling specific commands.
  * 
  *   For the latest updates and contributions, visit the project's GitHub repository.
- *   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
  * 
  *   Note: Please be aware that this notice cannot be altered or removed. It is a part
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 ppkantorski
+ *  Copyright (c) 2025 Dimasick-git
  ********************************************************************************/
 
 #define NDEBUG
@@ -6913,7 +6913,7 @@ public:
             setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? TRUE_STR : FALSE_STR);
 
             if (tsl::notification)
-                tsl::notification->show(ULTRAHAND_HAS_STARTED);
+                tsl::notification->show(RYAZHAHAND_HAS_STARTED);
             
         }
         
@@ -7119,3 +7119,4 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
