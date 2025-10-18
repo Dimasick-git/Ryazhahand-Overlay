@@ -1,6 +1,6 @@
 """
 File: pchtxt2ips.py
-Author: ppkantorski
+Author: Dimasick-git
 Description:
     This script converts a .pchtxt file to an .ips file. It reads the contents
     of the .pchtxt file, extracts the address-value pairs, and generates an .ips
@@ -13,7 +13,7 @@ Description:
     of the project's documentation and must remain intact.
     
 Licensed under CC-BY-NC-SA-4.0
-Copyright (c) 2024 ppkantorski
+Copyright (c) 2025 Dimasick-git
 """
 
 import os
