@@ -64,7 +64,7 @@ INCLUDES	:= source common include
 NO_ICON		:= 1
 
 # This location should reflect where you place the libryazhenkahand directory (lib can vary between projects).
-include ${TOPDIR}/lib/libryazhenkahand/ryazhenkahand.mk
+include ${TOPDIR}/lib/libultrahand/ryazhenkahand.mk
 
 #---------------------------------------------------------------------------------
 # options for code generation
