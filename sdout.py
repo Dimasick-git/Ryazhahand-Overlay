@@ -3,8 +3,8 @@
 #
 # Description:
 #   This script automates the creation of `sdout.zip`, a complete deployment
-#   package for Ultrahand Overlay. It downloads, organizes, and assembles
-#   Ultrahand Overlay components, nx-ovlloader, and any additional files into
+#   package for Ryazhahand Overlay. It downloads, organizes, and assembles
+#   Ryazhahand Overlay components, nx-ovlloader, and any additional files into
 #   a proper SD card structure ready for use.
 #
 #   The script automatically creates the required folder structure, downloads
@@ -12,11 +12,11 @@
 #   into `sdout.zip` — which can be extracted directly to the root of an SD card.
 #
 # Related Projects:
-#   - Ultrahand Overlay: https://github.com/ppkantorski/Ultrahand-Overlay
-#   - nx-ovlloader: https://github.com/ppkantorski/nx-ovlloader
+#   - Ryazhahand Overlay: https://github.com/Dimasick-git/Ryazhahand-Overlay
+#   - nx-ovlloader: https://github.com/Dimasick-git/nx-ovlloader
 #
 #   For the latest updates or to contribute, visit the GitHub repository:
-#   https://github.com/ppkantorski/Ultrahand-Overlay
+#   https://github.com/Dimasick-git/Ryazhahand-Overlay
 #
 # Note:
 #   This notice is part of the official project documentation and must not
@@ -28,7 +28,7 @@
 #   - `ovlmenu.ovl` file in the script directory
 #
 # Licensed under GPLv2
-# Copyright (c) 2025 ppkantorski
+# Copyright (c) 2025 Dimasick-git
 ##################################################################################
 
 import os
@@ -137,12 +137,12 @@ def main():
             ovlloader_plus_zip_dest
         )
         
-        # Step 4: Download and process Ultrahand-Overlay
+        # Step 4: Download and process Ryazhahand-Overlay
         ultrahand_zip = Path(temp_dir) / "ultrahand-main.zip"
         ultrahand_temp = Path(temp_dir) / "ultrahand_temp"
         
         download_file(
-            "https://github.com/ppkantorski/Ultrahand-Overlay/archive/refs/heads/main.zip",
+            "https://github.com/Dimasick-git/Ryazhahand-Overlay/archive/refs/heads/main.zip",
             ultrahand_zip
         )
         extract_zip(ultrahand_zip, ultrahand_temp)
