@@ -1,5 +1,5 @@
-main.cpp
 payload.cpp
+main.cpp
 rtc_r2p.cpp
 util.cpp
 debug_funcs.cpp
