@@ -11,13 +11,3 @@ ini_funcs.cpp
 json_funcs.cpp
 list_funcs.cpp
 mod_funcs.cpp
-path_funcs.cpp
-string_funcs.cpp
-tsl_utils.cpp
-ams_bpc.c
-reboot_to_payload.c
-cJSON.c
-built ... ovlmenu.nacp
-linking ovlmenu.elf
-built ... ovlmenu.ovl
-Ryazhahand signature has been added.
