@@ -765,7 +765,7 @@ public:
             addListItem(list, MISCELLANEOUS, DROPDOWN_SYMBOL, "miscMenu");
         } else if (dropdownSelection == KEY_COMBO_STR) {
             addHeader(list, KEY_COMBO);
-            std::string defaultCombo = parseValueFromIniSection(_CONFIG_INI_PATH, RYAZHAHAND_PROJECT_NAME, KEY_COMBO_STR);
+            std::string defaultCombo = parseValueFromIniSection(RYAZHAHAND_CONFIG_INI_PATH, RYAZHAHAND_PROJECT_NAME, KEY_COMBO_STR);
             trim(defaultCombo);
             handleSelection(list, defaultCombos, defaultCombo, KEY_COMBO_STR, KEY_COMBO_STR);
         } else if (dropdownSelection == "languageMenu") {
