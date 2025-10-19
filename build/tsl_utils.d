@@ -1,5 +1,15 @@
-payload.o: C:/Users/dimas/Ryazhahand-Overlay/common/payload.cpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/payload.hpp \
+tsl_utils.o: \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/source/tsl_utils.cpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/tsl_utils.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ultra.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/list_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/json_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/common/cJSON.h \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -172,17 +182,34 @@ payload.o: C:/Users/dimas/Ryazhahand-Overlay/common/payload.cpp \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h \
- C:/Users/dimas/Ryazhahand-Overlay/common/util.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h \
- C:/Users/dimas/Ryazhahand-Overlay/common/ams_bpc.h \
  C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ini_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp
-C:/Users/dimas/Ryazhahand-Overlay/common/payload.hpp:
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/hex_funcs.hpp \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/download_funcs.hpp \
+ C:/devkitPro/portlibs/switch/include/curl/curl.h \
+ C:/devkitPro/portlibs/switch/include/curl/curlver.h \
+ C:/devkitPro/portlibs/switch/include/curl/system.h \
+ C:/devkitPro/libnx/include/sys/socket.h \
+ C:/devkitPro/libnx/include/sys/_iovec.h \
+ C:/devkitPro/libnx/include/sys/_sockaddr_storage.h \
+ C:/devkitPro/portlibs/switch/include/curl/easy.h \
+ C:/devkitPro/portlibs/switch/include/curl/multi.h \
+ C:/devkitPro/portlibs/switch/include/curl/curl.h \
+ C:/devkitPro/portlibs/switch/include/curl/urlapi.h \
+ C:/devkitPro/portlibs/switch/include/zlib.h \
+ C:/devkitPro/portlibs/switch/include/zconf.h \
+ C:/devkitPro/portlibs/switch/include/minizip/unzip.h \
+ C:/devkitPro/portlibs/switch/include/minizip/ioapi.h \
+ C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/mod_funcs.hpp
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/tsl_utils.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ultra.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/list_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/json_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/common/cJSON.h:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
@@ -355,13 +382,21 @@ C:/devkitPro/libnx/include/switch/crypto/cmac.h:
 C:/devkitPro/libnx/include/switch/crypto/sha1.h:
 C:/devkitPro/libnx/include/switch/crypto/hmac.h:
 C:/devkitPro/libnx/include/switch/crypto/crc.h:
-C:/Users/dimas/Ryazhahand-Overlay/common/util.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h:
-C:/Users/dimas/Ryazhahand-Overlay/common/ams_bpc.h:
 C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ini_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/hex_funcs.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/download_funcs.hpp:
+C:/devkitPro/portlibs/switch/include/curl/curl.h:
+C:/devkitPro/portlibs/switch/include/curl/curlver.h:
+C:/devkitPro/portlibs/switch/include/curl/system.h:
+C:/devkitPro/libnx/include/sys/socket.h:
+C:/devkitPro/libnx/include/sys/_iovec.h:
+C:/devkitPro/libnx/include/sys/_sockaddr_storage.h:
+C:/devkitPro/portlibs/switch/include/curl/easy.h:
+C:/devkitPro/portlibs/switch/include/curl/multi.h:
+C:/devkitPro/portlibs/switch/include/curl/curl.h:
+C:/devkitPro/portlibs/switch/include/curl/urlapi.h:
+C:/devkitPro/portlibs/switch/include/zlib.h:
+C:/devkitPro/portlibs/switch/include/zconf.h:
+C:/devkitPro/portlibs/switch/include/minizip/unzip.h:
+C:/devkitPro/portlibs/switch/include/minizip/ioapi.h:
+C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/mod_funcs.hpp:

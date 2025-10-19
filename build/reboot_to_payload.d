@@ -1,5 +1,6 @@
-payload.o: C:/Users/dimas/Ryazhahand-Overlay/common/payload.cpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/payload.hpp \
+reboot_to_payload.o: \
+ C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.c \
+ C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -171,18 +172,8 @@ payload.o: C:/Users/dimas/Ryazhahand-Overlay/common/payload.cpp \
  C:/devkitPro/libnx/include/switch/crypto/cmac.h \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
- C:/devkitPro/libnx/include/switch/crypto/crc.h \
- C:/Users/dimas/Ryazhahand-Overlay/common/util.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h \
- C:/Users/dimas/Ryazhahand-Overlay/common/ams_bpc.h \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ini_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp \
- C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp
-C:/Users/dimas/Ryazhahand-Overlay/common/payload.hpp:
+ C:/devkitPro/libnx/include/switch/crypto/crc.h
+C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
@@ -355,13 +346,3 @@ C:/devkitPro/libnx/include/switch/crypto/cmac.h:
 C:/devkitPro/libnx/include/switch/crypto/sha1.h:
 C:/devkitPro/libnx/include/switch/crypto/hmac.h:
 C:/devkitPro/libnx/include/switch/crypto/crc.h:
-C:/Users/dimas/Ryazhahand-Overlay/common/util.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/common/reboot_to_payload.h:
-C:/Users/dimas/Ryazhahand-Overlay/common/ams_bpc.h:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/ini_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/get_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/debug_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/string_funcs.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/global_vars.hpp:
-C:/Users/dimas/Ryazhahand-Overlay/lib/libRYAZHAHAND/libultra/include/path_funcs.hpp:

@@ -1,6 +1,5 @@
-rtc_r2p.o: \
- C:/Users/dimas/Ryazhahand-Overlay/Ryazhahand-Overlay/common/rtc_r2p.cpp \
- C:/Users/dimas/Ryazhahand-Overlay/Ryazhahand-Overlay/common/rtc_r2p.hpp \
+rtc_r2p.o: C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.cpp \
+ C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -173,7 +172,7 @@ rtc_r2p.o: \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h
-C:/Users/dimas/Ryazhahand-Overlay/Ryazhahand-Overlay/common/rtc_r2p.hpp:
+C:/Users/dimas/Ryazhahand-Overlay/common/rtc_r2p.hpp:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
