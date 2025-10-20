@@ -20,7 +20,7 @@
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2025 Dimasick-git
+ *  Copyright (c) 2024 Dimasick-git
  ********************************************************************************/
 
 #define NDEBUG
@@ -317,7 +317,7 @@ class MainMenu;
 
 static std::string lastSelectedListItemFooter;
 
-class RYAZHAHANDSettingsMenu : public tsl::Gui {
+class RyazhahandSettingsMenu : public tsl::Gui {
 private:
     std::string entryName, entryMode, overlayName, dropdownSelection, settingsIniPath;
     bool isInSection = false, inQuotes = false, isFromMainMenu = false;
@@ -352,7 +352,7 @@ private:
                     }
                 }
 
-                tsl::changeTo<RYAZHAHANDSettingsMenu>(targetMenu);
+                tsl::changeTo<RyazhahandSettingsMenu>(targetMenu);
                 //selectedListItem = nullptr;
                 selectedListItem = listItem;
                 return true;
@@ -684,11 +684,11 @@ private:
     std::vector<std::string> filesList;
     
 public:
-    RYAZHAHANDSettingsMenu(const std::string& selection = "") : dropdownSelection(selection) {
+    RyazhahandSettingsMenu(const std::string& selection = "") : dropdownSelection(selection) {
         lastSelectedListItemFooter = "";
     }
 
-    ~RYAZHAHANDSettingsMenu() {
+    ~RyazhahandSettingsMenu() {
         lastSelectedListItemFooter = "";
     }
 
@@ -709,8 +709,8 @@ public:
             addHeader(list, MAIN_SETTINGS);
             
             // Load INI once and extract all values
-            auto RYAZHAHANDIniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
-            auto sectionIt = RYAZHAHANDIniData.find(RYAZHAHAND_PROJECT_NAME);
+            auto ryazhahandIniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
+            auto sectionIt = ryazhahandIniData.find(RYAZHAHAND_PROJECT_NAME);
             
             // Extract all values with defaults
             std::string defaultLang = "";
@@ -718,7 +718,7 @@ public:
             std::string currentTheme = "";
             std::string currentWallpaper = "";
             
-            if (sectionIt != RYAZHAHANDIniData.end()) {
+            if (sectionIt != ryazhahandIniData.end()) {
                 auto langIt = sectionIt->second.find(DEFAULT_LANG_STR);
                 if (langIt != sectionIt->second.end()) {
                     defaultLang = langIt->second;
@@ -825,7 +825,7 @@ public:
                         //executeCommands({
                         //    {"refresh-to", "", CHECKMARK_SYMBOL, FALSE_STR}
                         //});
-                        tsl::swapTo<RYAZHAHANDSettingsMenu>("languageMenu");
+                        tsl::swapTo<RyazhahandSettingsMenu>("languageMenu");
 
                         return true;
                     }
@@ -845,10 +845,10 @@ public:
             addUpdateButton(list, UPDATE_LANGUAGES, RYAZHAHAND_REPO_URL + "releases/latest/download/lang.zip", DOWNLOADS_PATH+"lang.zip", LANG_PATH, fullVersionLabel);
 
             PackageHeader overlayHeader;
-            overlayHeader.title = "RYAZHAHAND Overlay";
+            overlayHeader.title = "Ryazhahand Overlay";
             overlayHeader.version = APP_VERSION;
             overlayHeader.creator = "Dimasick-git";
-            overlayHeader.about = "RYAZHAHAND Overlay is a versatile tool that enables you to create and share custom command-based packages.";
+            overlayHeader.about = "Ryazhahand Overlay is a versatile tool that enables you to create and share custom command-based packages.";
             overlayHeader.credits = "Special thanks to B3711, ComplexNarrative, ssky, MasaGratoR, meha, WerWolv, HookedBehemoth and many others. ♥";
             addPackageInfo(list, overlayHeader, OVERLAY_STR);
             overlayHeader.clear();
@@ -1135,12 +1135,12 @@ public:
 
         } else if (dropdownSelection == "miscMenu") {
             // Load INI section once instead of 14 separate file reads
-            auto RYAZHAHANDSection = getKeyValuePairsFromSection(RYAZHAHAND_CONFIG_INI_PATH, RYAZHAHAND_PROJECT_NAME);
+            auto ryazhahandSection = getKeyValuePairsFromSection(RYAZHAHAND_CONFIG_INI_PATH, RYAZHAHAND_PROJECT_NAME);
             
             // Helper lambda to safely get boolean values
             auto getBoolValue = [&](const std::string& key, bool defaultValue = false) -> bool {
-                auto it = RYAZHAHANDSection.find(key);
-                return (it != RYAZHAHANDSection.end()) ? (it->second == TRUE_STR) : defaultValue;
+                auto it = ryazhahandSection.find(key);
+                return (it != ryazhahandSection.end()) ? (it->second == TRUE_STR) : defaultValue;
             };
             
             addHeader(list, FEATURES);
@@ -1162,10 +1162,10 @@ public:
             createToggleListItem(list, SELECTION_TEXT, useSelectionText, "selection_text", false, true);
             useSelectionValue = getBoolValue("selection_value", false); // FALSE_STR default
             createToggleListItem(list, SELECTION_VALUE, useSelectionValue, "selection_value", false, true);
-            useLibRYAZHAHANDTitles = getBoolValue("libRYAZHAHAND_titles", false); // FALSE_STR default
-            createToggleListItem(list, LIBRYAZHAHAND_TITLES, useLibRYAZHAHANDTitles, "libRYAZHAHAND_titles", false, true);
-            useLibRYAZHAHANDVersions = getBoolValue("libRYAZHAHAND_versions", true); // TRUE_STR default
-            createToggleListItem(list, LIBRYAZHAHAND_VERSIONS, useLibRYAZHAHANDVersions, "libRYAZHAHAND_versions", false, true);
+            useLibRYAZHAHANDTitles = getBoolValue("libryazhahand_titles", false); // FALSE_STR default
+            createToggleListItem(list, LIBRYAZHAHAND_TITLES, useLibRYAZHAHANDTitles, "libryazhahand_titles", false, true);
+            useLibRYAZHAHANDVersions = getBoolValue("libryazhahand_versions", true); // TRUE_STR default
+            createToggleListItem(list, LIBRYAZHAHAND_VERSIONS, useLibRYAZHAHANDVersions, "libryazhahand_versions", false, true);
             usePackageTitles = getBoolValue("package_titles", false); // TRUE_STR default
             createToggleListItem(list, PACKAGE_TITLES, usePackageTitles, "package_titles", false, true);
             usePackageVersions = getBoolValue("package_versions", true); // TRUE_STR default
@@ -1276,8 +1276,8 @@ public:
         }
 
         //if (refreshPage.load(acquire)) {
-        //    //tsl::goBack();tsl::changeTo<RYAZHAHANDSettingsMenu>(targetMenu);
-        //    tsl::swapTo<RYAZHAHANDSettingsMenu>("languageMenu");
+        //    //tsl::goBack();tsl::changeTo<RyazhahandSettingsMenu>(targetMenu);
+        //    tsl::swapTo<RyazhahandSettingsMenu>("languageMenu");
         //    refreshPage.store(false, release);
         //}
         
@@ -1330,7 +1330,7 @@ public:
                 
                 if (reloadMenu2) {
                     //tsl::goBack(2);
-                    tsl::swapTo<RYAZHAHANDSettingsMenu>(SwapDepth(2));
+                    tsl::swapTo<RyazhahandSettingsMenu>(SwapDepth(2));
                     reloadMenu2 = false;
                 } else {
                     tsl::goBack();
@@ -2335,7 +2335,7 @@ public:
 
 
         auto* rootFrame = new tsl::elm::OverlayFrame(packageName,
-           !lastPackageHeader.empty() ? lastPackageHeader + "?RYAZHAHAND Script" : (packageVersion.empty() ? CAPITAL_RYAZHAHAND_PROJECT_NAME + " Script" : packageVersion + " "+DIVIDER_SYMBOL+" " + CAPITAL_RYAZHAHAND_PROJECT_NAME + " Script"),
+           !lastPackageHeader.empty() ? lastPackageHeader + "?Ryazhahand Script" : (packageVersion.empty() ? CAPITAL_RYAZHAHAND_PROJECT_NAME + " Script" : packageVersion + " "+DIVIDER_SYMBOL+" " + CAPITAL_RYAZHAHAND_PROJECT_NAME + " Script"),
            noClickableItems);
         list->disableCaching();
         rootFrame->setContent(list);
@@ -3389,7 +3389,7 @@ public:
         } else {
            rootFrame = new tsl::elm::OverlayFrame(
                (!packageHeader.title.empty()) ? packageHeader.title : (!packageRootLayerTitle.empty() ? packageRootLayerTitle : getNameFromPath(filePath)),
-               !lastPackageHeader.empty() ? lastPackageHeader : (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + "  RYAZHAHAND Package" : "RYAZHAHAND Package"),
+               !lastPackageHeader.empty() ? lastPackageHeader : (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + "  Ryazhahand Package" : "Ryazhahand Package"),
                noClickableItems,
                "",
                packageHeader.color);
@@ -5197,7 +5197,7 @@ public:
 
         auto* rootFrame = new tsl::elm::OverlayFrame(
            (!packageHeader.title.empty()) ? packageHeader.title : (!packageRootLayerTitle.empty() ? packageRootLayerTitle : getNameFromPath(packagePath)),
-           ((!pageHeader.empty() && packageHeader.show_version != TRUE_STR) ? pageHeader: (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + " "+DIVIDER_SYMBOL+" RYAZHAHAND Package" : "RYAZHAHAND Package")),
+           ((!pageHeader.empty() && packageHeader.show_version != TRUE_STR) ? pageHeader: (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + " "+DIVIDER_SYMBOL+" Ryazhahand Package" : "Ryazhahand Package")),
            noClickableItems,
            "",
            packageHeader.color,
@@ -5763,25 +5763,25 @@ public:
         // Handle hidden mode flags
         {
             auto iniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
-            auto& RYAZHAHANDSection = iniData[RYAZHAHAND_PROJECT_NAME];
+            auto& ryazhahandSection = iniData[RYAZHAHAND_PROJECT_NAME];
             bool needsUpdate = false;
             
-            auto overlayIt = RYAZHAHANDSection.find(IN_HIDDEN_OVERLAY_STR);
-            if (overlayIt != RYAZHAHANDSection.end() && overlayIt->second == TRUE_STR) {
+            auto overlayIt = ryazhahandSection.find(IN_HIDDEN_OVERLAY_STR);
+            if (overlayIt != ryazhahandSection.end() && overlayIt->second == TRUE_STR) {
                 inMainMenu.store(false, std::memory_order_release);
                 inHiddenMode = true;
                 hiddenMenuMode = OVERLAYS_STR;
                 skipJumpReset.store(true, release);
-                RYAZHAHANDSection[IN_HIDDEN_OVERLAY_STR] = FALSE_STR;
+                ryazhahandSection[IN_HIDDEN_OVERLAY_STR] = FALSE_STR;
                 needsUpdate = true;
             } else {
-                auto packageIt = RYAZHAHANDSection.find(IN_HIDDEN_PACKAGE_STR);
-                if (packageIt != RYAZHAHANDSection.end() && packageIt->second == TRUE_STR) {
+                auto packageIt = ryazhahandSection.find(IN_HIDDEN_PACKAGE_STR);
+                if (packageIt != ryazhahandSection.end() && packageIt->second == TRUE_STR) {
                     inMainMenu.store(false, std::memory_order_release);
                     inHiddenMode = true;
                     hiddenMenuMode = PACKAGES_STR;
                     skipJumpReset.store(true, release);
-                    RYAZHAHANDSection[IN_HIDDEN_PACKAGE_STR] = FALSE_STR;
+                    ryazhahandSection[IN_HIDDEN_PACKAGE_STR] = FALSE_STR;
                     needsUpdate = true;
                 }
             }
@@ -5886,7 +5886,7 @@ public:
                 
                 auto it = overlaysIniData.find(overlayFileName);
                 if (it == overlaysIniData.end()) {
-                    const auto& [result, overlayName, overlayVersion, usingLibRYAZHAHAND] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
+                    const auto& [result, overlayName, overlayVersion, usingLibRyazhahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
                     if (result != ResultSuccess) continue;
     
                     auto& overlaySection = overlaysIniData[overlayFileName];
@@ -5899,13 +5899,13 @@ public:
                     overlaySection["custom_version"] = "";
                     overlaysNeedsUpdate = true;
                     
-                    overlaySet.insert("0020" + overlayName + ":" + overlayName + ":" + overlayVersion + ":" + overlayFileName + ":" + (usingLibRYAZHAHAND ? "1" : "0"));
+                    overlaySet.insert("0020" + overlayName + ":" + overlayName + ":" + overlayVersion + ":" + overlayFileName + ":" + (usingLibRyazhahand ? "1" : "0"));
                 } else {
                     const std::string hide = getValueOrDefault(it->second, HIDE_STR, FALSE_STR);
                     if (hide == TRUE_STR) drawHiddenTab = true;
                     
                     if ((!inHiddenMode && hide == FALSE_STR) || (inHiddenMode && hide == TRUE_STR)) {
-                        const auto& [result, overlayName, overlayVersion, usingLibRYAZHAHAND] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
+                        const auto& [result, overlayName, overlayVersion, usingLibRyazhahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
                         if (result != ResultSuccess) continue;
                         
                         const std::string priority = (it->second.find(PRIORITY_STR) != it->second.end()) ? formatPriorityString(it->second[PRIORITY_STR]) : "0020";
@@ -5916,7 +5916,7 @@ public:
                         const std::string assignedName = !customName.empty() ? customName : overlayName;
                         const std::string assignedVersion = !customVersion.empty() ? customVersion : overlayVersion;
                         
-                        const std::string baseInfo = priority + assignedName + ":" + assignedName + ":" + assignedVersion + ":" + overlayFileName + ":" + (usingLibRYAZHAHAND ? "1" : "0");
+                        const std::string baseInfo = priority + assignedName + ":" + assignedName + ":" + assignedVersion + ":" + overlayFileName + ":" + (usingLibRyazhahand ? "1" : "0");
                         overlaySet.insert((starred == TRUE_STR) ? "-1:" + baseInfo : baseInfo);
                     }
                 }
@@ -5931,17 +5931,17 @@ public:
         overlayFiles.shrink_to_fit();
         
         std::string overlayFileName, overlayName, overlayVersion;
-        bool usingLibRYAZHAHAND;
+        bool usingLibRyazhahand;
 
         // Process overlay set and add to list
         for (const auto& taintedOverlayFileName : overlaySet) {
             overlayFileName = overlayName = overlayVersion = "";
             const bool overlayStarred = (taintedOverlayFileName.substr(0, 3) == "-1:");
-            usingLibRYAZHAHAND = false;
+            usingLibRyazhahand = false;
             
             const size_t lastColonPos = taintedOverlayFileName.rfind(':');
             if (lastColonPos != std::string::npos) {
-                usingLibRYAZHAHAND = (taintedOverlayFileName.substr(lastColonPos + 1) == "1");
+                usingLibRyazhahand = (taintedOverlayFileName.substr(lastColonPos + 1) == "1");
                 const size_t secondLastColonPos = taintedOverlayFileName.rfind(':', lastColonPos - 1);
                 if (secondLastColonPos != std::string::npos) {
                     overlayFileName = taintedOverlayFileName.substr(secondLastColonPos + 1, lastColonPos - secondLastColonPos - 1);
@@ -5969,9 +5969,9 @@ public:
             
             if (!hideOverlayVersions) {
                 listItem->setValue(overlayVersion, true);
-                listItem->setValueColor(usingLibRYAZHAHAND ? (useLibRYAZHAHANDVersions ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor) : tsl::overlayVersionTextColor);
+                listItem->setValueColor(usingLibRyazhahand ? (useLibRYAZHAHANDVersions ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor) : tsl::overlayVersionTextColor);
             }
-            listItem->setTextColor(usingLibRYAZHAHAND ? (useLibRYAZHAHANDTitles ? tsl::ultOverlayTextColor : tsl::overlayTextColor) : tsl::overlayTextColor);
+            listItem->setTextColor(usingLibRyazhahand ? (useLibRYAZHAHANDTitles ? tsl::ultOverlayTextColor : tsl::overlayTextColor) : tsl::overlayTextColor);
     
             if (overlayFileName == g_overlayFilename) {
                 jumpItemName = newOverlayName;
@@ -5998,9 +5998,9 @@ public:
     
                     {
                         auto iniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
-                        auto& RYAZHAHANDSection = iniData[RYAZHAHAND_PROJECT_NAME];
-                        if (inHiddenMode) RYAZHAHANDSection[IN_HIDDEN_OVERLAY_STR] = TRUE_STR;
-                        RYAZHAHANDSection[IN_OVERLAY_STR] = TRUE_STR;
+                        auto& ryazhahandSection = iniData[RYAZHAHAND_PROJECT_NAME];
+                        if (inHiddenMode) ryazhahandSection[IN_HIDDEN_OVERLAY_STR] = TRUE_STR;
+                        ryazhahandSection[IN_OVERLAY_STR] = TRUE_STR;
                         saveIniFileData(RYAZHAHAND_CONFIG_INI_PATH, iniData);
                     }
     
@@ -6465,13 +6465,13 @@ public:
                 // Load INI data once and modify in memory
                 {
                     auto iniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
-                    auto& RYAZHAHANDSection = iniData[RYAZHAHAND_PROJECT_NAME];
+                    auto& ryazhahandSection = iniData[RYAZHAHAND_PROJECT_NAME];
                     
                     // Make all changes in memory
                     if (menuMode == PACKAGES_STR) {
-                        RYAZHAHANDSection["to_packages"] = FALSE_STR;
+                        ryazhahandSection["to_packages"] = FALSE_STR;
                     }
-                    RYAZHAHANDSection[IN_OVERLAY_STR] = TRUE_STR;
+                    ryazhahandSection[IN_OVERLAY_STR] = TRUE_STR;
                     
                     // Write back once
                     saveIniFileData(RYAZHAHAND_CONFIG_INI_PATH, iniData);
@@ -6590,7 +6590,7 @@ public:
     
                 if (!isTouching && (((keysDown & SYSTEM_SETTINGS_KEY && !(keysHeld & ~SYSTEM_SETTINGS_KEY & ALL_KEYS_MASK))) || simulatedMenu.exchange(false, acq_rel))) {
                     inMainMenu.store(false, std::memory_order_release);
-                    tsl::changeTo<RYAZHAHANDSettingsMenu>();
+                    tsl::changeTo<RyazhahandSettingsMenu>();
                     return true;
                 }
             }
@@ -6613,11 +6613,11 @@ public:
                     {
                         // Load INI data once and modify in memory
                         auto iniData = getParsedDataFromIniFile(RYAZHAHAND_CONFIG_INI_PATH);
-                        auto& RYAZHAHANDSection = iniData[RYAZHAHAND_PROJECT_NAME];
+                        auto& ryazhahandSection = iniData[RYAZHAHAND_PROJECT_NAME];
                         
                         // Clear both values in memory
-                        RYAZHAHANDSection[IN_HIDDEN_OVERLAY_STR] = "";
-                        RYAZHAHANDSection[IN_HIDDEN_PACKAGE_STR] = "";
+                        ryazhahandSection[IN_HIDDEN_OVERLAY_STR] = "";
+                        ryazhahandSection[IN_HIDDEN_PACKAGE_STR] = "";
                         
                         // Write back once
                         saveIniFileData(RYAZHAHAND_CONFIG_INI_PATH, iniData);
@@ -6717,24 +6717,24 @@ void initializeSettingsAndDirectories() {
     }
 
 
-    auto& RYAZHAHANDSection = iniData[RYAZHAHAND_PROJECT_NAME];
+    auto& ryazhahandSection = iniData[RYAZHAHAND_PROJECT_NAME];
     
     // Efficient lambdas that modify in-memory data and track updates
     auto setDefaultValue = [&](const std::string& section, const std::string& defaultValue, bool& settingFlag) {
-        if (RYAZHAHANDSection.count(section) > 0) {
-            settingFlag = (RYAZHAHANDSection.at(section) == TRUE_STR);
+        if (ryazhahandSection.count(section) > 0) {
+            settingFlag = (ryazhahandSection.at(section) == TRUE_STR);
         } else {
-            RYAZHAHANDSection[section] = defaultValue;
+            ryazhahandSection[section] = defaultValue;
             settingFlag = (defaultValue == TRUE_STR);
             needsUpdate = true;
         }
     };
     
     auto setDefaultStrValue = [&](const std::string& section, const std::string& defaultValue, std::string& settingValue) {
-        if (RYAZHAHANDSection.count(section) > 0) {
-            settingValue = RYAZHAHANDSection.at(section);
+        if (ryazhahandSection.count(section) > 0) {
+            settingValue = ryazhahandSection.at(section);
         } else {
-            RYAZHAHANDSection[section] = defaultValue;
+            ryazhahandSection[section] = defaultValue;
             settingValue = defaultValue;
             needsUpdate = true;
         }
@@ -6752,8 +6752,8 @@ void initializeSettingsAndDirectories() {
     setDefaultValue("selection_bg", TRUE_STR, useSelectionBG);
     setDefaultValue("selection_text", FALSE_STR, useSelectionText);
     setDefaultValue("selection_value", FALSE_STR, useSelectionValue);
-    setDefaultValue("libRYAZHAHAND_titles", FALSE_STR, useLibRYAZHAHANDTitles);
-    setDefaultValue("libRYAZHAHAND_versions", TRUE_STR, useLibRYAZHAHANDVersions);
+    setDefaultValue("libryazhahand_titles", FALSE_STR, useLibRYAZHAHANDTitles);
+    setDefaultValue("libryazhahand_versions", TRUE_STR, useLibRYAZHAHANDVersions);
     setDefaultValue("package_titles", FALSE_STR, usePackageTitles);
     setDefaultValue("package_versions", TRUE_STR, usePackageVersions);
     setDefaultValue("memory_expansion", FALSE_STR, useMemoryExpansion);
@@ -6767,69 +6767,69 @@ void initializeSettingsAndDirectories() {
     setDefaultStrValue(DEFAULT_LANG_STR, defaultLang, defaultLang);
 
     // Ensure certain settings are set in the INI file if they don't exist (in memory)
-    if (RYAZHAHANDSection.count("datetime_format") == 0) {
-        RYAZHAHANDSection["datetime_format"] = DEFAULT_DT_FORMAT;
+    if (ryazhahandSection.count("datetime_format") == 0) {
+        ryazhahandSection["datetime_format"] = DEFAULT_DT_FORMAT;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("hide_clock") == 0) {
-        RYAZHAHANDSection["hide_clock"] = FALSE_STR;
+    if (ryazhahandSection.count("hide_clock") == 0) {
+        ryazhahandSection["hide_clock"] = FALSE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("hide_battery") == 0) {
-        RYAZHAHANDSection["hide_battery"] = TRUE_STR;
+    if (ryazhahandSection.count("hide_battery") == 0) {
+        ryazhahandSection["hide_battery"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("hide_pcb_temp") == 0) {
-        RYAZHAHANDSection["hide_pcb_temp"] = TRUE_STR;
+    if (ryazhahandSection.count("hide_pcb_temp") == 0) {
+        ryazhahandSection["hide_pcb_temp"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("hide_soc_temp") == 0) {
-        RYAZHAHANDSection["hide_soc_temp"] = TRUE_STR;
+    if (ryazhahandSection.count("hide_soc_temp") == 0) {
+        ryazhahandSection["hide_soc_temp"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("dynamic_widget_colors") == 0) {
-        RYAZHAHANDSection["dynamic_widget_colors"] = TRUE_STR;
+    if (ryazhahandSection.count("dynamic_widget_colors") == 0) {
+        ryazhahandSection["dynamic_widget_colors"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("hide_widget_backdrop") == 0) {
-        RYAZHAHANDSection["hide_widget_backdrop"] = FALSE_STR;
+    if (ryazhahandSection.count("hide_widget_backdrop") == 0) {
+        ryazhahandSection["hide_widget_backdrop"] = FALSE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("center_widget_alignment") == 0) {
-        RYAZHAHANDSection["center_widget_alignment"] = TRUE_STR;
+    if (ryazhahandSection.count("center_widget_alignment") == 0) {
+        ryazhahandSection["center_widget_alignment"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (RYAZHAHANDSection.count("extended_widget_backdrop") == 0) {
-        RYAZHAHANDSection["extended_widget_backdrop"] = FALSE_STR;
+    if (ryazhahandSection.count("extended_widget_backdrop") == 0) {
+        ryazhahandSection["extended_widget_backdrop"] = FALSE_STR;
         needsUpdate = true;
     }
     
     // Check if settings were previously loaded
-    settingsLoaded = RYAZHAHANDSection.count(IN_OVERLAY_STR) > 0;
+    settingsLoaded = ryazhahandSection.count(IN_OVERLAY_STR) > 0;
 
     // Handle the 'to_packages' option if it exists
-    if (RYAZHAHANDSection.count("to_packages") > 0) {
-        trim(RYAZHAHANDSection["to_packages"]);
-        toPackages = (RYAZHAHANDSection["to_packages"] == TRUE_STR);
+    if (ryazhahandSection.count("to_packages") > 0) {
+        trim(ryazhahandSection["to_packages"]);
+        toPackages = (ryazhahandSection["to_packages"] == TRUE_STR);
     }
     
     // Handle the 'in_overlay' setting
     if (settingsLoaded) {
-        inOverlay = (RYAZHAHANDSection[IN_OVERLAY_STR] == TRUE_STR);
+        inOverlay = (ryazhahandSection[IN_OVERLAY_STR] == TRUE_STR);
     }
     
     // If settings weren't previously loaded, add the missing defaults
     if (!settingsLoaded) {
-        RYAZHAHANDSection[DEFAULT_LANG_STR] = defaultLang;
-        RYAZHAHANDSection[IN_OVERLAY_STR] = FALSE_STR;
+        ryazhahandSection[DEFAULT_LANG_STR] = defaultLang;
+        ryazhahandSection[IN_OVERLAY_STR] = FALSE_STR;
         needsUpdate = true;
     }
     
@@ -6894,32 +6894,28 @@ public:
 
         unpackDeviceInfo();
 
-   
-        
         // read commands from root package's boot_package.ini
-if (firstBoot) {
-    // Удаление всех .notify JSON-ов
-    {
-        std::lock_guard<std::mutex> jsonLock(tsl::notificationJsonMutex);
-        deleteFileOrDirectoryByPattern(ult::NOTIFICATIONS_PATH + "*.notify");
-    }
+        if (firstBoot) {
+            // Delete all pending notification jsons
+            {
+                std::lock_guard<std::mutex> jsonLock(tsl::notificationJsonMutex);
+                deleteFileOrDirectoryByPattern(ult::NOTIFICATIONS_PATH + "*.notify");
+            }
 
-    // Загрузка и выполнение команд из секции "boot"
-    executeIniCommands(PACKAGE_PATH + BOOT_PACKAGE_FILENAME, "boot");
+            // Load and execute "initial_boot" commands if they exist
+            executeIniCommands(PACKAGE_PATH + BOOT_PACKAGE_FILENAME, "boot");
+            
+            const bool disableFuseReload = (parseValueFromIniSection(FUSE_DATA_INI_PATH, FUSE_STR, "disable_reload") == TRUE_STR);
+            if (!disableFuseReload)
+                deleteFileOrDirectory(FUSE_DATA_INI_PATH);
 
-    // Проверка флага disable_reload
-    const bool disableFuseReload = (parseValueFromIniSection(FUSE_DATA_INI_PATH, ult::FUSE_STR, "disable_reload") == ult::TRUE_STR);
-    if (!disableFuseReload)
-        deleteFileOrDirectory(FUSE_DATA_INI_PATH);
+            // initialize expanded memory on boot
+            setIniFileValue(RYAZHAHAND_CONFIG_INI_PATH, RYAZHAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? TRUE_STR : FALSE_STR);
 
-    // Инициализация расширенной памяти
-    setIniFileValue(ult::RYAZHAHAND_CONFIG_INI_PATH, ult::RYAZHAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? ult::TRUE_STR : ult::FALSE_STR);
-
-    // Показ уведомления о запуске RYAZHAHAND
-    if (tsl::notification)
-        tsl::notification->show(ult::RYAZHAHAND_HAS_STARTED);
-}
-
+            if (tsl::notification)
+                tsl::notification->show(RYAZHAHAND_HAS_STARTED);
+            
+        }
         
         
         //startInterpreterThread();
@@ -7123,6 +7119,3 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
-
-
-
