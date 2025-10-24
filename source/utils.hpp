@@ -1,19 +1,19 @@
 /********************************************************************************
  * File: utils.hpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description:
  *   This header file contains utility functions and macros used in the
- *   Ultrahand Overlay project. These functions and macros include definitions for
+ *   Ryazhahand Overlay project. These functions and macros include definitions for
  *   various button keys, path variables, and command interpretation and execution.
  *
  *   For the latest updates and contributions, visit the project's GitHub repository.
- *   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
  *
  *   Note: Please be aware that this notice cannot be altered or removed. It is a part
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 ppkantorski
+ *  Copyright (c) 2024 Dimasick-git
  ********************************************************************************/
 
 #pragma once
@@ -43,7 +43,7 @@ using namespace ult;
 static std::atomic<bool> abortCommand(false);
 static std::atomic<bool> triggerExit(false);
 
-std::atomic<bool> exitingUltrahand{false};
+std::atomic<bool> exitingRyazhahand{false};
 std::atomic<bool> isDownloadCommand{false};
 std::atomic<bool> commandSuccess{false};
 std::atomic<bool> refreshPage{false};
@@ -71,20 +71,20 @@ static bool usingEmunand = true;
 
 
 /**
- * @brief Ultrahand-Overlay Configuration Paths
+ * @brief Ryazhahand-Overlay Configuration Paths
  *
  * This block of code defines string variables for various configuration and directory paths
- * used in the Ultrahand-Overlay project. These paths include:
+ * used in the Ryazhahand-Overlay project. These paths include:
  *
  * - `PACKAGE_FILENAME`: The name of the package file ("package.ini").
  * - `CONFIG_FILENAME`: The name of the configuration file ("config.ini").
- * - `SETTINGS_PATH`: The base path for Ultrahand settings ("sdmc:/config/ultrahand/").
- * - `ULTRAHAND_CONFIG_INI_PATH`: The full path to the Ultrahand settings configuration file.
+ * - `SETTINGS_PATH`: The base path for Ryazhahand settings ("sdmc:/config/Ryazhahand/").
+ * - `Ryazhahand_CONFIG_INI_PATH`: The full path to the Ryazhahand settings configuration file.
  * - `PACKAGE_PATH`: The base directory for packages ("sdmc:/switch/.packages/").
  * - `OVERLAY_PATH`: The base directory for overlays ("sdmc:/switch/.overlays/").
  * - `TESLA_CONFIG_INI_PATH`: The full path to the Tesla settings configuration file.
  *
- * These paths are used within the Ultrahand-Overlay project to manage configuration files
+ * These paths are used within the Ryazhahand-Overlay project to manage configuration files
  * and directories.
  */
 
@@ -202,7 +202,7 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
     }
 }
 
-// Define default key combos (same as UltrahandSettingsMenu)
+// Define default key combos (same as RyazhahandSettingsMenu)
 
 const std::vector<std::string> defaultCombos = {
     // Primary (Default) Combos – top priority, always first
@@ -954,16 +954,16 @@ void initializeTheme(const std::string& themeIniPath = THEME_CONFIG_INI_PATH) {
 
 
 /**
- * @brief Copy Tesla key combo to Ultrahand settings.
+ * @brief Copy Tesla key combo to Ryazhahand settings.
  *
- * This function retrieves the key combo from Tesla settings and copies it to Ultrahand settings.
+ * This function retrieves the key combo from Tesla settings and copies it to Ryazhahand settings.
  */
-void copyTeslaKeyComboToUltrahand() {
-    std::string keyCombo = ULTRAHAND_COMBO_STR;
+void copyTeslaKeyComboToRyazhahand() {
+    std::string keyCombo = Ryazhahand_COMBO_STR;
     std::map<std::string, std::map<std::string, std::string>> parsedData;
     
     const bool teslaConfigExists = isFileOrDirectory(TESLA_CONFIG_INI_PATH);
-    const bool ultrahandConfigExists = isFileOrDirectory(ULTRAHAND_CONFIG_INI_PATH);
+    const bool RyazhahandConfigExists = isFileOrDirectory(Ryazhahand_CONFIG_INI_PATH);
 
     bool initializeTesla = false;
     std::string teslaKeyCombo = keyCombo;
@@ -984,29 +984,29 @@ void copyTeslaKeyComboToUltrahand() {
         initializeTesla = true;
     }
     
-    bool initializeUltrahand = false;
-    if (ultrahandConfigExists) {
-        parsedData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-        if (parsedData.count(ULTRAHAND_PROJECT_NAME) > 0) {
-            auto& ultrahandSection = parsedData[ULTRAHAND_PROJECT_NAME];
-            if (ultrahandSection.count(KEY_COMBO_STR) > 0) {
-                keyCombo = ultrahandSection[KEY_COMBO_STR];
+    bool initializeRyazhahand = false;
+    if (RyazhahandConfigExists) {
+        parsedData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+        if (parsedData.count(Ryazhahand_PROJECT_NAME) > 0) {
+            auto& RyazhahandSection = parsedData[Ryazhahand_PROJECT_NAME];
+            if (RyazhahandSection.count(KEY_COMBO_STR) > 0) {
+                keyCombo = RyazhahandSection[KEY_COMBO_STR];
             } else {
-                initializeUltrahand = true;
+                initializeRyazhahand = true;
             }
         } else {
-            initializeUltrahand = true;
+            initializeRyazhahand = true;
         }
     } else {
-        initializeUltrahand = true;
+        initializeRyazhahand = true;
     }
 
     if (initializeTesla || (teslaKeyCombo != keyCombo)) {
         setIniFileValue(TESLA_CONFIG_INI_PATH, TESLA_STR, KEY_COMBO_STR, keyCombo);
     }
 
-    if (initializeUltrahand) {
-        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, KEY_COMBO_STR, keyCombo);
+    if (initializeRyazhahand) {
+        setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, KEY_COMBO_STR, keyCombo);
     }
 
     tsl::impl::parseOverlaySettings();
@@ -1056,11 +1056,11 @@ std::tuple<Result, std::string, std::string, bool> getOverlayInfo(const std::str
     }
     
     // Check signature and read asset header in one operation
-    bool usingLibUltrahand = false;
+    bool usingLibRyazhahand = false;
     uint32_t signature;
     if (fileSize >= 4 && fseek(file, -4, SEEK_END) == 0 && 
         fread(&signature, 4, 1, file) == 1 && signature == ULTR_SIGNATURE) {
-        usingLibUltrahand = true;
+        usingLibRyazhahand = true;
     }
     
     // Read asset header
@@ -1115,12 +1115,12 @@ std::tuple<Result, std::string, std::string, bool> getOverlayInfo(const std::str
     }
     
     // Check signature
-    bool usingLibUltrahand = false;
+    bool usingLibRyazhahand = false;
     if (fileSize >= 4) {
         file.seekg(-4, std::ios::end);
         uint32_t signature;
         if (file.read(reinterpret_cast<char*>(&signature), 4) && signature == ULTR_SIGNATURE) {
-            usingLibUltrahand = true;
+            usingLibRyazhahand = true;
         }
     }
     
@@ -1161,7 +1161,7 @@ std::tuple<Result, std::string, std::string, bool> getOverlayInfo(const std::str
         ResultSuccess,
         std::string(nameStart, nameEnd - nameStart),
         std::string(versionStart, versionEnd - versionStart),
-        usingLibUltrahand
+        usingLibRyazhahand
     };
 }
 
@@ -1863,10 +1863,10 @@ void addPackageInfo(tsl::elm::List* list, auto& packageHeader, std::string type 
 
 
 /**
- * @brief Ultrahand-Overlay Protected Folders
+ * @brief Ryazhahand-Overlay Protected Folders
  *
  * This block of code defines two vectors containing paths to protected folders used in the
- * Ultrahand-Overlay project. These folders are designated as protected to prevent certain
+ * Ryazhahand-Overlay project. These folders are designated as protected to prevent certain
  * operations that may pose security risks.
  *
  * The two vectors include:
@@ -1874,16 +1874,16 @@ void addPackageInfo(tsl::elm::List* list, auto& packageHeader, std::string type 
  * - `protectedFolders`: Paths to standard protected folders.
  * - `ultraProtectedFolders`: Paths to ultra protected folders with stricter security.
  *
- * These protected folder paths are used within the Ultrahand-Overlay project to enforce
+ * These protected folder paths are used within the Ryazhahand-Overlay project to enforce
  * safety conditions and ensure that certain operations are not performed on sensitive
  * directories.
  */
 
 /**
- * @brief Ultrahand-Overlay Protected Folders
+ * @brief Ryazhahand-Overlay Protected Folders
  *
  * This block of code defines two vectors containing paths to protected folders used in the
- * Ultrahand-Overlay project. These folders are designated as protected to prevent certain
+ * Ryazhahand-Overlay project. These folders are designated as protected to prevent certain
  * operations that may pose security risks.
  *
  * The two vectors include:
@@ -1891,7 +1891,7 @@ void addPackageInfo(tsl::elm::List* list, auto& packageHeader, std::string type 
  * - `protectedFolders`: Paths to standard protected folders.
  * - `ultraProtectedFolders`: Paths to ultra protected folders with stricter security.
  *
- * These protected folder paths are used within the Ultrahand-Overlay project to enforce
+ * These protected folder paths are used within the Ryazhahand-Overlay project to enforce
  * safety conditions and ensure that certain operations are not performed on sensitive
  * directories.
  */
@@ -3444,7 +3444,7 @@ bool interpretAndExecuteCommands(std::vector<std::vector<std::string>>&& command
     //}
 
     // Load and apply buffer configuration from INI file
-    const auto bufferSection = getKeyValuePairsFromSection(ULTRAHAND_CONFIG_INI_PATH, MEMORY_STR);
+    const auto bufferSection = getKeyValuePairsFromSection(Ryazhahand_CONFIG_INI_PATH, MEMORY_STR);
     
     if (!bufferSection.empty()) {
         struct BufferConfig {
@@ -4494,7 +4494,7 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
         }
     
         if (launchUpdaterPayload) {
-            const std::string rebootOption = PAYLOADS_PATH + "ultrahand_updater.bin";
+            const std::string rebootOption = PAYLOADS_PATH + "Ryazhahand_updater.bin";
             if (!isFile(rebootOption)) {
                 downloadFile(UPDATER_PAYLOAD_URL, PAYLOADS_PATH, true);
                 downloadPercentage.store(-1, std::memory_order_release);
@@ -4584,13 +4584,13 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
         if (cmdSize >= 2) {
             const std::string selection = getUnquoted(cmd, 1);
             if (selection == "overlays") {
-                setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
+                setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
             } else if (selection == "packages") {
-                setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "to_packages", TRUE_STR);
-                setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
+                setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "to_packages", TRUE_STR);
+                setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
             }
         }
-        exitingUltrahand.store(true, std::memory_order_release);
+        exitingRyazhahand.store(true, std::memory_order_release);
         ult::launchingOverlay.store(true, std::memory_order_release);
         tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl");
         tsl::Overlay::get()->close(true);
@@ -4883,7 +4883,7 @@ int getInterpreterStackSize(const std::string& packagePath = "") {
     #endif
     // Cache stack size parsing to avoid repeated INI file access
     if (cachedStackSize == 0) {
-        const std::string interpreterHeap = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, MEMORY_STR, "interpreter_heap");
+        const std::string interpreterHeap = parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, MEMORY_STR, "interpreter_heap");
         if (!interpreterHeap.empty()) {
             // Validate hex string before conversion
             bool validHex = true;
