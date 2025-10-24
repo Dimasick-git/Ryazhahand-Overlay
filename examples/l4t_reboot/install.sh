@@ -1,24 +1,24 @@
 #!/bin/bash
 ################################################################################
 # File: install.sh
-# Author: ppkantorski
+# Author: Dimasick-git
 # Description:
-#   This script is part of the Ultrahand-Overlay project and is responsible for
+#   This script is part of the RYAZHAHAND-Overlay project and is responsible for
 #   installing and configuring the necessary components of the project. It
-#   automates the setup process for the Ultrahand-Overlay on your system.
+#   automates the setup process for the RYAZHAHAND-Overlay on your system.
 #
 #   Key Features:
 #   - Installation of required dependencies.
 #   - Configuration of system settings.
-#   - Setup of the Ultrahand-Overlay project.
+#   - Setup of the RYAZHAHAND-Overlay project.
 #
 #   Note: Please refer to the project documentation and README.md for detailed
-#   information on how to use and configure this script within the Ultrahand-Overlay.
+#   information on how to use and configure this script within the RYAZHAHAND-Overlay.
 #
 #   For the latest updates and contributions, visit the project's GitHub repository.
-#   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+#   (GitHub Repository: https://github.com/Dimasick-git/RYAZHAHAND-Overlay)
 #
-# Copyright (c) 2023 ppkantorski
+# Copyright (c) 2023 Dimasick-git
 # All rights reserved.
 ################################################################################
 

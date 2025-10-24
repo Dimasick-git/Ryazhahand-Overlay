@@ -34,6 +34,6 @@ Contributions to l4t_reboot are welcome! If you have any improvements, bug fixes
 
 This project is licensed under the [CC-BY-NC-4.0 License](LICENSE).
 
-Copyright (c) 2023 ppkantorski
+Copyright (c) 2023 Dimasick-git
 
 All rights reserved.

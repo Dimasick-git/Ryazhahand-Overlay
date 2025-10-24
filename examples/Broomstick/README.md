@@ -24,4 +24,4 @@ Note: Offloading overlays can help improve performance and free up system resour
 
 ## Additional Information
 
-For more details on the Ultrahand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/ppkantorski/Ultrahand-Overlay).
+For more details on the RYAZHAHAND Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/RYAZHAHAND-Overlay).

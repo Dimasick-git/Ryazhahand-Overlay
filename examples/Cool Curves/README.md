@@ -1,12 +1,12 @@
 # Cool Curves
 
-The "Cool Curves" package is a part of the Ultrahand Overlay project, which provides a fully craft-able overlay executor. This example demonstrates how to configure and set temperature-related settings in the system_settings.ini file for different temperature ranges.
+The "Cool Curves" package is a part of the RYAZHAHAND Overlay project, which provides a fully craft-able overlay executor. This example demonstrates how to configure and set temperature-related settings in the system_settings.ini file for different temperature ranges.
 
 ## Configuration
 
 To configure the temperature-related settings yourself, follow these steps:
 
-1. Make sure you have the necessary tools and files for the Ultrahand-Overlay project.
+1. Make sure you have the necessary tools and files for the RYAZHAHAND-Overlay project.
 2. Locate the `package.ini` file in the `examples/Cool Curves` directory.
 3. Open the `package.ini` file in a text editor.
 
