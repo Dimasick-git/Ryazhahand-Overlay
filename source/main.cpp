@@ -1,8 +1,8 @@
 /********************************************************************************
  * File: main.cpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description: 
- *   This file contains the main program logic for the Ultrahand Overlay project,
+ *   This file contains the main program logic for the Ryazhahand Overlay project,
  *   an overlay executor designed for versatile crafting and management of overlays.
  *   It defines various functions, menu structures, and interaction logic to
  *   facilitate the seamless execution and customization of overlays within the project.
@@ -14,13 +14,13 @@
  *   - Toggles for enabling/disabling specific commands.
  * 
  *   For the latest updates and contributions, visit the project's GitHub repository.
- *   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
  * 
  *   Note: Please be aware that this notice cannot be altered or removed. It is a part
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 ppkantorski
+ *  Copyright (c) 2024 Dimasick-git
  ********************************************************************************/
 
 #define NDEBUG
@@ -317,7 +317,7 @@ class MainMenu;
 
 static std::string lastSelectedListItemFooter;
 
-class UltrahandSettingsMenu : public tsl::Gui {
+class RyazhahandSettingsMenu : public tsl::Gui {
 private:
     std::string entryName, entryMode, overlayName, dropdownSelection, settingsIniPath;
     bool isInSection = false, inQuotes = false, isFromMainMenu = false;
@@ -352,7 +352,7 @@ private:
                     }
                 }
 
-                tsl::changeTo<UltrahandSettingsMenu>(targetMenu);
+                tsl::changeTo<RyazhahandSettingsMenu>(targetMenu);
                 //selectedListItem = nullptr;
                 selectedListItem = listItem;
                 return true;
@@ -477,7 +477,7 @@ private:
                 
 
                 if ((keys & KEY_A && !(keys & ~KEY_A & ALL_KEYS_MASK))) {
-                    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, iniKey, item);
+                    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, iniKey, item);
                     
                     if (targetMenu == KEY_COMBO_STR) {
                         // Also set it in tesla config
@@ -534,7 +534,7 @@ private:
                 executingCommands = true;
                 isDownloadCommand.store(true, release);
                 const bool disableLoaderUpdate = isFile(FLAGS_PATH+"NO_LOADER_UPDATES.flag");
-                if (title == UPDATE_ULTRAHAND) {
+                if (title == UPDATE_Ryazhahand) {
                     const std::string versionLabel = cleanVersionLabel(parseValueFromIniSection((SETTINGS_PATH+"RELEASE.ini"), "Release Info", "latest_version"));
                     std::string loaderUrl, loaderPlusUrl;
                     if (isVersionGreaterOrEqual(amsVersion,"1.8.0")) {
@@ -617,7 +617,7 @@ private:
             // Calculate the actual logical state first
             const bool actualState = invertLogic ? !newState : newState;
             
-            setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, iniKey, actualState ? TRUE_STR : FALSE_STR);
+            setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, iniKey, actualState ? TRUE_STR : FALSE_STR);
 
             static bool firstState = actualState;
 
@@ -684,11 +684,11 @@ private:
     std::vector<std::string> filesList;
     
 public:
-    UltrahandSettingsMenu(const std::string& selection = "") : dropdownSelection(selection) {
+    RyazhahandSettingsMenu(const std::string& selection = "") : dropdownSelection(selection) {
         lastSelectedListItemFooter = "";
     }
 
-    ~UltrahandSettingsMenu() {
+    ~RyazhahandSettingsMenu() {
         lastSelectedListItemFooter = "";
     }
 
@@ -709,8 +709,8 @@ public:
             addHeader(list, MAIN_SETTINGS);
             
             // Load INI once and extract all values
-            auto ultrahandIniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-            auto sectionIt = ultrahandIniData.find(ULTRAHAND_PROJECT_NAME);
+            auto RyazhahandIniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+            auto sectionIt = RyazhahandIniData.find(Ryazhahand_PROJECT_NAME);
             
             // Extract all values with defaults
             std::string defaultLang = "";
@@ -718,7 +718,7 @@ public:
             std::string currentTheme = "";
             std::string currentWallpaper = "";
             
-            if (sectionIt != ultrahandIniData.end()) {
+            if (sectionIt != RyazhahandIniData.end()) {
                 auto langIt = sectionIt->second.find(DEFAULT_LANG_STR);
                 if (langIt != sectionIt->second.end()) {
                     defaultLang = langIt->second;
@@ -765,12 +765,12 @@ public:
             addListItem(list, MISCELLANEOUS, DROPDOWN_SYMBOL, "miscMenu");
         } else if (dropdownSelection == KEY_COMBO_STR) {
             addHeader(list, KEY_COMBO);
-            std::string defaultCombo = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, KEY_COMBO_STR);
+            std::string defaultCombo = parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, KEY_COMBO_STR);
             trim(defaultCombo);
             handleSelection(list, defaultCombos, defaultCombo, KEY_COMBO_STR, KEY_COMBO_STR);
         } else if (dropdownSelection == "languageMenu") {
             addHeader(list, LANGUAGE);
-            const std::string defaulLang = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, DEFAULT_LANG_STR);
+            const std::string defaulLang = parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, DEFAULT_LANG_STR);
             size_t index = 0;
             std::string langFile;
             //tsl::elm::ListItem* listItem;
@@ -805,7 +805,7 @@ public:
                     }
                     if (triggerClick && tsl::elm::s_currentScrollVelocity <= 1.0f && tsl::elm::s_currentScrollVelocity >= -1.0f) {
                         triggerClick = false;
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, DEFAULT_LANG_STR, defaultLangMode);
+                        setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, DEFAULT_LANG_STR, defaultLangMode);
                         reloadMenu = reloadMenu2 = true;
                         parseLanguage(langFile);
                         if (skipLang && defaultLangMode == "en") reinitializeLangVars();
@@ -825,7 +825,7 @@ public:
                         //executeCommands({
                         //    {"refresh-to", "", CHECKMARK_SYMBOL, FALSE_STR}
                         //});
-                        tsl::swapTo<UltrahandSettingsMenu>("languageMenu");
+                        tsl::swapTo<RyazhahandSettingsMenu>("languageMenu");
 
                         return true;
                     }
@@ -841,14 +841,14 @@ public:
             }
 
             addHeader(list, SOFTWARE_UPDATE);
-            addUpdateButton(list, UPDATE_ULTRAHAND, ULTRAHAND_REPO_URL + "releases/latest/download/ovlmenu.ovl", DOWNLOADS_PATH+"ovlmenu.ovl", OVERLAY_PATH+"ovlmenu.ovl", fullVersionLabel);
-            addUpdateButton(list, UPDATE_LANGUAGES, ULTRAHAND_REPO_URL + "releases/latest/download/lang.zip", DOWNLOADS_PATH+"lang.zip", LANG_PATH, fullVersionLabel);
+            addUpdateButton(list, UPDATE_Ryazhahand, Ryazhahand_REPO_URL + "releases/latest/download/ovlmenu.ovl", DOWNLOADS_PATH+"ovlmenu.ovl", OVERLAY_PATH+"ovlmenu.ovl", fullVersionLabel);
+            addUpdateButton(list, UPDATE_LANGUAGES, Ryazhahand_REPO_URL + "releases/latest/download/lang.zip", DOWNLOADS_PATH+"lang.zip", LANG_PATH, fullVersionLabel);
 
             PackageHeader overlayHeader;
-            overlayHeader.title = "Ultrahand Overlay";
+            overlayHeader.title = "Ryazhahand Overlay";
             overlayHeader.version = APP_VERSION;
-            overlayHeader.creator = "ppkantorski";
-            overlayHeader.about = "Ultrahand Overlay is a versatile tool that enables you to create and share custom command-based packages.";
+            overlayHeader.creator = "Dimasick-git";
+            overlayHeader.about = "Ryazhahand Overlay is a versatile tool that enables you to create and share custom command-based packages.";
             overlayHeader.credits = "Special thanks to B3711, ComplexNarrative, ssky, MasaGratoR, meha, WerWolv, HookedBehemoth and many others. ♥";
             addPackageInfo(list, overlayHeader, OVERLAY_STR);
             overlayHeader.clear();
@@ -952,7 +952,7 @@ public:
             addTable(list, tableData, "", 164, 8, 7, 0, DEFAULT_STR, DEFAULT_STR, ramColor, RIGHT_STR, true);
             // Memory expansion toggle
             useMemoryExpansion = (ult::expandedMemory || 
-                                  parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "memory_expansion") == TRUE_STR);
+                                  parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "memory_expansion") == TRUE_STR);
             createToggleListItem(list, MEMORY_EXPANSION, useMemoryExpansion, "memory_expansion", false, false, true, false);
 
             // Reboot required info
@@ -963,7 +963,7 @@ public:
         
         } else if (dropdownSelection == "themeMenu") {
             addHeader(list, THEME);
-            std::string currentTheme = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_theme");
+            std::string currentTheme = parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_theme");
             currentTheme = currentTheme.empty() ? DEFAULT_STR : currentTheme;
             auto* listItem = new tsl::elm::ListItem(DEFAULT);
             if (currentTheme == DEFAULT_STR) {
@@ -975,7 +975,7 @@ public:
                 if (runningInterpreter.load(acquire)) return false;
 
                 if ((keys & KEY_A && !(keys & ~KEY_A & ALL_KEYS_MASK))) {
-                    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_theme", DEFAULT_STR);
+                    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_theme", DEFAULT_STR);
                     deleteFileOrDirectory(THEME_CONFIG_INI_PATH);
                     if (isFile(defaultTheme)) {
                         copyFileOrDirectory(defaultTheme, THEME_CONFIG_INI_PATH);
@@ -1020,7 +1020,7 @@ public:
                     if (runningInterpreter.load(acquire)) return false;
 
                     if ((keys & KEY_A && !(keys & ~KEY_A & ALL_KEYS_MASK))) {
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_theme", themeName);
+                        setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_theme", themeName);
                         //deleteFileOrDirectory(THEME_CONFIG_INI_PATH);
                         copyFileOrDirectory(themeFile, THEME_CONFIG_INI_PATH);
                         copyPercentage.store(-1, release);
@@ -1046,7 +1046,7 @@ public:
             }
         } else if (dropdownSelection == "wallpaperMenu") {
             addHeader(list, WALLPAPER);
-            std::string currentWallpaper = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_wallpaper");
+            std::string currentWallpaper = parseValueFromIniSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_wallpaper");
             currentWallpaper = currentWallpaper.empty() ? OPTION_SYMBOL : currentWallpaper;
 
             auto* listItem = new tsl::elm::ListItem(OPTION_SYMBOL);
@@ -1060,7 +1060,7 @@ public:
                 if (runningInterpreter.load(acquire)) return false;
 
                 if ((keys & KEY_A && !(keys & ~KEY_A & ALL_KEYS_MASK))) {
-                    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_wallpaper", "");
+                    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_wallpaper", "");
                     deleteFileOrDirectory(WALLPAPER_PATH);
                     reloadWallpaper();
                     //reloadMenu = reloadMenu2 = true;
@@ -1099,7 +1099,7 @@ public:
                     if (runningInterpreter.load(acquire)) return false;
 
                     if ((keys & KEY_A && !(keys & ~KEY_A & ALL_KEYS_MASK))) {
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "current_wallpaper", wallpaperName);
+                        setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "current_wallpaper", wallpaperName);
                         //deleteFileOrDirectory(THEME_CONFIG_INI_PATH);
                         copyFileOrDirectory(wallpaperFile, WALLPAPER_PATH);
                         copyPercentage.store(-1, release);
@@ -1135,12 +1135,12 @@ public:
 
         } else if (dropdownSelection == "miscMenu") {
             // Load INI section once instead of 14 separate file reads
-            auto ultrahandSection = getKeyValuePairsFromSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME);
+            auto RyazhahandSection = getKeyValuePairsFromSection(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME);
             
             // Helper lambda to safely get boolean values
             auto getBoolValue = [&](const std::string& key, bool defaultValue = false) -> bool {
-                auto it = ultrahandSection.find(key);
-                return (it != ultrahandSection.end()) ? (it->second == TRUE_STR) : defaultValue;
+                auto it = RyazhahandSection.find(key);
+                return (it != RyazhahandSection.end()) ? (it->second == TRUE_STR) : defaultValue;
             };
             
             addHeader(list, FEATURES);
@@ -1166,10 +1166,10 @@ public:
             createToggleListItem(list, SELECTION_TEXT, useSelectionText, "selection_text", false, true);
             useSelectionValue = getBoolValue("selection_value", false); // FALSE_STR default
             createToggleListItem(list, SELECTION_VALUE, useSelectionValue, "selection_value", false, true);
-            useLibultrahandTitles = getBoolValue("libultrahand_titles", false); // FALSE_STR default
-            createToggleListItem(list, LIBULTRAHAND_TITLES, useLibultrahandTitles, "libultrahand_titles", false, true);
-            useLibultrahandVersions = getBoolValue("libultrahand_versions", true); // TRUE_STR default
-            createToggleListItem(list, LIBULTRAHAND_VERSIONS, useLibultrahandVersions, "libultrahand_versions", false, true);
+            useLibRyazhahandTitles = getBoolValue("libRyazhahand_titles", false); // FALSE_STR default
+            createToggleListItem(list, LIBRyazhahand_TITLES, useLibRyazhahandTitles, "libRyazhahand_titles", false, true);
+            useLibRyazhahandVersions = getBoolValue("libRyazhahand_versions", true); // TRUE_STR default
+            createToggleListItem(list, LIBRyazhahand_VERSIONS, useLibRyazhahandVersions, "libRyazhahand_versions", false, true);
             usePackageTitles = getBoolValue("package_titles", false); // TRUE_STR default
             createToggleListItem(list, PACKAGE_TITLES, usePackageTitles, "package_titles", false, true);
             usePackageVersions = getBoolValue("package_versions", true); // TRUE_STR default
@@ -1199,7 +1199,7 @@ public:
             addBasicListItem(list, FAILED_TO_OPEN + ": " + settingsIniPath);
         }
 
-        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_ULTRAHAND_PROJECT_NAME, versionLabel);
+        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_Ryazhahand_PROJECT_NAME, versionLabel);
         if (inSubSettingsMenu && ((dropdownSelection == "languageMenu") || (dropdownSelection == KEY_COMBO_STR) || (dropdownSelection == "themeMenu") || (dropdownSelection == "wallpaperMenu"))) {
             {
                 //std::lock_guard<std::mutex> lock(jumpItemMutex);
@@ -1246,7 +1246,7 @@ public:
         rootFrame->setContent(list);
         return rootFrame;
 
-        //return returnRootFrame(list, CAPITAL_ULTRAHAND_PROJECT_NAME, versionLabel);
+        //return returnRootFrame(list, CAPITAL_Ryazhahand_PROJECT_NAME, versionLabel);
     }
 
     virtual bool handleInput(u64 keysDown, u64 keysHeld, touchPosition touchInput, JoystickPosition leftJoyStick, JoystickPosition rightJoyStick) override {
@@ -1278,8 +1278,8 @@ public:
         }
 
         //if (refreshPage.load(acquire)) {
-        //    //tsl::goBack();tsl::changeTo<UltrahandSettingsMenu>(targetMenu);
-        //    tsl::swapTo<UltrahandSettingsMenu>("languageMenu");
+        //    //tsl::goBack();tsl::changeTo<RyazhahandSettingsMenu>(targetMenu);
+        //    tsl::swapTo<RyazhahandSettingsMenu>("languageMenu");
         //    refreshPage.store(false, release);
         //}
         
@@ -1332,7 +1332,7 @@ public:
                 
                 if (reloadMenu2) {
                     //tsl::goBack(2);
-                    tsl::swapTo<UltrahandSettingsMenu>(SwapDepth(2));
+                    tsl::swapTo<RyazhahandSettingsMenu>(SwapDepth(2));
                     reloadMenu2 = false;
                 } else {
                     tsl::goBack();
@@ -1639,8 +1639,8 @@ public:
             const std::string currentCombo = getValue(KEY_COMBO_STR);
             
             // Get global default combo
-            auto uhData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-            auto uhIt = uhData.find(ULTRAHAND_PROJECT_NAME);
+            auto uhData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+            auto uhIt = uhData.find(Ryazhahand_PROJECT_NAME);
             std::string globalDefault = (uhIt != uhData.end() && uhIt->second.count(KEY_COMBO_STR))
                 ? uhIt->second.at(KEY_COMBO_STR) : "";
             trim(globalDefault);
@@ -1721,8 +1721,8 @@ public:
             const std::string currentCombo = comboList[idx];
     
             // Get global default
-            auto uhData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-            auto uhIt = uhData.find(ULTRAHAND_PROJECT_NAME);
+            auto uhData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+            auto uhIt = uhData.find(Ryazhahand_PROJECT_NAME);
             std::string globalDefault = (uhIt != uhData.end() && uhIt->second.count(KEY_COMBO_STR))
                 ? uhIt->second.at(KEY_COMBO_STR) : "";
             trim(globalDefault);
@@ -1799,7 +1799,7 @@ public:
             addBasicListItem(list, FAILED_TO_OPEN + ": " + settingsIniPath);
         }
     
-        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_ULTRAHAND_PROJECT_NAME, versionLabel);
+        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_Ryazhahand_PROJECT_NAME, versionLabel);
         
         if (inSubSettingsMenu && (dropdownSelection == KEY_COMBO_STR || dropdownSelection == PRIORITY_STR || 
                                  dropdownSelection.rfind("mode_combo_", 0) == 0)) {
@@ -1874,7 +1874,7 @@ public:
                 inMainMenu.store(false, std::memory_order_release);
                 inHiddenMode = true;
                 if (entryMode == OVERLAY_STR)
-                    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, TRUE_STR);
+                    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, TRUE_STR);
                 else
                     popCount = 2;
             } else {
@@ -1999,7 +1999,7 @@ public:
                             inMainMenu.store(false, std::memory_order_release);
                             inHiddenMode = true;
                             if (entryMode == OVERLAY_STR)
-                                setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, TRUE_STR);
+                                setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, TRUE_STR);
                             else
                                 popCount = 2;
                         } else {
@@ -2368,7 +2368,7 @@ public:
 
 
         auto* rootFrame = new tsl::elm::OverlayFrame(packageName,
-           !lastPackageHeader.empty() ? lastPackageHeader + "?Ultrahand Script" : (packageVersion.empty() ? CAPITAL_ULTRAHAND_PROJECT_NAME + " Script" : packageVersion + " "+DIVIDER_SYMBOL+" " + CAPITAL_ULTRAHAND_PROJECT_NAME + " Script"),
+           !lastPackageHeader.empty() ? lastPackageHeader + "?Ryazhahand Script" : (packageVersion.empty() ? CAPITAL_Ryazhahand_PROJECT_NAME + " Script" : packageVersion + " "+DIVIDER_SYMBOL+" " + CAPITAL_Ryazhahand_PROJECT_NAME + " Script"),
            noClickableItems);
         list->disableCaching();
         rootFrame->setContent(list);
@@ -3489,11 +3489,11 @@ public:
         tsl::elm::OverlayFrame* rootFrame;
         
         if (filePath == PACKAGE_PATH) {
-           rootFrame = new tsl::elm::OverlayFrame(CAPITAL_ULTRAHAND_PROJECT_NAME, versionLabel);
+           rootFrame = new tsl::elm::OverlayFrame(CAPITAL_Ryazhahand_PROJECT_NAME, versionLabel);
         } else {
            rootFrame = new tsl::elm::OverlayFrame(
                (!packageHeader.title.empty()) ? packageHeader.title : (!packageRootLayerTitle.empty() ? packageRootLayerTitle : getNameFromPath(filePath)),
-               !lastPackageHeader.empty() ? lastPackageHeader : (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + "  Ultrahand Package" : "Ultrahand Package"),
+               !lastPackageHeader.empty() ? lastPackageHeader : (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + "  Ryazhahand Package" : "Ryazhahand Package"),
                noClickableItems,
                "",
                packageHeader.color);
@@ -5301,7 +5301,7 @@ public:
 
         auto* rootFrame = new tsl::elm::OverlayFrame(
            (!packageHeader.title.empty()) ? packageHeader.title : (!packageRootLayerTitle.empty() ? packageRootLayerTitle : getNameFromPath(packagePath)),
-           ((!pageHeader.empty() && packageHeader.show_version != TRUE_STR) ? pageHeader: (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + " "+DIVIDER_SYMBOL+" Ultrahand Package" : "Ultrahand Package")),
+           ((!pageHeader.empty() && packageHeader.show_version != TRUE_STR) ? pageHeader: (packageHeader.version != "" ? (!packageRootLayerVersion.empty() ? packageRootLayerVersion : packageHeader.version) + " "+DIVIDER_SYMBOL+" Ryazhahand Package" : "Ryazhahand Package")),
            noClickableItems,
            "",
            packageHeader.color,
@@ -5577,7 +5577,7 @@ public:
                     }
                     ult::launchingOverlay.store(true, std::memory_order_release);
                     tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl");
-                    exitingUltrahand.store(true, release);
+                    exitingRyazhahand.store(true, release);
                     tsl::Overlay::get()->close();
                     return true;
                 }
@@ -5597,7 +5597,7 @@ public:
         auto handleMainMenuReturn = [&]() {
             if (returningToMain || returningToHiddenMain) {
                 if (returningToHiddenMain) {
-                    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_HIDDEN_PACKAGE_STR, TRUE_STR);
+                    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_HIDDEN_PACKAGE_STR, TRUE_STR);
                 }
                 {
                     //std::lock_guard<std::mutex> lock(jumpItemMutex);
@@ -5776,7 +5776,7 @@ public:
         if (backKeyPressed) {
             if (!selectedPackage.empty()) {
                 ult::launchingOverlay.store(true, std::memory_order_release);
-                exitingUltrahand.store(true, release);
+                exitingRyazhahand.store(true, release);
                 tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl");
                 tsl::Overlay::get()->close();
                 return true;
@@ -5866,32 +5866,32 @@ public:
     
         // Handle hidden mode flags
         {
-            auto iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-            auto& ultrahandSection = iniData[ULTRAHAND_PROJECT_NAME];
+            auto iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+            auto& RyazhahandSection = iniData[Ryazhahand_PROJECT_NAME];
             bool needsUpdate = false;
             
-            auto overlayIt = ultrahandSection.find(IN_HIDDEN_OVERLAY_STR);
-            if (overlayIt != ultrahandSection.end() && overlayIt->second == TRUE_STR) {
+            auto overlayIt = RyazhahandSection.find(IN_HIDDEN_OVERLAY_STR);
+            if (overlayIt != RyazhahandSection.end() && overlayIt->second == TRUE_STR) {
                 inMainMenu.store(false, std::memory_order_release);
                 inHiddenMode = true;
                 hiddenMenuMode = OVERLAYS_STR;
                 skipJumpReset.store(true, release);
-                ultrahandSection[IN_HIDDEN_OVERLAY_STR] = FALSE_STR;
+                RyazhahandSection[IN_HIDDEN_OVERLAY_STR] = FALSE_STR;
                 needsUpdate = true;
             } else {
-                auto packageIt = ultrahandSection.find(IN_HIDDEN_PACKAGE_STR);
-                if (packageIt != ultrahandSection.end() && packageIt->second == TRUE_STR) {
+                auto packageIt = RyazhahandSection.find(IN_HIDDEN_PACKAGE_STR);
+                if (packageIt != RyazhahandSection.end() && packageIt->second == TRUE_STR) {
                     inMainMenu.store(false, std::memory_order_release);
                     inHiddenMode = true;
                     hiddenMenuMode = PACKAGES_STR;
                     skipJumpReset.store(true, release);
-                    ultrahandSection[IN_HIDDEN_PACKAGE_STR] = FALSE_STR;
+                    RyazhahandSection[IN_HIDDEN_PACKAGE_STR] = FALSE_STR;
                     needsUpdate = true;
                 }
             }
             
             if (needsUpdate) {
-                saveIniFileData(ULTRAHAND_CONFIG_INI_PATH, iniData);
+                saveIniFileData(Ryazhahand_CONFIG_INI_PATH, iniData);
             }
         }
     
@@ -5911,7 +5911,7 @@ public:
         }
         
         if (toPackages) {
-            setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "to_packages", FALSE_STR);
+            setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "to_packages", FALSE_STR);
             toPackages = false;
             currentMenu = PACKAGES_STR;
         }
@@ -5927,7 +5927,7 @@ public:
             noClickableItems = createPackagesMenu(list);
         }
     
-        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_ULTRAHAND_PROJECT_NAME, versionLabel, noClickableItems, menuMode+hiddenMenuMode+dropdownSection, "", "", "");
+        auto* rootFrame = new tsl::elm::OverlayFrame(CAPITAL_Ryazhahand_PROJECT_NAME, versionLabel, noClickableItems, menuMode+hiddenMenuMode+dropdownSection, "", "", "");
         
         if (g_overlayFilename != "ovlmenu.ovl") {
             list->jumpToItem(jumpItemName, jumpItemValue, jumpItemExactMatch.load(acquire));
@@ -5990,7 +5990,7 @@ public:
                 
                 auto it = overlaysIniData.find(overlayFileName);
                 if (it == overlaysIniData.end()) {
-                    const auto& [result, overlayName, overlayVersion, usingLibUltrahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
+                    const auto& [result, overlayName, overlayVersion, usingLibRyazhahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
                     if (result != ResultSuccess) continue;
     
                     auto& overlaySection = overlaysIniData[overlayFileName];
@@ -6003,13 +6003,13 @@ public:
                     overlaySection["custom_version"] = "";
                     overlaysNeedsUpdate = true;
                     
-                    overlaySet.insert("0020" + overlayName + ":" + overlayName + ":" + overlayVersion + ":" + overlayFileName + ":" + (usingLibUltrahand ? "1" : "0"));
+                    overlaySet.insert("0020" + overlayName + ":" + overlayName + ":" + overlayVersion + ":" + overlayFileName + ":" + (usingLibRyazhahand ? "1" : "0"));
                 } else {
                     const std::string hide = getValueOrDefault(it->second, HIDE_STR, FALSE_STR);
                     if (hide == TRUE_STR) drawHiddenTab = true;
                     
                     if ((!inHiddenMode && hide == FALSE_STR) || (inHiddenMode && hide == TRUE_STR)) {
-                        const auto& [result, overlayName, overlayVersion, usingLibUltrahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
+                        const auto& [result, overlayName, overlayVersion, usingLibRyazhahand] = getOverlayInfo(OVERLAY_PATH + overlayFileName);
                         if (result != ResultSuccess) continue;
                         
                         const std::string priority = (it->second.find(PRIORITY_STR) != it->second.end()) ? formatPriorityString(it->second[PRIORITY_STR]) : "0020";
@@ -6020,7 +6020,7 @@ public:
                         const std::string assignedName = !customName.empty() ? customName : overlayName;
                         const std::string assignedVersion = !customVersion.empty() ? customVersion : overlayVersion;
                         
-                        const std::string baseInfo = priority + assignedName + ":" + assignedName + ":" + assignedVersion + ":" + overlayFileName + ":" + (usingLibUltrahand ? "1" : "0");
+                        const std::string baseInfo = priority + assignedName + ":" + assignedName + ":" + assignedVersion + ":" + overlayFileName + ":" + (usingLibRyazhahand ? "1" : "0");
                         overlaySet.insert((starred == TRUE_STR) ? "-1:" + baseInfo : baseInfo);
                     }
                 }
@@ -6035,7 +6035,7 @@ public:
         overlayFiles.shrink_to_fit();
         
         std::string overlayFileName, overlayName, overlayVersion;
-        bool usingLibUltrahand;
+        bool usingLibRyazhahand;
 
         if (overlaySet.size() == 0) {
             addSelectionIsEmptyDrawer(list);
@@ -6044,11 +6044,11 @@ public:
             for (const auto& taintedOverlayFileName : overlaySet) {
                 overlayFileName = overlayName = overlayVersion = "";
                 const bool overlayStarred = (taintedOverlayFileName.substr(0, 3) == "-1:");
-                usingLibUltrahand = false;
+                usingLibRyazhahand = false;
                 
                 const size_t lastColonPos = taintedOverlayFileName.rfind(':');
                 if (lastColonPos != std::string::npos) {
-                    usingLibUltrahand = (taintedOverlayFileName.substr(lastColonPos + 1) == "1");
+                    usingLibRyazhahand = (taintedOverlayFileName.substr(lastColonPos + 1) == "1");
                     const size_t secondLastColonPos = taintedOverlayFileName.rfind(':', lastColonPos - 1);
                     if (secondLastColonPos != std::string::npos) {
                         overlayFileName = taintedOverlayFileName.substr(secondLastColonPos + 1, lastColonPos - secondLastColonPos - 1);
@@ -6076,9 +6076,9 @@ public:
                 
                 if (!hideOverlayVersions) {
                     listItem->setValue(overlayVersion, true);
-                    listItem->setValueColor(usingLibUltrahand ? (useLibultrahandVersions ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor) : tsl::overlayVersionTextColor);
+                    listItem->setValueColor(usingLibRyazhahand ? (useLibRyazhahandVersions ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor) : tsl::overlayVersionTextColor);
                 }
-                listItem->setTextColor(usingLibUltrahand ? (useLibultrahandTitles ? tsl::ultOverlayTextColor : tsl::overlayTextColor) : tsl::overlayTextColor);
+                listItem->setTextColor(usingLibRyazhahand ? (useLibRyazhahandTitles ? tsl::ultOverlayTextColor : tsl::overlayTextColor) : tsl::overlayTextColor);
         
                 if (overlayFileName == g_overlayFilename) {
                     jumpItemName = newOverlayName;
@@ -6104,11 +6104,11 @@ public:
                         }
         
                         {
-                            auto iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-                            auto& ultrahandSection = iniData[ULTRAHAND_PROJECT_NAME];
-                            if (inHiddenMode) ultrahandSection[IN_HIDDEN_OVERLAY_STR] = TRUE_STR;
-                            ultrahandSection[IN_OVERLAY_STR] = TRUE_STR;
-                            saveIniFileData(ULTRAHAND_CONFIG_INI_PATH, iniData);
+                            auto iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+                            auto& RyazhahandSection = iniData[Ryazhahand_PROJECT_NAME];
+                            if (inHiddenMode) RyazhahandSection[IN_HIDDEN_OVERLAY_STR] = TRUE_STR;
+                            RyazhahandSection[IN_OVERLAY_STR] = TRUE_STR;
+                            saveIniFileData(Ryazhahand_CONFIG_INI_PATH, iniData);
                         }
         
                         ult::launchingOverlay.store(true, std::memory_order_release);
@@ -6566,23 +6566,23 @@ public:
 
                 ult::launchingOverlay.store(true, std::memory_order_release);
                 //if (menuMode == PACKAGES_STR)
-                //    setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "to_packages", FALSE_STR);
+                //    setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "to_packages", FALSE_STR);
                 //
-                //setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
+                //setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
 
                 // Load INI data once and modify in memory
                 {
-                    auto iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-                    auto& ultrahandSection = iniData[ULTRAHAND_PROJECT_NAME];
+                    auto iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+                    auto& RyazhahandSection = iniData[Ryazhahand_PROJECT_NAME];
                     
                     // Make all changes in memory
                     if (menuMode == PACKAGES_STR) {
-                        ultrahandSection["to_packages"] = FALSE_STR;
+                        RyazhahandSection["to_packages"] = FALSE_STR;
                     }
-                    ultrahandSection[IN_OVERLAY_STR] = TRUE_STR;
+                    RyazhahandSection[IN_OVERLAY_STR] = TRUE_STR;
                     
                     // Write back once
-                    saveIniFileData(ULTRAHAND_CONFIG_INI_PATH, iniData);
+                    saveIniFileData(Ryazhahand_CONFIG_INI_PATH, iniData);
                 }
 
                 tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl", "--skipCombo");
@@ -6682,7 +6682,7 @@ public:
                         tsl::Overlay::get()->hide(true);
                     } else {
                         ult::launchingOverlay.store(true, std::memory_order_release);
-                        exitingUltrahand.store(true, release);
+                        exitingRyazhahand.store(true, release);
 
                         tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl");
                         tsl::Overlay::get()->close();
@@ -6698,7 +6698,7 @@ public:
     
                 if (!isTouching && (((keysDown & SYSTEM_SETTINGS_KEY && !(keysHeld & ~SYSTEM_SETTINGS_KEY & ALL_KEYS_MASK))) || simulatedMenu.exchange(false, acq_rel))) {
                     inMainMenu.store(false, std::memory_order_release);
-                    tsl::changeTo<UltrahandSettingsMenu>();
+                    tsl::changeTo<RyazhahandSettingsMenu>();
                     return true;
                 }
             }
@@ -6716,19 +6716,19 @@ public:
                     inMainMenu.store(true, std::memory_order_release);
                     inHiddenMode = false;
                     hiddenMenuMode = "";
-                    //setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, "");
-                    //setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_HIDDEN_PACKAGE_STR, "");
+                    //setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_HIDDEN_OVERLAY_STR, "");
+                    //setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, IN_HIDDEN_PACKAGE_STR, "");
                     {
                         // Load INI data once and modify in memory
-                        auto iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
-                        auto& ultrahandSection = iniData[ULTRAHAND_PROJECT_NAME];
+                        auto iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
+                        auto& RyazhahandSection = iniData[Ryazhahand_PROJECT_NAME];
                         
                         // Clear both values in memory
-                        ultrahandSection[IN_HIDDEN_OVERLAY_STR] = "";
-                        ultrahandSection[IN_HIDDEN_PACKAGE_STR] = "";
+                        RyazhahandSection[IN_HIDDEN_OVERLAY_STR] = "";
+                        RyazhahandSection[IN_HIDDEN_PACKAGE_STR] = "";
                         
                         // Write back once
-                        saveIniFileData(ULTRAHAND_CONFIG_INI_PATH, iniData);
+                        saveIniFileData(Ryazhahand_CONFIG_INI_PATH, iniData);
                     }
 
                     
@@ -6809,15 +6809,15 @@ void initializeSettingsAndDirectories() {
     std::map<std::string, std::map<std::string, std::string>> iniData;
 
     // Check if file didn't exist
-    if (!isFile(ULTRAHAND_CONFIG_INI_PATH)) {
+    if (!isFile(Ryazhahand_CONFIG_INI_PATH)) {
         updateMenuCombos = true;
     } else {
         // Always try to load INI data (will be empty if file doesn't exist)
-        iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
+        iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
         for (int i = 0; i < 3; i++) {
-            if (iniData.empty() || iniData[ULTRAHAND_PROJECT_NAME].empty()) {
+            if (iniData.empty() || iniData[Ryazhahand_PROJECT_NAME].empty()) {
                 svcSleepThread(100'000);
-                iniData = getParsedDataFromIniFile(ULTRAHAND_CONFIG_INI_PATH);
+                iniData = getParsedDataFromIniFile(Ryazhahand_CONFIG_INI_PATH);
             } else {
                 break;
             }
@@ -6825,24 +6825,24 @@ void initializeSettingsAndDirectories() {
     }
 
 
-    auto& ultrahandSection = iniData[ULTRAHAND_PROJECT_NAME];
+    auto& RyazhahandSection = iniData[Ryazhahand_PROJECT_NAME];
     
     // Efficient lambdas that modify in-memory data and track updates
     auto setDefaultValue = [&](const std::string& section, const std::string& defaultValue, bool& settingFlag) {
-        if (ultrahandSection.count(section) > 0) {
-            settingFlag = (ultrahandSection.at(section) == TRUE_STR);
+        if (RyazhahandSection.count(section) > 0) {
+            settingFlag = (RyazhahandSection.at(section) == TRUE_STR);
         } else {
-            ultrahandSection[section] = defaultValue;
+            RyazhahandSection[section] = defaultValue;
             settingFlag = (defaultValue == TRUE_STR);
             needsUpdate = true;
         }
     };
     
     auto setDefaultStrValue = [&](const std::string& section, const std::string& defaultValue, std::string& settingValue) {
-        if (ultrahandSection.count(section) > 0) {
-            settingValue = ultrahandSection.at(section);
+        if (RyazhahandSection.count(section) > 0) {
+            settingValue = RyazhahandSection.at(section);
         } else {
-            ultrahandSection[section] = defaultValue;
+            RyazhahandSection[section] = defaultValue;
             settingValue = defaultValue;
             needsUpdate = true;
         }
@@ -6860,8 +6860,8 @@ void initializeSettingsAndDirectories() {
     setDefaultValue("selection_bg", TRUE_STR, useSelectionBG);
     setDefaultValue("selection_text", FALSE_STR, useSelectionText);
     setDefaultValue("selection_value", FALSE_STR, useSelectionValue);
-    setDefaultValue("libultrahand_titles", FALSE_STR, useLibultrahandTitles);
-    setDefaultValue("libultrahand_versions", TRUE_STR, useLibultrahandVersions);
+    setDefaultValue("libRyazhahand_titles", FALSE_STR, useLibRyazhahandTitles);
+    setDefaultValue("libRyazhahand_versions", TRUE_STR, useLibRyazhahandVersions);
     setDefaultValue("package_titles", FALSE_STR, usePackageTitles);
     setDefaultValue("package_versions", TRUE_STR, usePackageVersions);
     setDefaultValue("memory_expansion", FALSE_STR, useMemoryExpansion);
@@ -6876,75 +6876,75 @@ void initializeSettingsAndDirectories() {
     setDefaultStrValue(DEFAULT_LANG_STR, defaultLang, defaultLang);
 
     // Ensure certain settings are set in the INI file if they don't exist (in memory)
-    if (ultrahandSection.count("datetime_format") == 0) {
-        ultrahandSection["datetime_format"] = DEFAULT_DT_FORMAT;
+    if (RyazhahandSection.count("datetime_format") == 0) {
+        RyazhahandSection["datetime_format"] = DEFAULT_DT_FORMAT;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("hide_clock") == 0) {
-        ultrahandSection["hide_clock"] = FALSE_STR;
+    if (RyazhahandSection.count("hide_clock") == 0) {
+        RyazhahandSection["hide_clock"] = FALSE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("hide_battery") == 0) {
-        ultrahandSection["hide_battery"] = TRUE_STR;
+    if (RyazhahandSection.count("hide_battery") == 0) {
+        RyazhahandSection["hide_battery"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("hide_pcb_temp") == 0) {
-        ultrahandSection["hide_pcb_temp"] = TRUE_STR;
+    if (RyazhahandSection.count("hide_pcb_temp") == 0) {
+        RyazhahandSection["hide_pcb_temp"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("hide_soc_temp") == 0) {
-        ultrahandSection["hide_soc_temp"] = TRUE_STR;
+    if (RyazhahandSection.count("hide_soc_temp") == 0) {
+        RyazhahandSection["hide_soc_temp"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("dynamic_widget_colors") == 0) {
-        ultrahandSection["dynamic_widget_colors"] = TRUE_STR;
+    if (RyazhahandSection.count("dynamic_widget_colors") == 0) {
+        RyazhahandSection["dynamic_widget_colors"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("hide_widget_backdrop") == 0) {
-        ultrahandSection["hide_widget_backdrop"] = FALSE_STR;
+    if (RyazhahandSection.count("hide_widget_backdrop") == 0) {
+        RyazhahandSection["hide_widget_backdrop"] = FALSE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("center_widget_alignment") == 0) {
-        ultrahandSection["center_widget_alignment"] = TRUE_STR;
+    if (RyazhahandSection.count("center_widget_alignment") == 0) {
+        RyazhahandSection["center_widget_alignment"] = TRUE_STR;
         needsUpdate = true;
     }
 
-    if (ultrahandSection.count("extended_widget_backdrop") == 0) {
-        ultrahandSection["extended_widget_backdrop"] = FALSE_STR;
+    if (RyazhahandSection.count("extended_widget_backdrop") == 0) {
+        RyazhahandSection["extended_widget_backdrop"] = FALSE_STR;
         needsUpdate = true;
     }
     
     // Check if settings were previously loaded
-    settingsLoaded = ultrahandSection.count(IN_OVERLAY_STR) > 0;
+    settingsLoaded = RyazhahandSection.count(IN_OVERLAY_STR) > 0;
 
     // Handle the 'to_packages' option if it exists
-    if (ultrahandSection.count("to_packages") > 0) {
-        trim(ultrahandSection["to_packages"]);
-        toPackages = (ultrahandSection["to_packages"] == TRUE_STR);
+    if (RyazhahandSection.count("to_packages") > 0) {
+        trim(RyazhahandSection["to_packages"]);
+        toPackages = (RyazhahandSection["to_packages"] == TRUE_STR);
     }
     
     // Handle the 'in_overlay' setting
     if (settingsLoaded) {
-        inOverlay = (ultrahandSection[IN_OVERLAY_STR] == TRUE_STR);
+        inOverlay = (RyazhahandSection[IN_OVERLAY_STR] == TRUE_STR);
     }
     
     // If settings weren't previously loaded, add the missing defaults
     if (!settingsLoaded) {
-        ultrahandSection[DEFAULT_LANG_STR] = defaultLang;
-        ultrahandSection[IN_OVERLAY_STR] = FALSE_STR;
+        RyazhahandSection[DEFAULT_LANG_STR] = defaultLang;
+        RyazhahandSection[IN_OVERLAY_STR] = FALSE_STR;
         needsUpdate = true;
     }
     
     // Only write back to file if we made changes
     if (needsUpdate) {
-        saveIniFileData(ULTRAHAND_CONFIG_INI_PATH, iniData);
+        saveIniFileData(Ryazhahand_CONFIG_INI_PATH, iniData);
     }
 
     if (useNotifications && !isFile(NOTIFICATIONS_FLAG_FILEPATH)) {
@@ -6968,7 +6968,7 @@ void initializeSettingsAndDirectories() {
     // Initialize theme
     initializeTheme();
     tsl::initializeThemeVars();
-    copyTeslaKeyComboToUltrahand();
+    copyTeslaKeyComboToRyazhahand();
     
     // Set current menu based on settings
     static bool hasInitialized = false;
@@ -7026,10 +7026,10 @@ public:
                 deleteFileOrDirectory(FUSE_DATA_INI_PATH);
 
             // initialize expanded memory on boot
-            setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? TRUE_STR : FALSE_STR);
+            setIniFileValue(Ryazhahand_CONFIG_INI_PATH, Ryazhahand_PROJECT_NAME, "memory_expansion", (loaderTitle == "nx-ovlloader+") ? TRUE_STR : FALSE_STR);
 
             if (tsl::notification)
-                tsl::notification->show(ULTRAHAND_HAS_STARTED);
+                tsl::notification->show(Ryazhahand_HAS_STARTED);
             
         }
         
@@ -7047,7 +7047,7 @@ public:
     virtual void exitServices() override {
         closeInterpreterThread(); // just in case ¯\_(ツ)_/¯
 
-        if (exitingUltrahand.load(acquire))
+        if (exitingRyazhahand.load(acquire))
             executeIniCommands(PACKAGE_PATH + EXIT_PACKAGE_FILENAME, "exit");
 
         cleanupCurl();
@@ -7235,3 +7235,4 @@ int main(int argc, char* argv[]) {
     }
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 }
+
