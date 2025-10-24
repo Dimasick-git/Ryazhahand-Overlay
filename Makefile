@@ -65,7 +65,7 @@ INCLUDES	:= source common include
 NO_ICON		:= 1
 
 # This location should reflect where you place the libRYAZHAHAND directory (lib can vary between projects).
-include ${TOPDIR}/lib/libRYAZHAHAND/Ryazhahand.mk
+include ${TOPDIR}/lib/libRYAZHAHAND/ultrahand.mk
 
 
 #---------------------------------------------------------------------------------
