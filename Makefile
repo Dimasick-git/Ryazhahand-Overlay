@@ -1,17 +1,17 @@
 ##################################################################################
-# Makefile for Ultrahand Overlay
-# Author: ppkantorski
+# Makefile for Ryazhahand Overlay
+# Author: Dimasick-git
 # Description:
-#   This Makefile is used to build the Ultrahand Overlay homebrew application for
+#   This Makefile is used to build the Ryazhahand Overlay homebrew application for
 #   Nintendo Switch.
 #
 #   For more details and usage instructions, please refer to the project's
 #   documentation and README.md.
 #
-#   GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay
+#   GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay
 #
 # Licensed under GPLv2
-# Copyright (c) 2024 ppkantorski
+# Copyright (c) 2024 Dimasick-git
 ##################################################################################
 
 #---------------------------------------------------------------------------------
@@ -55,8 +55,8 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well. #lib/Atmosphere-libs/libexosphere/source/pmic
 #---------------------------------------------------------------------------------
-APP_TITLE	:= Ultrahand
-APP_AUTHOR	:= ppkantorski
+APP_TITLE	:= Ryazhahand
+APP_AUTHOR	:= Dimasick-git
 APP_VERSION	:= 2.1.5-pre-release
 TARGET		:= ovlmenu
 BUILD		:= build
@@ -64,8 +64,8 @@ SOURCES		:= source common
 INCLUDES	:= source common include
 NO_ICON		:= 1
 
-# This location should reflect where you place the libultrahand directory (lib can vary between projects).
-include ${TOPDIR}/lib/libultrahand/ultrahand.mk
+# This location should reflect where you place the libRYAZHAHAND directory (lib can vary between projects).
+include ${TOPDIR}/lib/libRYAZHAHAND/Ryazhahand.mk
 
 
 #---------------------------------------------------------------------------------
@@ -80,9 +80,9 @@ CFLAGS += $(INCLUDE) -D__SWITCH__ -DAPP_VERSION="\"$(APP_VERSION)\"" -D_FORTIFY_
 
 
 #---------------------------------------------------------------------------------
-# options for libultrahand
+# options for libRYAZHAHAND
 #---------------------------------------------------------------------------------
-# For compiling Ultrahand Overlay only
+# For compiling Ryazhahand Overlay only
 IS_LAUNCHER_DIRECTIVE := 1
 CFLAGS += -DIS_LAUNCHER_DIRECTIVE=$(IS_LAUNCHER_DIRECTIVE)
 
@@ -109,7 +109,7 @@ CXXFLAGS := $(CFLAGS) -std=c++26 -Wno-dangling-else -ffast-math -fno-unwind-tabl
 ASFLAGS := $(ARCH)
 LDFLAGS += -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-# Essential libraries for Ultrahand Overlay
+# Essential libraries for Ryazhahand Overlay
 LIBS := -lcurl -lz -lminizip -lmbedtls -lmbedx509 -lmbedcrypto -lnx
 
 CXXFLAGS += -fno-exceptions -ffunction-sections -fdata-sections -fno-rtti
@@ -287,7 +287,7 @@ $(OUTPUT).ovl: $(OUTPUT).elf $(OUTPUT).nacp
 	@elf2nro $< $@ $(NROFLAGS)
 	@echo "built ... $(notdir $(OUTPUT).ovl)"
 	@printf 'ULTR' >> $@
-	@printf "Ultrahand signature has been added.\n"
+	@printf "Ryazhahand signature has been added.\n"
 
 
 $(OUTPUT).elf: $(OFILES)
