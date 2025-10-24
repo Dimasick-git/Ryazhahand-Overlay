@@ -1,22 +1,23 @@
 ##################################################################################
-# Makefile for Ryazhahand Overlay
-# Author: Dimasick-git
+# Makefile for Ultrahand Overlay
+# Author: ppkantorski
 # Description:
-#   This Makefile is used to build the Ryazhahand Overlay homebrew application for
+#   This Makefile is used to build the Ultrahand Overlay homebrew application for
 #   Nintendo Switch.
 #
 #   For more details and usage instructions, please refer to the project's
 #   documentation and README.md.
 #
-#   GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay
+#   GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay
 #
 # Licensed under GPLv2
-# Copyright (c) 2025 Dimasick-git
+# Copyright (c) 2024 ppkantorski
 ##################################################################################
 
 #---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
+
 
 ifeq ($(strip $(DEVKITPRO)),)
 $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
@@ -24,6 +25,7 @@ endif
 
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
+
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
@@ -41,30 +43,30 @@ include $(DEVKITPRO)/libnx/switch_rules
 # APP_TITLEID is the titleID of the app stored in the .nacp file (Optional)
 # ICON is the filename of the icon (.jpg), relative to the project folder.
 #   If not set, it attempts to use one of the following (in this order):
-#	 - <Project Name>.jpg
+#	 - <Project name>.jpg
 #	 - icon.jpg
 #	 - <libnx folder>/default_icon.jpg
 #
 # CONFIG_JSON is the filename of the NPDM config file (.json), relative to the project folder.
 #   If not set, it attempts to use one of the following (in this order):
-#	 - <Project Name>.json
+#	 - <Project name>.json
 #	 - config.json
 #   If a JSON file is provided or autodetected, an ExeFS PFS0 (.nsp) is built instead
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well. #lib/Atmosphere-libs/libexosphere/source/pmic
 #---------------------------------------------------------------------------------
-APP_TITLE	:= Ryazhahand
-APP_AUTHOR	:= Dimasick-git
-APP_VERSION	:= 1.0.0-pre-release
-
+APP_TITLE	:= Ultrahand
+APP_AUTHOR	:= ppkantorski
+APP_VERSION	:= 2.1.5-pre-release
 TARGET		:= ovlmenu
 BUILD		:= build
 SOURCES		:= source common
 INCLUDES	:= source common include
 NO_ICON		:= 1
 
-# This location should reflect where you place the libultraahand directory (lib can vary between projects).
-include ${TOPDIR}/lib/libRYAZHAHAND/RYAZHAHAND.mk
+# This location should reflect where you place the libultrahand directory (lib can vary between projects).
+include ${TOPDIR}/lib/libultrahand/ultrahand.mk
+
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -74,12 +76,13 @@ ARCH := -march=armv8-a+simd+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -Wall -Os -ffunction-sections -fdata-sections -flto -fuse-linker-plugin -fomit-frame-pointer -finline-small-functions \
 			$(ARCH) $(DEFINES)
 
-CFLAGS += $(INCLUDE) -D__SWITCH__ -DAPP_VERSION=\"$(APP_VERSION)\" -D_FORTIFY_SOURCE=2
+CFLAGS += $(INCLUDE) -D__SWITCH__ -DAPP_VERSION="\"$(APP_VERSION)\"" -D_FORTIFY_SOURCE=2
+
 
 #---------------------------------------------------------------------------------
-# options for libRYAZHAHAND
+# options for libultrahand
 #---------------------------------------------------------------------------------
-# For compiling Ryazhahand Overlay only
+# For compiling Ultrahand Overlay only
 IS_LAUNCHER_DIRECTIVE := 1
 CFLAGS += -DIS_LAUNCHER_DIRECTIVE=$(IS_LAUNCHER_DIRECTIVE)
 
@@ -98,14 +101,15 @@ CFLAGS += -DUSING_FPS_INDICATOR_DIRECTIVE=$(USING_FPS_INDICATOR_DIRECTIVE)
 # Enable fstream (ideally for other overlays want full fstream instead of FILE*)
 #USING_FSTREAM_DIRECTIVE := 0
 #CFLAGS += -DUSING_FSTREAM_DIRECTIVE=$(USING_FSTREAM_DIRECTIVE)
-
 #---------------------------------------------------------------------------------
+
+
 CXXFLAGS := $(CFLAGS) -std=c++26 -Wno-dangling-else -ffast-math -fno-unwind-tables -fno-asynchronous-unwind-tables 
 
 ASFLAGS := $(ARCH)
 LDFLAGS += -specs=$(DEVKITPRO)/libnx/switch.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-# Essential libraries for Ryazhenkahand Overlay
+# Essential libraries for Ultrahand Overlay
 LIBS := -lcurl -lz -lminizip -lmbedtls -lmbedx509 -lmbedcrypto -lnx
 
 CXXFLAGS += -fno-exceptions -ffunction-sections -fdata-sections -fno-rtti
@@ -139,6 +143,7 @@ endif
 CXXFLAGS += -flto=$(NPROC)
 LDFLAGS  += -flto=$(NPROC)
 
+
 # Add -z notext to LDFLAGS to allow dynamic relocations in read-only segments
 #LDFLAGS += -z notext
 
@@ -151,6 +156,7 @@ LDFLAGS  += -flto=$(NPROC)
 # include and lib
 #---------------------------------------------------------------------------------
 LIBDIRS := $(PORTLIBS) $(LIBNX)
+
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -244,9 +250,11 @@ endif
 #---------------------------------------------------------------------------------
 all: $(BUILD)
 
+
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile MAKEFLAGS="$(filter-out -j% -j,$(MAKEFLAGS)) -j"
+
 	@rm -rf out/
 	@mkdir -p out/switch/.overlays/
 	@cp $(CURDIR)/$(TARGET).ovl out/switch/.overlays/$(TARGET).ovl
@@ -254,15 +262,16 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@rm -fr $(BUILD) $(TARGET).ovl $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+
 	@rm -rf out/
 	@rm -f $(TARGET).zip
 
 #---------------------------------------------------------------------------------
 dist: all
 	@echo making dist ...
+
 	@rm -f $(TARGET).zip
 	@cd out; zip -r ../$(TARGET).zip ./*; cd ../
-
 #---------------------------------------------------------------------------------
 else
 .PHONY: all
@@ -277,8 +286,9 @@ all : $(OUTPUT).ovl
 $(OUTPUT).ovl: $(OUTPUT).elf $(OUTPUT).nacp 
 	@elf2nro $< $@ $(NROFLAGS)
 	@echo "built ... $(notdir $(OUTPUT).ovl)"
-	@printf 'RYZH' >> $@
-	@printf "Ryazhahand signature has been added.\n"
+	@printf 'ULTR' >> $@
+	@printf "Ultrahand signature has been added.\n"
+
 
 $(OUTPUT).elf: $(OFILES)
 
