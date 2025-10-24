@@ -1,4 +1,3 @@
-68
 ##################################################################################
 # Makefile for Ryazhahand Overlay
 # Author: Dimasick-git
