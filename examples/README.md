@@ -1,40 +1,32 @@
-# RYAZHAHAND Overlay - Examples
+# 📚 Примеры для RYAZHAHAND Overlay
 
-This repository contains a collection of useful examples that demonstrate the capabilities and usage of RYAZHAHAND Overlay.
+Добро пожаловать в каталог примеров! Здесь собраны готовые кейсы и шаблоны, которые помогают быстро освоить возможности RYAZHAHAND Overlay.
 
-RYAZHAHAND Overlay is a powerful tool that allows you to customize and enhance your device's overlays in order to optimize performance, improve functionality, and personalize your experience.
+- 🚀 Быстрый старт
+- 🔧 Скрипты и пакеты
+- 🎨 Темы и оформление
+- 🛡️ Безопасность и системные утилиты
 
-## Examples
+## 🔥 Навигация по примерам
 
-- [Cool Curves](Cool%20Curves/README.md): Explore the Cool Curves example to discover how to modify and optimize the fan curve settings through a simple interface.
+- [Cool Curves](Cool%20Curves/README.md) — настраиваемые кривые вентиляторов через простой интерфейс
+- [Host Guard](Host%20Guard/README.md) — блокировка нежелательных хостов и усиление безопасности
+- [Mod Master](Mod%20Master/README.md) — управление игровыми модами и пресетами
+- [OC Toolkit](OC%20Toolkit/README.md) — разгон/андервольт, тайминги и профильные KIP
+- [Broomstick](Broomstick/README.md) — выгрузка/восстановление оверлеев ради экономии ресурсов
+- [l4t_reboot](l4t_reboot/README.md) — перезагрузка в L4T Ubuntu одним действием
+- [config.ini](https://github.com/Dimasick-git/Ryazhahand-Overlay/blob/main/examples/config.ini) — базовые системные команды и шпаргалка
 
-- [Host Guard](Host%20Guard/README.md): The Host Guard example demonstrates the utilization of overlay customization to enhance security and protect your device from servers you may not want your device to access.
+## 🚀 Как пользоваться примерами
 
-- [Mod Master](Mod%20Master/README.md): Dive into the Mod Master example to learn how to leverage RYAZHAHAND Overlay to manage and optimize your favorite game modifications.
+1. Склонируйте репозиторий или скачайте архив
+2. Скопируйте содержимое нужной папки в каталог `/switch/.packages/` на SD карте
+3. Следуйте инструкциям внутри конкретного примера (README в папке примера)
 
-- [OC Toolkit](OC%20Toolkit/README.md): OC Toolkit demonstrates how to push your device's performance to the limit by applying custom overclocks, timings, and undervoltage settings to kip files.
+Внимание: перед применением убедитесь, что понимаете влияние изменений на систему. Следуйте инструкциям внимательно.
 
-- [Broomstick](Broomstick/README.md): The Broomstick example provides a convenient way to offload and restore specific overlays, allowing you to free up system resources and improve performance.
+## 🤝 Вклад
 
-- [l4t_reboot](l4t_reboot/README.md): Use the l4t_reboot utility on Linux to perform system reboots into Ubuntu with ease.
+PR приветствуются! Присылайте улучшения, фиксы и новые примеры. Сначала проверьте, что пример запускается на актуальной версии (v2.1.5) и соответствует стилю проекта.
 
-- [config.ini](https://github.com/Dimasick-git/RYAZHAHAND-Overlay/blob/main/examples/config.ini): Basic system commands for your device.
-
-## Getting Started
-
-To use these examples, follow these steps:
-
-1. Clone or download this repository to your local machine.
-2. Copy the contents of the desired example folder to `/switch/.packages/` on your device.
-3. Follow the specific instructions provided in each example's README file to configure and apply the overlays.
-
-Note: Before applying any overlays or modifications, make sure you understand the potential impact on your device and follow the instructions carefully.
-
-## Contributing
-
-Contributions from the community are welcome! If you have any improvements, bug fixes, or new examples to share, feel free to submit a pull request.
-
-
-Copyright (c) 2024 Dimasick-git
-
-All rights reserved.
+© 2025 Dimasick-git — Все права защищены.
