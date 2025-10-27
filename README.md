@@ -68,7 +68,7 @@
 1. Скачайте последний релиз из раздела [Releases](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)
 2. Распакуйте архив в корень SD карты
 3. Перезагрузите консоль
-4. Откройте Tesla Menu (L + DPad Down + R3)
+4. Откройте Tesla Menu (L + DPad UP + R)
 5. Выберите Ryazhahand Overlay
 
 ### Ручная установка
@@ -125,7 +125,7 @@ sdmc:/
 [Package Info]
 name=Мой пакет
 author=Ваше имя
-version=1.0.0
+version=2.1.5
 description=Описание пакета
 
 [Files]
@@ -215,3 +215,4 @@ cmd2=reboot
 **Сделано с ❤️ для сообщества Nintendo Switch**
 
 </div>
+
