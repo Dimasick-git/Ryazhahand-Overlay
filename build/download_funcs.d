@@ -1,6 +1,6 @@
 download_funcs.o: \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/source/download_funcs.cpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/download_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/source/download_funcs.cpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/download_funcs.hpp \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -187,12 +187,12 @@ download_funcs.o: \
  C:/devkitPro/portlibs/switch/include/zconf.h \
  C:/devkitPro/portlibs/switch/include/minizip/unzip.h \
  C:/devkitPro/portlibs/switch/include/minizip/ioapi.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/get_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/path_funcs.hpp
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/download_funcs.hpp:
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/get_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/path_funcs.hpp
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/download_funcs.hpp:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
@@ -379,8 +379,8 @@ C:/devkitPro/portlibs/switch/include/zlib.h:
 C:/devkitPro/portlibs/switch/include/zconf.h:
 C:/devkitPro/portlibs/switch/include/minizip/unzip.h:
 C:/devkitPro/portlibs/switch/include/minizip/ioapi.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/get_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/path_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/get_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/path_funcs.hpp:

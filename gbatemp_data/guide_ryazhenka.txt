@@ -1,0 +1,33 @@
+Ryzhenka – краткое руководство (by Dimasick-git)
+
+Описание
+Ryzhenka — экосистема для Nintendo Switch: установка CFW, компоненты (Hekate, Atmosphere, Tesla, HB Menu), FAQ и быстрый старт.
+Ссылка: https://github.com/Dimasick-git/Ryzhenka
+
+Быстрый старт
+1) Подготовь SD (FAT32), сделай бэкап NAND (рекомендуется)
+2) Установи Hekate и Atmosphere
+3) Положи sigpatches (актуальные)
+4) Запусти через RCM/bootloader Hekate
+5) Проверь HB Menu, Tesla Menu
+
+Компоненты
+- Hekate: bootloader/менеджер
+- Atmosphere: CFW
+- Tesla Menu: оверлеи
+- HB Menu: загрузчик homebrew
+
+Практика
+- Обновления: обновляй Hekate/Atmosphere согласованно
+- Sigpatches: следи за совместимостью версий
+- Темы/виджеты: опционально
+
+Триггеры проблем
+- Чёрный экран: проверь sysmodules/конфиги
+- Краш: логи fatal/context, содержимое /atmosphere/contents
+- Файловая система: FAT32 надёжнее ExFAT
+
+Поддержка
+- Читай FAQ
+- Issues в репозитории
+- Комьюнити/Telegram

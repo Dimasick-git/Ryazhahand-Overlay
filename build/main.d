@@ -1,13 +1,13 @@
-main.o: C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/source/main.cpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/ryazha.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/get_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/path_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/list_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/json_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h \
+main.o: C:/Users/dimas/RyazhenkaAI/source/main.cpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/ryazha.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/get_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/path_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/list_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/json_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -180,9 +180,9 @@ main.o: C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/source/main.cpp \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/ini_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/hex_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/download_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/ini_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/hex_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/download_funcs.hpp \
  C:/devkitPro/portlibs/switch/include/curl/curl.h \
  C:/devkitPro/portlibs/switch/include/curl/curlver.h \
  C:/devkitPro/portlibs/switch/include/curl/system.h \
@@ -197,23 +197,23 @@ main.o: C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/source/main.cpp \
  C:/devkitPro/portlibs/switch/include/zconf.h \
  C:/devkitPro/portlibs/switch/include/minizip/unzip.h \
  C:/devkitPro/portlibs/switch/include/minizip/ioapi.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/mod_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/tsl_utils.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libtesla/include/tesla.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/audio_player.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libtesla/include/stb_truetype.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/source/utils.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/payload.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/util.hpp
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/ryazha.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/get_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/path_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/list_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/json_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h:
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/mod_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/tsl_utils.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libtesla/include/tesla.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/audio_player.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libtesla/include/stb_truetype.h \
+ C:/Users/dimas/RyazhenkaAI/source/utils.hpp \
+ C:/Users/dimas/RyazhenkaAI/common/payload.hpp \
+ C:/Users/dimas/RyazhenkaAI/common/util.hpp
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/ryazha.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/get_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/path_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/list_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/json_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
@@ -386,9 +386,9 @@ C:/devkitPro/libnx/include/switch/crypto/cmac.h:
 C:/devkitPro/libnx/include/switch/crypto/sha1.h:
 C:/devkitPro/libnx/include/switch/crypto/hmac.h:
 C:/devkitPro/libnx/include/switch/crypto/crc.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/ini_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/hex_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/download_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/ini_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/hex_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/download_funcs.hpp:
 C:/devkitPro/portlibs/switch/include/curl/curl.h:
 C:/devkitPro/portlibs/switch/include/curl/curlver.h:
 C:/devkitPro/portlibs/switch/include/curl/system.h:
@@ -403,11 +403,11 @@ C:/devkitPro/portlibs/switch/include/zlib.h:
 C:/devkitPro/portlibs/switch/include/zconf.h:
 C:/devkitPro/portlibs/switch/include/minizip/unzip.h:
 C:/devkitPro/portlibs/switch/include/minizip/ioapi.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/mod_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/tsl_utils.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libtesla/include/tesla.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/audio_player.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libtesla/include/stb_truetype.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/source/utils.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/payload.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/util.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/mod_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/tsl_utils.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libtesla/include/tesla.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/audio_player.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libtesla/include/stb_truetype.h:
+C:/Users/dimas/RyazhenkaAI/source/utils.hpp:
+C:/Users/dimas/RyazhenkaAI/common/payload.hpp:
+C:/Users/dimas/RyazhenkaAI/common/util.hpp:

@@ -1,4 +1,4 @@
-ams_bpc.o: C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/ams_bpc.c \
+ams_bpc.o: C:/Users/dimas/RyazhenkaAI/common/ams_bpc.c \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -171,7 +171,7 @@ ams_bpc.o: C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/ams_bpc.c \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/ams_bpc.h
+ C:/Users/dimas/RyazhenkaAI/common/ams_bpc.h
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:
@@ -344,4 +344,4 @@ C:/devkitPro/libnx/include/switch/crypto/cmac.h:
 C:/devkitPro/libnx/include/switch/crypto/sha1.h:
 C:/devkitPro/libnx/include/switch/crypto/hmac.h:
 C:/devkitPro/libnx/include/switch/crypto/crc.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/common/ams_bpc.h:
+C:/Users/dimas/RyazhenkaAI/common/ams_bpc.h:

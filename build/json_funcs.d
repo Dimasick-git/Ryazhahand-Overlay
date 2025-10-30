@@ -1,10 +1,10 @@
 json_funcs.o: \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/source/json_funcs.cpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/json_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/source/json_funcs.cpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/json_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -177,11 +177,11 @@ json_funcs.o: \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/json_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/string_funcs.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/global_vars.hpp:
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/json_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/string_funcs.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/global_vars.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/libryazha/include/debug_funcs.hpp:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:

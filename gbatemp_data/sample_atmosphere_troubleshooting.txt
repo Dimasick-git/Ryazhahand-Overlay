@@ -1,0 +1,4 @@
+Atmosphere troubleshooting notes
+- If stuck on Nintendo logo: check sept removal and bootloader configs.
+- Black screen after payload: try removing sysmodules, update exosphere.ini.
+- Crash on boot: verify contents folder and fatal context logs.

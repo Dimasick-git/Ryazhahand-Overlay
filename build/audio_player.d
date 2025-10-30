@@ -1,6 +1,6 @@
 audio_player.o: \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/audio_player.cpp \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/audio_player.hpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/audio_player.cpp \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/audio_player.hpp \
  C:/devkitPro/libnx/include/switch.h \
  C:/devkitPro/libnx/include/switch/types.h \
  C:/devkitPro/libnx/include/switch/result.h \
@@ -173,7 +173,7 @@ audio_player.o: \
  C:/devkitPro/libnx/include/switch/crypto/sha1.h \
  C:/devkitPro/libnx/include/switch/crypto/hmac.h \
  C:/devkitPro/libnx/include/switch/crypto/crc.h
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/audio_player.hpp:
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/audio_player.hpp:
 C:/devkitPro/libnx/include/switch.h:
 C:/devkitPro/libnx/include/switch/types.h:
 C:/devkitPro/libnx/include/switch/result.h:

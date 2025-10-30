@@ -1,4 +1,3 @@
-cJSON.o: \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.c \
- C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h
-C:/Users/dimas/RYAZHAHAND/RYAZHAHAND-Overlay/lib/libryazhahand/common/cJSON.h:
+cJSON.o: C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.c \
+ C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h
+C:/Users/dimas/RyazhenkaAI/lib/libryazhahand/common/cJSON.h:

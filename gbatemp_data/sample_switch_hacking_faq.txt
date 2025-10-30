@@ -1,0 +1,5 @@
+Atmosphere CFW common Q&A
+- Sigpatches needed for unsigned NSP/XCI.
+- Use latest Hekate and Atmosphere matching versions.
+- ExFAT can corrupt; FAT32 + split files is recommended.
+- Homebrew menu via Album or R + a game icon.
