@@ -1,0 +1,49 @@
+RyazhenkaAI (ovlmenu) - Instruction
+
+1) Build (MSYS2 devkitPro)
+- cd /c/Users/dimas/RyazhenkaAI_clean
+- make clean || true
+- make
+=> output: ovlmenu.ovl
+
+2) Deploy to SD
+- Copy ovlmenu.ovl -> sd:/switch/overlays/ovlmenu.ovl
+- Put GBATemp .txt into sd:/switch/RyazhenkaAI/data/*.txt (optional; ROMFS also bundled)
+
+3) Audio (WAV/MP3)
+Supported search order (any path):
+- sd:/config/ryazhahand/sounds/
+- sd:/switch/RyazhenkaAI/sounds/
+- sd:/switch/ryazhahand/sounds/
+Files (any of .wav or .mp3):
+- tick.(wav|mp3)
+- enter.(wav|mp3)
+- exit.(wav|mp3)
+- wall.(wav|mp3)
+MP3 support auto-enabled if headers present.
+- Optional helpers:
+  - MSYS2: bash tools/get_minimp3.sh
+  - PowerShell: powershell -ExecutionPolicy Bypass -File tools/get_minimp3.ps1
+
+4) Run on Switch
+- In-game: open Tesla menu (L + D-Pad Down + R-stick)
+- Enable ovlmenu.ovl
+- Settings -> "RyazhenkaAI (Guides)"
+- Inside guide: L/R to switch pages, + to exit
+
+5) Troubleshooting
+- If guide list empty: ensure ROMFS bundled (see build log) or add SD files into sd:/switch/RyazhenkaAI/data/
+- If audio silent: ensure filenames and one of the supported sound paths on SD
+- If build fails in OneDrive path: use a clean path without spaces/Unicode, e.g. C:\Users\dimas\RyazhenkaAI_clean
+
+6) Attribution
+- "Придумано автором: Dimasick-gir" (автор проекта)
+
+7) Short guides (external)
+- Ryzhenka (ecosystem overview, install, modules): https://github.com/Dimasick-git/Ryzhenka
+  - Что это: набор материалов по CFW, установке, FAQ, ссылкам на компоненты (Hekate, Atmosphere, Tesla, HB Menu)
+  - Когда читать: для стартовой настройки, обновлений и структуры проекта
+
+- Ryazhenkabestcfw-Tuner (настройки/тюнинг CFW): https://github.com/Dimasick-git/Ryazhenkabestcfw-Tuner
+  - Что это: рекомендации по тюнингу CFW, профили, полезные скрипты/правки для стабильности и производительности
+  - Когда читать: после базовой установки для оптимизации

@@ -57,7 +57,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 APP_TITLE	:= RYAZHAHAND
 APP_AUTHOR	:= Dimasick-git
-APP_VERSION	:= 2.1.5-pre-release
+APP_VERSION	:= 2.1.6
 TARGET		:= ovlmenu
 BUILD		:= build
 SOURCES		:= source common
