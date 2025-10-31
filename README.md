@@ -6,7 +6,7 @@
 ### Мощный оверлей-менеджер для Nintendo Switch
 
 [![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/version-2.1.5-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)
+[![Release](https://img.shields.io/badge/version-2.1.6-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)
 [![Build](https://img.shields.io/badge/build-stable-success.svg)](#)
 [![Support](https://img.shields.io/badge/Support-Boosty-orange.svg)](https://boosty.to/dimasick-git/donate)
 
@@ -215,4 +215,5 @@ cmd2=reboot
 **Сделано с ❤️ для сообщества Nintendo Switch**
 
 </div>
+
 
