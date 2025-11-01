@@ -1,6 +1,7 @@
 /********************************************************************************
  * File: utils.hpp
- * Author: Dimasick-git
+ * Author: ppkantorski
+   Reworked by: Dimasick-git
  * Description:
  *   This header file contains utility functions and macros used in the
  *   RYAZHAHAND Overlay project. These functions and macros include definitions for
@@ -13,7 +14,7 @@
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 Dimasick-git
+ *  Copyright (c) 2024 ppkantorski
  ********************************************************************************/
 
 #pragma once
