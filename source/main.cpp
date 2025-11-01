@@ -1,6 +1,7 @@
 /********************************************************************************
  * File: main.cpp
- * Author: Dimasick-git
+ * Author: ppkantorski
+   Reworked by: Dimasick-git
  * Description: 
  *   This file contains the main program logic for the RYAZHAHAND Overlay project,
  *   an overlay executor designed for versatile crafting and management of overlays.
@@ -20,7 +21,7 @@
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2024 Dimasick-git
+ *  Copyright (c) 2024 ppkantorski
  ********************************************************************************/
 
 #define NDEBUG
