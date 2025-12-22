@@ -74,12 +74,12 @@ Ryazhahand Overlay — форк проекта Ultrahand, переработан
 
 sdmc:/
 ├── switch/
-│   └── .overlays/
-│       └── ovlmenu.ovl          # Основной файл
+│   └── .overlays/    
+         └── ovlmenu.ovl          # Основной файл
+    ├── packages/                 # Пакеты
 ├── config/
 │   └── ryazhahand/
 │       ├── config.ini           # Конфигурация
-│       ├── packages/            # Пакеты
 │       └── lang/                # Языковые файлы
 └── atmosphere/
     └── contents/
@@ -145,8 +145,6 @@ cmd2=reboot
 ### Поддержка проекта
 
 - Boosty: [Поддержать разработку](https://boosty.to/dimasick-git/donate).
-
-𝓓𝓶𝓲𝓽𝓻𝔂 𝓞𝓻𝔂𝓷𝓬𝓱𝓾𝓴, [22.12.2025 8:53]
 - GitHub: поставьте звезду репозиторию.  
 - Issues: [Сообщить о баге](https://github.com/Dimasick-git/Ryazhahand-Overlay/issues).  
 - Discussions: [Обсуждения](https://github.com/Dimasick-git/Ryazhahand-Overlay/discussions).
@@ -193,6 +191,7 @@ cmd2=reboot
 Сделано для сообщества Nintendo Switch
 
 </div>
+
 
 
 
