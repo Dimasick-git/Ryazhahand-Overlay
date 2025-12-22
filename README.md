@@ -1,77 +1,78 @@
-![Ryazhahand Overlay Banner](.pics/Ryazhahand.png)
+# Ryazhahand Overlay: оверлей‑менеджер для Nintendo Switch
 
-<div align="center">
 
-# 🎮 Ryazhahand Overlay
-### Мощный оверлей-менеджер для Nintendo Switch
-
-[![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/version-2.1.6-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)
-[![Build](https://img.shields.io/badge/build-stable-success.svg)](#)
+[![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](LICENSE)  
+[![Release](https://img.shields.io/badge/version-2.1.6-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)  
+[![Build](https://img.shields.io/badge/build-stable-success.svg)  
 [![Support](https://img.shields.io/badge/Support-Boosty-orange.svg)](https://boosty.to/dimasick-git/donate)
 
-[🚀 Установка](#-установка) • [✨ Возможности](#-возможности) • [📖 Использование](#-использование) • [🔄 Обновление](#-обновление) • [💬 Контакты](#-контакты)
-
-</div>
-
----
-
-## 📋 Описание
-
-**Ryazhahand Overlay** — это форк популярного проекта Ultrahand, полностью переработанный и оптимизированный для стабильной работы на Nintendo Switch. Проект представляет собой мощный инструмент управления оверлеями с расширенным функционалом и современным дизайном.
-
-### 🎯 Ключевые отличия от Ultrahand:
-
-- ✅ **Стабильная сборка** — исправлены все критические баги
-- 🛠️ **Устранены конфликты** constexpr строк
-- 📦 **Пересобран и подписан** `ovlmenu.ovl`
-- 🎨 **Новые темы** и улучшенный интерфейс
-- 🌐 **Поддержка языков** включая русский
+Навигация по документу:  
+- [Установка](#установка)  
+- [Возможности](#возможности)  
+- [Использование](#использование)  
+- [Обновление](#обновление)  
+- [Контакты](#контакты)  
 
 ---
 
-## ✨ Возможности
+## Описание
 
-### 🔥 Основной функционал
+Ryazhahand Overlay — форк проекта Ultrahand, переработанный и оптимизированный для стабильной работы на Nintendo Switch. Это инструмент управления оверлеями с расширенным функционалом и современным интерфейсом.
 
-- **📱 Меню оверлеев** — быстрый доступ ко всем установленным оверлеям
-- **⚙️ Управление системой** — расширенные настройки консоли
-- **🎮 Профили игр** — сохранение и загрузка конфигураций
-- **🔧 Кастомные команды** — создание собственных скриптов
-- **📊 Мониторинг** — отслеживание температуры, частот и загрузки
-- **🎨 Темы оформления** — выбор из множества стилей
-- **🌍 Мультиязычность** — поддержка русского и других языков
+## Ключевые отличия от Ultrahand
 
-### 🛠️ Продвинутые фичи
 
-- 📦 Система пакетов для установки модов
-- 🎯 Горячие клавиши для быстрого доступа
-- 💾 Резервное копирование настроек
-- 🔍 Поиск по оверлеям
-- 📝 Логирование действий
+- Стабильная сборка: исправлены критические баги.  
+- Устранены конфликты constexpr строк.  
+- Пересобран и подписан ovlmenu.ovl.  
+- Добавлены новые темы и улучшен интерфейс.  
+- Реализована поддержка русского и других языков.
 
----
 
-## 🚀 Установка
+## Возможности
+
+
+### Основной функционал
+
+- Меню оверлеев — быстрый доступ ко всем установленным оверлеям.  
+- Управление системой — расширенные настройки консоли.  
+- Профили игр — сохранение и загрузка конфигураций.  
+- Кастомные команды — создание собственных скриптов.  
+- Мониторинг — отслеживание температуры, частот и загрузки.  
+- Темы оформления — выбор из множества стилей.  
+- Мультиязычность — поддержка русского и других языков.
+
+
+### Продвинутые функции
+
+- Система пакетов — установка модов.  
+- Горячие клавиши — быстрый доступ к функциям.  
+- Резервное копирование — сохранение настроек.  
+- Поиск по оверлеям.  
+- Логирование действий.
+
+
+## Установка
+
 
 ### Требования
 
-- Nintendo Switch с установленным Atmosphère CFW
-- Tesla Menu (nx-ovlloader)
-- SD карта с достаточным свободным местом
+- Nintendo Switch с установленным Atmosphère CFW.  
+- Tesla Menu (nx‑ovlloader).  
+- SD‑карта с достаточным свободным местом.
 
-### Автоматическая установка (рекомендуется)
+### Автоматическая установка (рекомендуемый способ)
 
-1. Скачайте последний релиз из раздела [Releases](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)
-2. Распакуйте архив в корень SD карты
-3. Перезагрузите консоль
-4. Откройте Tesla Menu (L + DPad UP + R)
-5. Выберите Ryazhahand Overlay
 
-### Ручная установка
+1. Скачайте последний релиз из раздела [Releases](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases).  
+2. Распакуйте архив в корень SD‑карты.  
+3. Перезагрузите консоль.  
+4. Откройте Tesla Menu (*L + DPad UP + R*).  
+5. Выберите Ryazhahand Overlay.
 
-```bash
-# Структура файлов на SD карте
+### Ручная установка: структура файлов на SD‑карте
+
+
 sdmc:/
 ├── switch/
 │   └── .overlays/
@@ -83,41 +84,38 @@ sdmc:/
 │       └── lang/                # Языковые файлы
 └── atmosphere/
     └── contents/
-```
-
 ### Обновление с Ultrahand
 
-Если у вас установлен Ultrahand:
+1. Удалите старые файлы Ultrahand.  
+2. Установите Ryazhahand Overlay.  
+3. Настройки будут автоматически конвертированы.
 
-1. Удалите старые файлы Ultrahand
-2. Установите Ryazhahand Overlay
-3. Ваши настройки будут автоматически конвертированы
+## Использование
 
----
-
-## 📖 Использование
 
 ### Основные горячие клавиши
 
-- **L + DPad UP + R** — открыть Tesla Menu
-- **A** — выбрать/подтвердить
-- **B** — назад/отмена
-- **X** — дополнительные опции
-- **Y** — поиск
-- **Plus** — настройки
+
+- *L + DPad UP + R* — открыть Tesla Menu.  
+- *A* — выбрать/подтвердить.  
+- *B* — назад/отмена.  
+- *X* — дополнительные опции.  
+- *Y* — поиск.  
+- *Plus* — настройки.
 
 ### Первый запуск
 
-2. Выберите Ryazhahand Overlay
-3. Ознакомьтесь с приветственным меню
-4. Настройте язык и тему
-5. Начните использование!
+
+1. Выберите Ryazhahand Overlay.  
+2. Ознакомьтесь с приветственным меню.  
+3. Настройте язык и тему.  
+4. Начните использование.
 
 ### Создание пакетов
 
-Пакеты позволяют быстро устанавливать моды и настройки:
 
-```ini
+Пакеты позволяют быстро устанавливать моды и настройки. Пример файла конфигурации:
+
 [Package Info]
 name=Мой пакет
 author=Ваше имя
@@ -131,76 +129,69 @@ file2=/another/source -> /another/destination
 [Commands]
 cmd1=mkdir /path/to/folder
 cmd2=reboot
-```
-
----
-
+## Обновление
 
 ### Вручную
 
-1. Скачайте новую версию
-2. Замените файл `ovlmenu.ovl`
-3. Перезагрузите консоль
-4. Либо обновитесь в разделе обновления в Ryazhenka, пользуйтесь этой прошивкой
+1. Скачайте новую версию.  
+2. Замените файл ovlmenu.ovl.  
+3. Перезагрузите консоль.
 
----
+### Через интерфейс
 
-## 💬 Контакты
+Используйте раздел обновления в Ryazhenka.
+
+## Контакты
 
 ### Поддержка проекта
 
-Если вам нравится проект и вы хотите поддержать его развитие:
+- Boosty: [Поддержать разработку](https://boosty.to/dimasick-git/donate).
 
-<div align="center">
-
-[![Поддержать на Boosty](https://img.shields.io/badge/Поддержать_на-Boosty-orange?style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACkSURBVHgBrZJBCoMwEEX/JBpE3LgQV+IFehXv0pN4lJ7Eu/QEXkEQFy5c2IX4MzRDGkxTSx8MJJnMfP4khFKKUkqHEMJGKfVACPGitf4ghNgqpXYIIU7GmBVCiItS6oAQ4qy1PiGlNEqpLUKIq9Z6j5TSa603CCGu1toNQohLCOGEEOKutd4gpbTW2g1CiLu19oAQ4mGMWSGEuBpj9kgp/wPvz/EL/sZfj8IXcMUAAAAASUVORK5CYII=)](https://boosty.to/dimasick-git/donate)
-
-</div>
-
-- 💰 **Boosty**: [Поддержать разработку](https://boosty.to/dimasick-git/donate)
-- ⭐ **GitHub**: Поставьте звезду репозиторию!
-- 🐛 **Issues**: [Сообщить о баге](https://github.com/Dimasick-git/Ryazhahand-Overlay/issues)
-- 💡 **Discussions**: [Обсуждения](https://github.com/Dimasick-git/Ryazhahand-Overlay/discussions)
+𝓓𝓶𝓲𝓽𝓻𝔂 𝓞𝓻𝔂𝓷𝓬𝓱𝓾𝓴, [22.12.2025 8:53]
+- GitHub: поставьте звезду репозиторию.  
+- Issues: [Сообщить о баге](https://github.com/Dimasick-git/Ryazhahand-Overlay/issues).  
+- Discussions: [Обсуждения](https://github.com/Dimasick-git/Ryazhahand-Overlay/discussions).
 
 ### Связь с разработчиком
 
-- **GitHub**: [@Dimasick-git](https://github.com/Dimasick-git)
-- **Issues**: Для багов и предложений
 
----
+- GitHub: [@Dimasick‑git](https://github.com/Dimasick-git).  
+- Issues: для багов и предложений.
 
-## 📄 Лицензии
+## Лицензии
 
-Этот проект распространяется под двойной лицензией:
+Проект распространяется под двойной лицензией:
 
-- **Код**: [GPL-2.0](LICENSE) — GNU General Public License v2.0
-- **Документация и медиа**: [CC-BY-4.0](SUB_LICENSE) — Creative Commons Attribution 4.0
+- Код: [GPL‑2.0](LICENSE) — GNU General Public License v2.0.  
+- Документация и медиа: [CC‑BY‑4.0](SUB_LICENSE) — Creative Commons Attribution 4.0.
 
 ### Благодарности
 
-- **Ultrahand** — оригинальный проект, послуживший основой
-- **Tesla Menu** — система оверлеев для Switch
-- **Atmosphère Team** — за потрясающий CFW
-- **DevkitPro** — за инструменты разработки
-- **Все контрибьюторы** — спасибо за вклад! ❤️
+- Ultrahand — оригинальный проект.  
+- Tesla Menu — система оверлеев для Switch.  
+- Atmosphère Team — за CFW.  
+- DevkitPro — за инструменты разработки.  
+- Все контрибьюторы — спасибо за вклад.
 
----
 
-## ⚠️ Дисклеймер
+## Дисклеймер
 
-Этот проект предназначен исключительно для образовательных целей. Разработчики не несут ответственности за любой ущерб, нанесенный вашему устройству. Используйте на свой риск.
 
-**Nintendo Switch™** является товарным знаком Nintendo. Этот проект не связан с Nintendo.
+Проект предназначен исключительно для образовательных целей. Разработчики не несут ответственности за ущерб устройству. Используйте на свой риск.
+
+*Nintendo Switch™ является товарным знаком Nintendo. Проект не связан с Nintendo.*
+
 
 ---
 
 <div align="center">
 
-### 🌟 Если проект оказался полезным, поставьте звезду!
+### Если проект оказался полезным, поставьте звезду!
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Dimasick-git/Ryazhahand-Overlay&type=Date)](https://star-history.com/#Dimasick-git/Ryazhahand-Overlay&Date)
 
-**Сделано с ❤️ для сообщества Nintendo Switch**
+
+Сделано для сообщества Nintendo Switch
 
 </div>
 
