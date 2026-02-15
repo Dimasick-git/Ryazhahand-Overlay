@@ -2,7 +2,7 @@
 
 
 [![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](LICENSE)  
-[![Release](https://img.shields.io/badge/version-2.2.4-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)   
+[![Release](https://img.shields.io/badge/version-2.2.5-brightgreen.svg)](https://github.com/Dimasick-git/Ryazhahand-Overlay/releases)   
 [![Support](https://img.shields.io/badge/Support-Boosty-orange.svg)](https://boosty.to/dimasick-git/donate)
 
 Навигация по документу:  
@@ -300,6 +300,7 @@ cmd2=reboot
 Сделано для сообщества Nintendo Switch
 
 </div>
+
 
 
 
