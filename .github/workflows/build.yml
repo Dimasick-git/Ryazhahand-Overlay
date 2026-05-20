@@ -24,7 +24,7 @@ jobs:
     name: Сборка ovlmenu.ovl
     runs-on: ubuntu-latest
     container:
-      image: devkitpro/devkita64:latest
+      image: devkitpro/devkita64:20251231
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,15 +40,22 @@ jobs:
           echo "DEVKITPRO=$DEVKITPRO"
           aarch64-none-elf-gcc --version | head -1
 
-      - name: Установить switch-* зависимости
+      # Образ devkitpro/devkita64:20251231 уже несёт нужные portlibs.
+      # Pacman оставлен на случай, когда CI поднимется на свежий image
+      # без какой-нибудь библиотеки -- но не должен валить весь job, если
+      # pkg.devkitpro.org вернёт 403 (rate-limit / временный outage).
+      - name: Дотянуть switch-* зависимости (best-effort)
+        continue-on-error: true
+        shell: bash
         run: |
-          set -e
-          (yes | sudo -E dkp-pacman -Syu --noconfirm) || \
-            (yes | dkp-pacman -Syu --noconfirm)
+          (yes | sudo -E dkp-pacman -Syu --noconfirm) \
+            || (yes | dkp-pacman -Syu --noconfirm) \
+            || echo "::warning::pacman -Syu failed; will rely on image contents"
           dkp-pacman -S --needed --noconfirm \
             switch-curl switch-zlib switch-libpng \
             switch-mbedtls switch-bzip2 switch-libjpeg-turbo \
-            switch-pkg-config switch-glm switch-libjson-c || true
+            switch-pkg-config switch-glm switch-libjson-c \
+            || echo "::warning::pacman -S failed; using whatever's in the image"
 
       - name: make
         shell: bash
