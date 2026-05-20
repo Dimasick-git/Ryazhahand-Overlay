@@ -1,7 +1,18 @@
-// Реализация ryz::led — настройки подсветки.
-// См. led_control.hpp.
-
-#include "led_control.hpp"
+/*
+ * Ryazha-LED -- единый модуль управления подсветкой Switch.
+ * Часть проекта Ryazhahand-Overlay.
+ *
+ * Автор: Dimasick-git
+ * Лицензия: GPL-2.0 (см. LICENSE)
+ * Версия: 2.3.0
+ *
+ * Модуль хранит настройки подсветки в /config/ryazhahand/led.ini.
+ * Применением на железе занимается фоновый sysmodule (sys-notif-LED
+ * для обычной Switch и liteswitch-led для Switch Lite). Этот файл
+ * только пишет конфиг и триггер перезагрузки -- никакого hidsys/i2c
+ * напрямую отсюда не вызывается.
+ */
+#include "ryazha_led.hpp"
 
 #include <cstdio>
 #include <cstring>

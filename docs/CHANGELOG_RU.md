@@ -5,26 +5,26 @@
 ## [v2.3.0] — 2026-05-20
 
 ### Новое
-- **💡 Модуль LED** (`source/led/`) — единая прослойка для управления подсветкой Switch и Switch Lite. Авто-детект модели через `setsysGetProductModel`. Режимы: Выкл / Постоянно / Пульсация / Плавный / **При нажатии**. Настройки сохраняются в `/config/ryazhahand/led.ini`. Физическое применение делает фоновый sysmodule (`sys-notif-LED` или `liteswitch-led`) — оверлей пишет конфиг и подаёт `led.reload` / `led.pulse` сигналы.
+- ** Модуль LED** (`source/led/`) — единая прослойка для управления подсветкой Switch и Switch Lite. Авто-детект модели через `setsysGetProductModel`. Режимы: Выкл / Постоянно / Пульсация / Плавный / **При нажатии**. Настройки сохраняются в `/config/ryazhahand/led.ini`. Физическое применение делает фоновый sysmodule (`sys-notif-LED` или `liteswitch-led`) — оверлей пишет конфиг и подаёт `led.reload` / `led.pulse` сигналы.
 - **CI авто-сборка** — `.github/workflows/build.yml` на каждый push в `main` и PR; `.github/workflows/release.yml` на тег `v*.*.*` с публикацией `.ovl` и `.zip` в GitHub Releases.
 - **Документация на русском** — README, `docs/UI_RU.md`, `docs/PACKAGES_RU.md`, `docs/INTEGRATION_RU.md`, этот файл.
 
 ### Изменено
 - **Ребрендинг Ultrahand → Ryzhand/Ryazhahand**:
-  - `ULTRAHAND` → `RYZHAND`
-  - `Ultrahand` → `Ryzhand` (отображаемое имя)
-  - `ultrahand` → `ryazhahand` (имена путей, идентификаторов конфига)
-  - `Ultrahand-Overlay` → `Ryazhahand-Overlay` (имя репо)
-  - `Ultrahand Overlay` → `Ryzhand Overlay`
+ - `ULTRAHAND` → `RYZHAND`
+ - `Ultrahand` → `Ryzhand` (отображаемое имя)
+ - `ultrahand` → `ryazhahand` (имена путей, идентификаторов конфига)
+ - `Ultrahand-Overlay` → `Ryazhahand-Overlay` (имя репо)
+ - `Ultrahand Overlay` → `Ryzhand Overlay`
 - **Автор** — переехал с `ppkantorski` на `Dimasick-git`; репо переехал на `Dimanchikgshehsbshene/Ryazhahand-Overlay`.
 - **Версия** — `APP_VERSION := 2.3.0` (был `2.2.5+`).
 - **`.gitmodules`** — раньше указывал на `lib/libultrahand` → `ppkantorski/libultrahand`; библиотека `libryazhahand` теперь vendored (в подмодуль будет вынесена в v2.4.0, когда репо станет публичным).
 
 ### Исправлено
 - **Сканер обновлений больше не блокирует загрузки пакетов**. Раньше он стартовал автоматически при открытии экрана пакетов и делал синхронные HTTPS-запросы к GitHub в UI-треде, занимая curl. Теперь:
-  - `enableUpdateScanner` по умолчанию **выключен** (`false`). Включается явно в *Настройки → Сканер обновлений*.
-  - При наличии конфига значение читается оттуда, но при отсутствии — `false`.
-  - **Roadmap v2.4.0**: вынос сканера в отдельный `std::thread` с `atomic<UpdateScanState>`, 6-часовой кэш в `/config/ryazhahand/cache/updates.json`, жёсткие таймауты curl (8 c) — после этого можно будет включить по умолчанию обратно.
+ - `enableUpdateScanner` по умолчанию **выключен** (`false`). Включается явно в *Настройки → Сканер обновлений*.
+ - При наличии конфига значение читается оттуда, но при отсутствии — `false`.
+ - **Roadmap v2.4.0**: вынос сканера в отдельный `std::thread` с `atomic<UpdateScanState>`, 6-часовой кэш в `/config/ryazhahand/cache/updates.json`, жёсткие таймауты curl (8 c) — после этого можно будет включить по умолчанию обратно.
 
 ### Удалено
 - Папки `Ultrahand-Overlay-main/`, `Atmosphere-CNX-master/`, `InfoNX-master/`, `libnx-*/`, `nx-ovlloader-master/`, `liteswitch-main/`, `sys-notif-LED-main/`, `home-led-project/`, `neo_sys-notif-LED-main/`, `kips/`, `payloads/`, `sounds/`, `themes/`, `tools/` — не были частью оверлея, копились как ссылки для изучения. ~2.5 ГБ.

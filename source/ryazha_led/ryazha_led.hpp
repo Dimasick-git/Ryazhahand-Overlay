@@ -1,13 +1,21 @@
 #pragma once
 
-// Управление подсветкой Switch / Switch Lite из Ryzhand Overlay.
-//
-// Архитектура:
-//   - Overlay только пишет настройки в /config/ryazhahand/led.ini.
-//   - Применением занимается фоновый sysmodule (sys-notif-LED или
-//     liteswitch-led, устанавливается отдельно). Этот файл — оверлейная сторона.
-//
-// Этот модуль не зависит от tsl::; вызывается из main.cpp.
+/*
+ * Ryazha-LED -- единый модуль управления подсветкой Switch.
+ * Часть проекта Ryazhahand-Overlay.
+ *
+ * Автор: Dimasick-git
+ * Лицензия: GPL-2.0
+ * Версия: 2.3.0
+ *
+ * Архитектура:
+ *   - Overlay только пишет настройки в /config/ryazhahand/led.ini.
+ *   - Применением занимается фоновый sysmodule (sys-notif-LED для
+ *     обычной Switch, liteswitch-led для Switch Lite). Этот файл --
+ *     оверлейная сторона.
+ *   - Модуль НЕ зависит от tsl::, чтобы его можно было использовать из
+ *     любого места main.cpp или из sysmodule напрямую.
+ */
 
 #include <switch.h>
 #include <cstdint>

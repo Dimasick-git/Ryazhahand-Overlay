@@ -58,8 +58,8 @@ APP_AUTHOR	:= Dimasick-git
 APP_VERSION	:= 2.3.0
 TARGET		:= ovlmenu
 BUILD		:= build
-SOURCES		:= source source/led common
-INCLUDES	:= source source/led common include
+SOURCES		:= source source/ryazha_led common
+INCLUDES	:= source source/ryazha_led common include
 NO_ICON		:= 1
 
 # Подключаем libryazhahand (наш форк libultrahand). Подмодуль в lib/libryazhahand.

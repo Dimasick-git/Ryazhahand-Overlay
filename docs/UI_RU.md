@@ -29,9 +29,9 @@
 В v2.3.0 модуль установлен но UI ещё не подключён — настройки правятся вручную в `/config/ryazhahand/led.ini`:
 
 ```ini
-mode=onpress       ; off | solid | pulse | fade | onpress
-target=auto        ; auto | home | joyconL | joyconR | lite_all
-brightness=80      ; 0..100
+mode=onpress ; off | solid | pulse | fade | onpress
+target=auto ; auto | home | joyconL | joyconR | lite_all
+brightness=80 ; 0..100
 pulse_interval=500 ; миллисекунд между импульсами
 color_r=255
 color_g=128
