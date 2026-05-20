@@ -53,7 +53,18 @@ jobs:
       - name: make
         run: |
           export DEVKITPRO=/opt/devkitpro
-          make -j$(nproc)
+          # Захватываем полный лог сборки в файл, чтобы при падении
+          # шага показать хвост ошибок без admin-прав на job logs.
+          set -o pipefail
+          make -j$(nproc) 2>&1 | tee build.log
+
+      - name: Хвост лога при ошибке
+        if: failure()
+        run: |
+          echo "============== last 200 lines of build.log =============="
+          tail -n 200 build.log || true
+          echo "============== grep error markers ======================="
+          grep -nE 'error:|undefined reference|fatal error|multiple definition' build.log | tail -n 50 || true
 
       - name: Подготовить артефакты
         run: |
