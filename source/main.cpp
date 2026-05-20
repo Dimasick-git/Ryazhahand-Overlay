@@ -94,7 +94,9 @@ static bool g_hidsysReady = false;
 
 static bool g_hidsysInitNotified = false;
 
-static bool g_hidsysSetNotified = false;
+// g_hidsysSetNotified удалён -- объявлен был под set-уведомления
+// hidsys, но в кодовой базе ни разу не используется. Если понадобится,
+// поднимем обратно при подключении notif-pipeline.
 
 static bool homeLedEnabled = true;
 
