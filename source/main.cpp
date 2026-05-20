@@ -98,7 +98,10 @@ static bool g_hidsysInitNotified = false;
 // hidsys, но в кодовой базе ни разу не используется. Если понадобится,
 // поднимем обратно при подключении notif-pipeline.
 
-static bool homeLedEnabled = true;
+// homeLedEnabled = false по умолчанию: фича "мигать HOME LED на каждое
+// нажатие" агрессивно дёргает hidsysSetNotificationLedPattern, что
+// видно как раздражающее мерцание. Включается в Настройки -> Прочее.
+static bool homeLedEnabled = false;
 
 // По умолчанию сканер выключен — он делает синхронные HTTPS-запросы к GitHub
 // и в фоновом режиме блокировал curl-канал, из-за чего загрузки пакетов виснут.
@@ -784,7 +787,17 @@ static void setHomeLedPatternForAllControllers(const HidsysNotificationLedPatter
 
 
 
-static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t keysHeld) {
+static void applyHomeLedPatternForKeys(uint64_t /*keysDown*/, uint64_t /*keysHeld*/) {
+    // Полностью отключено: per-button LED-pulse через
+    // hidsysSetNotificationLedPattern давал заметное мерцание на любом
+    // нажатии и конкурировал с фоновым LED-режимом из Ryazha-LED
+    // (Solid/Pulse/Fade). Если когда-нибудь захотим вернуть -- надо
+    // делать через триггер-файл к sys-notif-LED, а не дёргать pattern
+    // на каждый клавиатурный edge.
+    return;
+}
+
+[[maybe_unused]] static void applyHomeLedPatternForKeysDISABLED(uint64_t keysDown, uint64_t keysHeld) {
 
     if (!homeLedEnabled) return;
 
