@@ -51,15 +51,19 @@ jobs:
             switch-pkg-config switch-glm switch-libjson-c || true
 
       - name: make
+        shell: bash
         run: |
           export DEVKITPRO=/opt/devkitpro
           # Захватываем полный лог сборки в файл, чтобы при падении
           # шага показать хвост ошибок без admin-прав на job logs.
+          # Контейнер devkitpro/devkita64 по умолчанию использует sh,
+          # поэтому shell: bash явно -- иначе set -o pipefail падает.
           set -o pipefail
           make -j$(nproc) 2>&1 | tee build.log
 
       - name: Хвост лога при ошибке
         if: failure()
+        shell: bash
         run: |
           echo "============== last 200 lines of build.log =============="
           tail -n 200 build.log || true
