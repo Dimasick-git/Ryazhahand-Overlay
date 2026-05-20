@@ -9010,7 +9010,7 @@ public:
 
             else if (sourceType == INI_FILE_STR) {
 
-                selectedItemsList = parseSectionsFromIni(iniPath);
+                selectedItemsList = parseSectionsFromIniSource(iniPath, maxItemsLimit);
 
                 iniPath.clear();
 
@@ -9066,7 +9066,7 @@ public:
 
             else if (sourceTypeOn == INI_FILE_STR) {
 
-                selectedItemsListOn = parseSectionsFromIni(iniPathOn);
+                selectedItemsListOn = parseSectionsFromIniSource(iniPathOn, maxItemsLimit);
 
                 iniPathOn = "";
 
@@ -9122,7 +9122,7 @@ public:
 
             else if (sourceTypeOff == INI_FILE_STR) {
 
-                selectedItemsListOff = parseSectionsFromIni(iniPathOff);
+                selectedItemsListOff = parseSectionsFromIniSource(iniPathOff, maxItemsLimit);
 
                 iniPathOff = "";
 
@@ -13212,7 +13212,7 @@ bool drawCommandsMenu(
 
                                 preprocessPath(iniPath, packagePath);
 
-                                entryList = parseSectionsFromIni(iniPath);
+                                entryList = parseSectionsFromIniSource(iniPath);
 
                                 break;
 

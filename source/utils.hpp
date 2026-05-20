@@ -2052,6 +2052,41 @@ bool isDangerousCombination(const std::string& originalPath) {
 }
 
 
+/**
+ * @brief Имена INI-секций для ini_file_source (поддержка wildcard).
+ *
+ * Обычный путь без '*' проходит через parseSectionsFromIni без изменений.
+ * Wildcard-путь перечисляет совпадающие файлы через
+ * getFilesListByWildcards и сливает имена секций (пустые и [config]
+ * пропускаются, дубликаты убираются по первому вхождению).
+ *
+ * Портировано из ppkantorski/Ultrahand-Overlay PR #312.
+ */
+inline std::vector<std::string> parseSectionsFromIniSource(
+        const std::string& iniPathPattern, size_t maxItemsLimit = 0) {
+    if (iniPathPattern.find('*') == std::string::npos) {
+        return parseSectionsFromIni(iniPathPattern);
+    }
+
+    std::vector<std::string> merged;
+    const auto files = getFilesListByWildcards(iniPathPattern, maxItemsLimit);
+
+    for (const auto& filePath : files) {
+        for (const auto& sectionName : parseSectionsFromIni(filePath)) {
+            if (sectionName.empty() || sectionName == "config") {
+                continue;
+            }
+            if (std::find(merged.begin(), merged.end(), sectionName) != merged.end()) {
+                continue;
+            }
+            merged.push_back(sectionName);
+        }
+    }
+
+    return merged;
+}
+
+
 // Function to populate selectedItemsListOff from a JSON array based on a key
 void populateSelectedItemsListFromJson(const std::string& sourceType, const std::string& jsonStringOrPath, const std::string& jsonKey, std::vector<std::string>& selectedItemsList) {
     selectedItemsList.clear();
@@ -2190,7 +2225,7 @@ void applyReplaceIniPlaceholder(std::string& arg, const std::string& commandName
                     
                     // Load section names only once when needed
                     if (!sectionsLoaded) {
-                        sectionNames = parseSectionsFromIni(iniPath);
+                        sectionNames = parseSectionsFromIniSource(iniPath);
                         sectionsLoaded = true;
                     }
                     
