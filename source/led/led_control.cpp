@@ -1,0 +1,186 @@
+// Реализация ryz::led — настройки подсветки.
+// См. led_control.hpp.
+
+#include "led_control.hpp"
+
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <sys/stat.h>
+
+namespace ryz::led {
+
+namespace {
+
+constexpr const char* CONFIG_DIR     = "sdmc:/config/ryazhahand";
+constexpr const char* CONFIG_FILE    = "sdmc:/config/ryazhahand/led.ini";
+constexpr const char* RELOAD_TRIGGER = "sdmc:/config/ryazhahand/led.reload";
+
+bool g_liteCached = false;
+bool g_liteDetected = false;
+
+void ensureDir() {
+    mkdir("sdmc:/config", 0777);
+    mkdir(CONFIG_DIR, 0777);
+}
+
+void writeKV(FILE* f, const char* k, const char* v) {
+    fprintf(f, "%s=%s\n", k, v);
+}
+
+const char* modeKey(Mode m) {
+    switch (m) {
+        case Mode::Off:     return "off";
+        case Mode::Solid:   return "solid";
+        case Mode::Pulse:   return "pulse";
+        case Mode::Fade:    return "fade";
+        case Mode::OnPress: return "onpress";
+    }
+    return "off";
+}
+
+Mode parseMode(const char* v) {
+    if (!v) return Mode::Off;
+    if (!strcmp(v, "solid"))   return Mode::Solid;
+    if (!strcmp(v, "pulse"))   return Mode::Pulse;
+    if (!strcmp(v, "fade"))    return Mode::Fade;
+    if (!strcmp(v, "onpress")) return Mode::OnPress;
+    return Mode::Off;
+}
+
+const char* targetKey(Target t) {
+    switch (t) {
+        case Target::Auto:       return "auto";
+        case Target::HomeButton: return "home";
+        case Target::JoyConL:    return "joyconL";
+        case Target::JoyConR:    return "joyconR";
+        case Target::LiteAll:    return "lite_all";
+    }
+    return "auto";
+}
+
+Target parseTarget(const char* v) {
+    if (!v) return Target::Auto;
+    if (!strcmp(v, "home"))     return Target::HomeButton;
+    if (!strcmp(v, "joyconL"))  return Target::JoyConL;
+    if (!strcmp(v, "joyconR"))  return Target::JoyConR;
+    if (!strcmp(v, "lite_all")) return Target::LiteAll;
+    return Target::Auto;
+}
+
+uint64_t g_lastPressTickNs = 0;
+
+} // namespace
+
+bool isLiteDetected() {
+    if (g_liteCached) return g_liteDetected;
+
+    SetSysProductModel model = SetSysProductModel_Invalid;
+    Result rc = setsysGetProductModel(&model);
+    if (R_SUCCEEDED(rc)) {
+        // SetSysProductModel_HoagH соответствует Switch Lite.
+        g_liteDetected = (model == SetSysProductModel_Hoag);
+    } else {
+        g_liteDetected = false;
+    }
+    g_liteCached = true;
+    return g_liteDetected;
+}
+
+Settings load() {
+    Settings s;
+    FILE* f = fopen(CONFIG_FILE, "r");
+    if (!f) return s;
+
+    char line[256];
+    while (fgets(line, sizeof line, f)) {
+        if (line[0] == '#' || line[0] == '\n' || line[0] == ';') continue;
+        char* eq = strchr(line, '=');
+        if (!eq) continue;
+        *eq = '\0';
+        char* k = line;
+        char* v = eq + 1;
+        // strip newline
+        size_t vl = strlen(v);
+        while (vl && (v[vl-1] == '\n' || v[vl-1] == '\r')) { v[--vl] = '\0'; }
+
+        if      (!strcmp(k, "mode"))            s.mode            = parseMode(v);
+        else if (!strcmp(k, "target"))          s.target          = parseTarget(v);
+        else if (!strcmp(k, "brightness"))      s.brightness      = (uint8_t)atoi(v);
+        else if (!strcmp(k, "pulse_interval"))  s.pulseIntervalMs = (uint32_t)atoi(v);
+        else if (!strcmp(k, "color_r"))         s.colorR          = (uint8_t)atoi(v);
+        else if (!strcmp(k, "color_g"))         s.colorG          = (uint8_t)atoi(v);
+        else if (!strcmp(k, "color_b"))         s.colorB          = (uint8_t)atoi(v);
+    }
+    fclose(f);
+
+    if (s.brightness > 100) s.brightness = 100;
+    return s;
+}
+
+bool save(const Settings& s) {
+    ensureDir();
+    FILE* f = fopen(CONFIG_FILE, "w");
+    if (!f) return false;
+
+    fprintf(f, "# Ryzhand LED settings — управляется через UI оверлея\n");
+    fprintf(f, "# Применяется фоновым sysmodule sys-notif-LED / liteswitch-led\n\n");
+
+    writeKV(f, "mode",       modeKey(s.mode));
+    writeKV(f, "target",     targetKey(s.target));
+    fprintf(f, "brightness=%u\n",      (unsigned)s.brightness);
+    fprintf(f, "pulse_interval=%u\n",  (unsigned)s.pulseIntervalMs);
+    fprintf(f, "color_r=%u\n",         (unsigned)s.colorR);
+    fprintf(f, "color_g=%u\n",         (unsigned)s.colorG);
+    fprintf(f, "color_b=%u\n",         (unsigned)s.colorB);
+
+    fclose(f);
+
+    // touch reload trigger
+    FILE* t = fopen(RELOAD_TRIGGER, "w");
+    if (t) fclose(t);
+
+    return true;
+}
+
+void onButtonPress(uint64_t keysDown) {
+    if (keysDown == 0) return;
+
+    // Cheap throttle — не чаще 8 раз в секунду, чтобы не молотить FS.
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    uint64_t nowNs = (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
+    if (nowNs - g_lastPressTickNs < 125000000ull) return;
+    g_lastPressTickNs = nowNs;
+
+    // Подаём сигнал sysmodule на короткий импульс. Sysmodule сам решит как.
+    FILE* t = fopen("sdmc:/config/ryazhahand/led.pulse", "w");
+    if (t) {
+        fprintf(t, "%llu", (unsigned long long)nowNs);
+        fclose(t);
+    }
+}
+
+const char* modeName(Mode m) {
+    switch (m) {
+        case Mode::Off:     return "Выкл";
+        case Mode::Solid:   return "Постоянно";
+        case Mode::Pulse:   return "Пульсация";
+        case Mode::Fade:    return "Плавный";
+        case Mode::OnPress: return "При нажатии";
+    }
+    return "Выкл";
+}
+
+const char* targetName(Target t) {
+    switch (t) {
+        case Target::Auto:       return "Авто";
+        case Target::HomeButton: return "Кнопка HOME";
+        case Target::JoyConL:    return "Joy-Con (левый)";
+        case Target::JoyConR:    return "Joy-Con (правый)";
+        case Target::LiteAll:    return "Lite — все";
+    }
+    return "Авто";
+}
+
+} // namespace ryz::led

@@ -84,7 +84,7 @@ Note: Modifying clock speeds and voltages can affect the stability and performan
 
 ## Additional Information
 
-For more details on the Ultrahand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/ppkantorski/Ultrahand-Overlay).
+For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimanchikgshehsbshene/Ryzhand-Overlay).
 
 For additional help with OC Suite kip values, you can visit [this link](https://github.com/hanai3Bi/Switch-OC-Suite/blob/master/Source/Atmosphere/stratosphere/loader/source/oc/customize.cpp). This resource provides helpful information specifically for OC Suite kip values.
 

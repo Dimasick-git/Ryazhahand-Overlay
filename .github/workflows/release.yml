@@ -1,0 +1,108 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег релиза (например v2.3.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Релиз ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Mark workspace safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Определить тег
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Установить zip
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq zip
+
+      - name: Установить switch-* зависимости
+        run: |
+          set -e
+          (yes | sudo -E dkp-pacman -Syu --noconfirm) || \
+            (yes | dkp-pacman -Syu --noconfirm)
+          dkp-pacman -S --needed --noconfirm \
+            switch-curl switch-zlib switch-libpng \
+            switch-mbedtls switch-bzip2 switch-libjpeg-turbo \
+            switch-pkg-config switch-glm switch-libjson-c || true
+
+      - name: Сборка
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          make -j$(nproc)
+
+      - name: Собрать релизный архив
+        id: archive
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          mkdir -p release
+          # .ovl как отдельный файл
+          cp ovlmenu.ovl "release/Ryzhand-Overlay-${TAG}.ovl"
+          # Полный zip со структурой SD-карты (out/ содержит switch/.overlays/ и config/)
+          if [ -d out ]; then
+            (cd out && zip -r "../release/Ryzhand-Overlay-${TAG}.zip" .)
+          fi
+          ls -la release/
+
+      - name: Получить changelog
+        id: changelog
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          NOTES=""
+          if [ -f docs/CHANGELOG_RU.md ]; then
+            # Извлекаем секцию текущей версии (## [v2.3.0] ... ## [v2.2.x])
+            VERSION="${TAG#v}"
+            NOTES=$(awk -v ver="$VERSION" '
+              /^## *\[?v?'"$VERSION"'\]?/ { found=1; next }
+              found && /^## *\[?v?[0-9]+\./ { exit }
+              found { print }
+            ' docs/CHANGELOG_RU.md)
+          fi
+          if [ -z "$NOTES" ]; then
+            NOTES="Релиз $TAG — см. коммиты с предыдущего тега."
+          fi
+          {
+            echo "notes<<EOF_NOTES"
+            echo "$NOTES"
+            echo "EOF_NOTES"
+          } >> $GITHUB_OUTPUT
+
+      - name: Создать GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Ryzhand Overlay ${{ steps.tag.outputs.tag }}"
+          body: ${{ steps.changelog.outputs.notes }}
+          files: |
+            release/*.ovl
+            release/*.zip
+          draft: false
+          prerelease: false

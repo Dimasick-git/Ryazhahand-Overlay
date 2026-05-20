@@ -1,4 +1,4 @@
-{
+﻿{
     "ENGLISH": "英語",
     "SPANISH": "西班牙語",
     "FRENCH": "法語",
@@ -64,7 +64,7 @@
     "LANGUAGE": "語言",
     "OVERLAY_INFO": "外掛資訊",
     "SOFTWARE_UPDATE": "軟體更新",
-    "UPDATE_ULTRAHAND": "更新 Ultrahand",
+    "UPDATE_RYZHAND": "更新 Ryzhand",
     "UPDATE_LANGUAGES": "更新語言包",
     "SYSTEM": "系統",
     "DEVICE_INFO": "裝置資訊",
@@ -131,10 +131,10 @@
     "SELECTION_BACKGROUND": "選中背景",
     "SELECTION_TEXT": "選中文本",
     "SELECTION_VALUE": "選中值",
-    "LIBULTRAHAND_TITLES": "libultrahand 標題",
-    "LIBULTRAHAND_VERSIONS": "libultrahand 版本",
+    "LIBRYZHAND_TITLES": "libryazhahand 標題",
+    "LIBRYZHAND_VERSIONS": "libryazhahand 版本",
     "PACKAGE_TITLES": "外掛包標題",
-    "ULTRAHAND_HAS_STARTED": "Ultrahand 已啟動",
+    "RYZHAND_HAS_STARTED": "Ryzhand 已啟動",
     "NEW_UPDATE_IS_AVAILABLE": "有新版本！",
     "DELETE_PACKAGE": "刪除外掛包",
     "DELETE_OVERLAY": "刪除外掛",

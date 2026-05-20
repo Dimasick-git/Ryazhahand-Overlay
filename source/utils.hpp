@@ -1,23 +1,23 @@
 /********************************************************************************
  * File: utils.hpp
- * Author: ppkantorski
+ * Author: Dimasick-git
  * Description:
  *   This header file contains utility functions and macros used in the
- *   Ultrahand Overlay project. These functions and macros include definitions for
+ *   Ryzhand Overlay project. These functions and macros include definitions for
  *   various button keys, path variables, and command interpretation and execution.
  *
  *   For the latest updates and contributions, visit the project's GitHub repository.
- *   (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryzhand-Overlay)
  *
  *   Note: Please be aware that this notice cannot be altered or removed. It is a part
  *   of the project's documentation and must remain intact.
  *
  *  Licensed under GPLv2
- *  Copyright (c) 2023-2025 ppkantorski
+ *  Copyright (c) 2023-2025 Dimasick-git
  ********************************************************************************/
 
 #pragma once
-#include <ultra.hpp>
+#include <ryz.hpp>
 #include <tesla.hpp>
 #include <switch.h>
 #include <payload.hpp> // Studious Pancake
@@ -43,7 +43,7 @@ using namespace ult;
 static std::atomic<bool> abortCommand(false);
 static std::atomic<bool> triggerExit(false);
 
-std::atomic<bool> exitingUltrahand{false};
+std::atomic<bool> exitingRyzhand{false};
 std::atomic<bool> isDownloadCommand{false};
 std::atomic<bool> commandSuccess{false};
 std::atomic<bool> refreshPage{false};
@@ -72,20 +72,20 @@ static bool usingEmunand = true;
 
 
 /**
- * @brief Ultrahand-Overlay Configuration Paths
+ * @brief Ryzhand-Overlay Configuration Paths
  *
  * This block of code defines string variables for various configuration and directory paths
- * used in the Ultrahand-Overlay project. These paths include:
+ * used in the Ryzhand-Overlay project. These paths include:
  *
  * - `PACKAGE_FILENAME`: The name of the package file ("package.ini").
  * - `CONFIG_FILENAME`: The name of the configuration file ("config.ini").
- * - `SETTINGS_PATH`: The base path for Ultrahand settings ("sdmc:/config/ultrahand/").
- * - `ULTRAHAND_CONFIG_INI_PATH`: The full path to the Ultrahand settings configuration file.
+ * - `SETTINGS_PATH`: The base path for Ryzhand settings ("sdmc:/config/ryazhahand/").
+ * - `RYZHAND_CONFIG_INI_PATH`: The full path to the Ryzhand settings configuration file.
  * - `PACKAGE_PATH`: The base directory for packages ("sdmc:/switch/.packages/").
  * - `OVERLAY_PATH`: The base directory for overlays ("sdmc:/switch/.overlays/").
  * - `TESLA_CONFIG_INI_PATH`: The full path to the Tesla settings configuration file.
  *
- * These paths are used within the Ultrahand-Overlay project to manage configuration files
+ * These paths are used within the Ryzhand-Overlay project to manage configuration files
  * and directories.
  */
 
@@ -203,7 +203,7 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
     }
 }
 
-// Define default key combos (same as UltrahandSettingsMenu)
+// Define default key combos (same as RyzhandSettingsMenu)
 
 const std::vector<std::string> defaultCombos = {
     // Primary (Default) Combos – top priority, always first
@@ -958,16 +958,16 @@ void initializeTheme(const std::string& themeIniPath = THEME_CONFIG_INI_PATH) {
 
 
 /**
- * @brief Synchronize Tesla and Ultrahand key combos.
+ * @brief Synchronize Tesla and Ryzhand key combos.
  *
- * This function synchronizes key combos between Tesla and Ultrahand settings.
- * - If Tesla has a combo and Ultrahand doesn't: copy Tesla → Ultrahand
- * - If Ultrahand has a combo and Tesla doesn't or differs: copy Ultrahand → Tesla
+ * This function synchronizes key combos between Tesla and Ryzhand settings.
+ * - If Tesla has a combo and Ryzhand doesn't: copy Tesla → Ryzhand
+ * - If Ryzhand has a combo and Tesla doesn't or differs: copy Ryzhand → Tesla
  * - If neither has a combo: do nothing
  * 
  * @return true if neither config has a combo, false otherwise
  */
-bool copyTeslaKeyComboToUltrahand() {
+bool copyTeslaKeyComboToRyzhand() {
     // Check for Tesla key combo
     bool hasTeslaKeyCombo = false;
     std::string teslaKeyCombo;
@@ -976,25 +976,25 @@ bool copyTeslaKeyComboToUltrahand() {
         hasTeslaKeyCombo = !teslaKeyCombo.empty();
     }
     
-    // Check for Ultrahand key combo
-    bool hasUltrahandKeyCombo = false;
-    std::string ultrahandKeyCombo;
-    if (isFile(ULTRAHAND_CONFIG_INI_PATH)) {
-        ultrahandKeyCombo = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, KEY_COMBO_STR);
-        hasUltrahandKeyCombo = !ultrahandKeyCombo.empty();
+    // Check for Ryzhand key combo
+    bool hasRyzhandKeyCombo = false;
+    std::string ryazhahandKeyCombo;
+    if (isFile(RYZHAND_CONFIG_INI_PATH)) {
+        ryazhahandKeyCombo = parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, KEY_COMBO_STR);
+        hasRyzhandKeyCombo = !ryazhahandKeyCombo.empty();
     }
     
     // Apply sync logic
-    if (hasTeslaKeyCombo && !hasUltrahandKeyCombo) {
-        // Tesla has combo, Ultrahand doesn't → copy Tesla to Ultrahand
-        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, KEY_COMBO_STR, teslaKeyCombo);
-    } else if (hasUltrahandKeyCombo && (!hasTeslaKeyCombo || teslaKeyCombo != ultrahandKeyCombo)) {
-        // Ultrahand has combo and (Tesla doesn't OR they differ) → copy Ultrahand to Tesla
-        setIniFileValue(TESLA_CONFIG_INI_PATH, TESLA_STR, KEY_COMBO_STR, ultrahandKeyCombo);
+    if (hasTeslaKeyCombo && !hasRyzhandKeyCombo) {
+        // Tesla has combo, Ryzhand doesn't → copy Tesla to Ryzhand
+        setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, KEY_COMBO_STR, teslaKeyCombo);
+    } else if (hasRyzhandKeyCombo && (!hasTeslaKeyCombo || teslaKeyCombo != ryazhahandKeyCombo)) {
+        // Ryzhand has combo and (Tesla doesn't OR they differ) → copy Ryzhand to Tesla
+        setIniFileValue(TESLA_CONFIG_INI_PATH, TESLA_STR, KEY_COMBO_STR, ryazhahandKeyCombo);
     }
     
     // Return true if neither has a combo
-    if (!hasTeslaKeyCombo && !hasUltrahandKeyCombo) {
+    if (!hasTeslaKeyCombo && !hasRyzhandKeyCombo) {
         return true;
     }
     
@@ -1011,7 +1011,7 @@ constexpr uint32_t ULTR_SIGNATURE  = 0x52544C55; // "ULTR"
 
 
 /**
- * @brief Retrieves overlay module information from a given file (ultra-optimized).
+ * @brief Retrieves overlay module information from a given file (ryz-optimized).
  *
  * @param filePath The path to the overlay module file.
  * @return A tuple containing the result code, module name, and display version.
@@ -1121,11 +1121,11 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
     // --- Check ULTR signature (last 4 bytes of file) ---
     uint32_t last4 = 0;
-    bool usingLibUltrahand = false;
+    bool usingLibRyzhand = false;
     
     if (fileSz >= 4) {
         fseek(file, -4, SEEK_END);
-        usingLibUltrahand = (fread(&last4, sizeof(last4), 1, file) == 1) && 
+        usingLibRyzhand = (fread(&last4, sizeof(last4), 1, file) == 1) && 
                            (last4 == ULTR_SIGNATURE);
     }
 
@@ -1142,7 +1142,7 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
         ResultSuccess,
         std::string(nacp.lang[0].name, nameLen),
         std::string(nacp.display_version, versionLen),
-        usingLibUltrahand,
+        usingLibRyzhand,
         usesNewLibNX
     };
 }
@@ -1852,35 +1852,35 @@ void addPackageInfo(tsl::elm::List* list, auto& packageHeader, std::string type 
 
 
 /**
- * @brief Ultrahand-Overlay Protected Folders
+ * @brief Ryzhand-Overlay Protected Folders
  *
  * This block of code defines two vectors containing paths to protected folders used in the
- * Ultrahand-Overlay project. These folders are designated as protected to prevent certain
+ * Ryzhand-Overlay project. These folders are designated as protected to prevent certain
  * operations that may pose security risks.
  *
  * The two vectors include:
  *
  * - `protectedFolders`: Paths to standard protected folders.
- * - `ultraProtectedFolders`: Paths to ultra protected folders with stricter security.
+ * - `ryzProtectedFolders`: Paths to ryz protected folders with stricter security.
  *
- * These protected folder paths are used within the Ultrahand-Overlay project to enforce
+ * These protected folder paths are used within the Ryzhand-Overlay project to enforce
  * safety conditions and ensure that certain operations are not performed on sensitive
  * directories.
  */
 
 /**
- * @brief Ultrahand-Overlay Protected Folders
+ * @brief Ryzhand-Overlay Protected Folders
  *
  * This block of code defines two vectors containing paths to protected folders used in the
- * Ultrahand-Overlay project. These folders are designated as protected to prevent certain
+ * Ryzhand-Overlay project. These folders are designated as protected to prevent certain
  * operations that may pose security risks.
  *
  * The two vectors include:
  *
  * - `protectedFolders`: Paths to standard protected folders.
- * - `ultraProtectedFolders`: Paths to ultra protected folders with stricter security.
+ * - `ryzProtectedFolders`: Paths to ryz protected folders with stricter security.
  *
- * These protected folder paths are used within the Ultrahand-Overlay project to enforce
+ * These protected folder paths are used within the Ryzhand-Overlay project to enforce
  * safety conditions and ensure that certain operations are not performed on sensitive
  * directories.
  */
@@ -1926,7 +1926,7 @@ bool isDangerousCombination(const std::string& originalPath) {
         {"sdmc:/emuMMC/RAW1/Nintendo/Album/", 33}
     };
     
-    static constexpr FolderInfo ultraProtectedFolders[] = {
+    static constexpr FolderInfo ryzProtectedFolders[] = {
         {"sdmc:/Nintendo/Contents/", 23},
         {"sdmc:/Nintendo/save/", 18},
         {"sdmc:/emuMMC/RAW1/Nintendo/Contents/", 36},
@@ -1985,8 +1985,8 @@ bool isDangerousCombination(const std::string& originalPath) {
         }
     }
     
-    // 6) Check ultra-protected folders (highest priority)
-    for (const auto& folder : ultraProtectedFolders) {
+    // 6) Check ryz-protected folders (highest priority)
+    for (const auto& folder : ryzProtectedFolders) {
         if (patternPath.length() >= folder.length &&
             patternPath.compare(0, folder.length, folder.path) == 0) {
             return true;
@@ -3500,7 +3500,7 @@ bool interpretAndExecuteCommands(std::vector<std::vector<std::string>>&& command
     //}
 
     // Load and apply buffer configuration from INI file
-    const auto bufferSection = getKeyValuePairsFromSection(ULTRAHAND_CONFIG_INI_PATH, MEMORY_STR);
+    const auto bufferSection = getKeyValuePairsFromSection(RYZHAND_CONFIG_INI_PATH, MEMORY_STR);
     
     if (!bufferSection.empty()) {
         struct BufferConfig {
@@ -4583,13 +4583,13 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
                 if (cmdSize >= 2) {
                     const std::string selection = getUnquoted(cmd, 1);
                     if (selection == "overlays") {
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
+                        setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
                     } else if (selection == "packages") {
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, "to_packages", TRUE_STR);
-                        setIniFileValue(ULTRAHAND_CONFIG_INI_PATH, ULTRAHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
+                        setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "to_packages", TRUE_STR);
+                        setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, IN_OVERLAY_STR, TRUE_STR);
                     }
                 }
-                exitingUltrahand.store(true, std::memory_order_release);
+                exitingRyzhand.store(true, std::memory_order_release);
                 ult::launchingOverlay.store(true, std::memory_order_release);
                 tsl::setNextOverlay(OVERLAY_PATH+"ovlmenu.ovl");
                 tsl::Overlay::get()->close(true);
@@ -4834,14 +4834,14 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
             if (commandName == "reboot") {
                 bool launchUpdaterPayload = false;
                 for (const std::string& file : PROTECTED_FILES) {
-                    if (isFile(file + ".ultra")) {
+                    if (isFile(file + ".ryz")) {
                         launchUpdaterPayload = true;
                         break;
                     }
                 }
                 
                 if (launchUpdaterPayload) {
-                    const std::string rebootOption = PAYLOADS_PATH + "ultrahand_updater.bin";
+                    const std::string rebootOption = PAYLOADS_PATH + "ryazhahand_updater.bin";
                     if (!isFile(rebootOption)) {
                         downloadFile(UPDATER_PAYLOAD_URL, PAYLOADS_PATH, false, true);
                         downloadPercentage.store(-1, std::memory_order_release);
@@ -5134,7 +5134,7 @@ int getInterpreterStackSize(const std::string& packagePath = "") {
     #endif
     // Cache stack size parsing to avoid repeated INI file access
     if (cachedStackSize == 0) {
-        std::string interpreterHeap = parseValueFromIniSection(ULTRAHAND_CONFIG_INI_PATH, MEMORY_STR, "interpreter_heap");
+        std::string interpreterHeap = parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, MEMORY_STR, "interpreter_heap");
 
         if (!interpreterHeap.empty()) {
             // Strip optional "0x" or "0X" prefix

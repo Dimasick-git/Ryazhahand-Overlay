@@ -1,5 +1,5 @@
-name: "🐛 Bug Report"
-description: "Report a crash, compatibility issue, or malfunction in Ultrahand Overlay"
+﻿name: "🐛 Bug Report"
+description: "Report a crash, compatibility issue, or malfunction in Ryzhand Overlay"
 title: "[Bug]: "
 labels: ["bug", "needs-triage"]
 
@@ -75,10 +75,10 @@ body:
         ### 🧠 Software Versions
 
   - type: input
-    id: ultrahand
+    id: ryazhahand
     attributes:
-      label: Ultrahand Version
-      placeholder: "e.g., 2.2.4"
+      label: Ryzhand Version
+      placeholder: "e.g., 2.2.5"
     validations:
       required: true
 
@@ -121,7 +121,7 @@ body:
     attributes:
       value: |
         ---
-        ### 🛠️ Ultrahand Settings
+        ### 🛠️ Ryzhand Settings
 
   - type: dropdown
     id: language
@@ -170,7 +170,7 @@ body:
       description: Step-by-step instructions to trigger the issue.
       placeholder: |
         1. Launch the game
-        2. Open the Ultrahand
+        2. Open the Ryzhand
         3. ...
     validations:
       required: true

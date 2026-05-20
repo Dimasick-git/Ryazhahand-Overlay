@@ -1,4 +1,4 @@
-{
+﻿{
     "ENGLISH": "英語",
     "SPANISH": "スペイン語",
     "FRENCH": "フランス語",
@@ -64,7 +64,7 @@
     "LANGUAGE": "言語",
     "OVERLAY_INFO": "オーバーレイ情報",
     "SOFTWARE_UPDATE": "アップデート",
-    "UPDATE_ULTRAHAND": "Ultrahand更新",
+    "UPDATE_RYZHAND": "Ryzhand更新",
     "UPDATE_LANGUAGES": "言語更新",
     "SYSTEM": "システム",
     "DEVICE_INFO": "デバイス情報",
@@ -131,10 +131,10 @@
     "SELECTION_BACKGROUND": "選択背景",
     "SELECTION_TEXT": "選択文字",
     "SELECTION_VALUE": "選択値",
-    "LIBULTRAHAND_TITLES": "libultrahandタイトル",
-    "LIBULTRAHAND_VERSIONS": "libultrahandバージョン",
+    "LIBRYZHAND_TITLES": "libryazhahandタイトル",
+    "LIBRYZHAND_VERSIONS": "libryazhahandバージョン",
     "PACKAGE_TITLES": "パッケージタイトル",
-    "ULTRAHAND_HAS_STARTED": "Ultrahand起動完了",
+    "RYZHAND_HAS_STARTED": "Ryzhand起動完了",
     "NEW_UPDATE_IS_AVAILABLE": "更新あり！",
     "DELETE_PACKAGE": "パッケージ削除",
     "DELETE_OVERLAY": "オーバーレイ削除",

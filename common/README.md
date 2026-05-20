@@ -1,5 +1,5 @@
-# Ultrahand Commons
-Ultrahand is a project that makes use of functions from various publicly available GNU licensed projects to enhance its command-based functionallity.
+﻿# Ryzhand Commons
+Ryzhand is a project that makes use of functions from various publicly available GNU licensed projects to enhance its command-based functionallity.
 
 ## [Studious-Pancake](https://github.com/HookedBehemoth/studious-pancake) (for reboot commands)
 Reboot to hekate configs from tesla menu.

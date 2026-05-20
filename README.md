@@ -1,111 +1,99 @@
-# Ultrahand Overlay (HOS 16.0.0+)
+# Ryzhand Overlay (HOS 16.0.0+)
+
 [![platform](https://img.shields.io/badge/platform-Switch-898c8c?logo=C++.svg)](https://gbatemp.net/forums/nintendo-switch.283/?prefix_id=44)
 [![language](https://img.shields.io/badge/language-C++-ba1632?logo=C++.svg)](https://github.com/topics/cpp)
 [![GPLv2 License](https://img.shields.io/badge/license-GPLv2-189c11.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-[![Latest Version](https://img.shields.io/github/v/release/ppkantorski/Ultrahand-Overlay?label=latest&color=blue)](https://github.com/ppkantorski/Ultrahand-Overlay/releases/latest)
-[![GitHub Downloads](https://img.shields.io/github/downloads/ppkantorski/Ultrahand-Overlay/total?color=6f42c1)](https://somsubhra.github.io/github-release-stats/?username=ppkantorski&repository=Ultrahand-Overlay&page=1&per_page=300)
-[![HB App Store](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ppkantorski/Ultrahand-Overlay/main/.github/hbappstore.json&label=hb%20app%20store&color=6f42c1)](https://hb-app.store/switch/UltrahandOverlay)
-[![GitHub issues](https://img.shields.io/github/issues/ppkantorski/Ultrahand-Overlay?color=222222)](https://github.com/ppkantorski/Ultrahand-Overlay/issues)
-[![GitHub stars](https://img.shields.io/github/stars/ppkantorski/Ultrahand-Overlay)](https://github.com/ppkantorski/Ultrahand-Overlay/stargazers)
+[![Latest Version](https://img.shields.io/github/v/release/Dimanchikgshehsbshene/Ryazhahand-Overlay?label=latest&color=blue)](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/Dimanchikgshehsbshene/Ryazhahand-Overlay/total?color=6f42c1)](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/releases)
+[![HB App Store](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/main/.github/hbappstore.json&label=hb%20app%20store&color=6f42c1)](https://hb-app.store/switch/RyzhandOverlay)
+[![GitHub issues](https://img.shields.io/github/issues/Dimanchikgshehsbshene/Ryazhahand-Overlay?color=222222)](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/issues)
+[![GitHub stars](https://img.shields.io/github/stars/Dimanchikgshehsbshene/Ryazhahand-Overlay)](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/stargazers)
 
-Create directories, manage files, and customize configurations effortlessly using simple ini files.
+Гибкое управление файлами, каталогами и системными настройками на Switch — через простые `.ini`-пакеты.
 
-[![Ultrahand Logo](.pics/banner.gif)](https://gbatemp.net/threads/ultrahand-overlay-the-fully-craft-able-overlay-executor.633560/)
+[![Ryzhand Logo](.pics/banner.gif)](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay)
 
-Ultrahand Overlay is an overlay menu ecosystem built from the ground up off of [libultrahand](https://github.com/ppkantorski/libultrahand) (an expanded fork of [libtesla](https://github.com/WerWolv/libtesla)) that provides powerful C/C++ commands through the usage of its own custom interpretive [programming language](https://github.com/ppkantorski/Ultrahand-Overlay/wiki/Command-Reference) (similar to Shell/BASH).  It is a versatile tool that enables users to create and share custom command-based packages, providing enhanced functionality for managing settings, files and directories on your Nintendo Switch.
+**Ryzhand Overlay** — это меню-оверлей и интерпретатор команд, построенный на форке [libtesla](https://github.com/WerWolv/libtesla) — нашей [libryazhahand](https://github.com/Dimanchikgshehsbshene/libryazhahand). Запускается через [Tesla-меню](https://github.com/WerWolv/Tesla-Menu) или совместимый ovlloader. Поддерживает свой компактный язык-скрипт (похожий на shell/BAT), в котором описываются пакеты — единицы автоматизации.
 
-With Ultrahand, you have the flexibility to customize and shape your file management system according to your needs, empowering you with greater control over your system configurations.
+## Что умеет
 
-## Screenshots
-![Slideshow](.pics/slideshow.gif)
+- 📂 **Каталоги** — создаёт/копирует/перемещает/удаляет файлы и папки на SD.
+- 🌐 **Скачивание** — забирает файлы по URL прямо в оверлее, поддерживает HTTPS.
+- 📦 **Распаковка** — `.zip` распаковывается без выхода в HBL.
+- ⚙️ **INI** — правит произвольные конфиги: ключи, значения, секции.
+- 🔧 **Hex-патчи** — точечные правки бинарей по смещению.
+- 🔁 **Конвертация модов** — IPS, pchtxt, и сопутствующие форматы.
+- 🚀 **Запуск других оверлеев** — Ryzhand работает как корневой launcher.
+- 💡 **Управление подсветкой** *(v2.3.0)* — LED HOME-кнопки и Joy-Con, отдельно для Switch Lite и док-станции. Режимы Off / Постоянно / Пульсация / Плавный / При нажатии. Требует фоновый sysmodule (`sys-notif-LED` или `liteswitch-led`) для физического применения.
+- 🔄 **Сканер обновлений** *(v2.3.0, опциональный)* — сравнивает локальные `.ovl` с релизами на GitHub. Выключен по умолчанию: в v2.3.0 работает синхронно и может задерживать загрузку пакетов, в v2.4.0 запланирован вынос в отдельный поток с 6-часовым кэшем.
+- 🌍 **Локализация** — основной язык русский, опционально английский. Файлы переводов в `lang/`.
 
-## Features
+## Скриншоты
 
-Ultrahand Overlay currently offers the following features:
+![Слайдшоу](.pics/slideshow.gif)
 
-- Create Directories:
-  - Effortlessly create directories on your SD card by specifying the directory path. Ultrahand will handle the creation process for you.
+## Установка
 
-- Copy Files or Directories:
-  - Easily copy files or directories from one location to another on your SD card. Just provide the source and destination paths, and Ultrahand will seamlessly handle the copying process.
+1. Скачайте `Ryzhand-Overlay-vX.Y.Z.zip` из [последнего релиза](https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay/releases/latest).
+2. Распакуйте архив в корень SD-карты — структура совпадает с `/switch/.overlays/` и `/config/ryazhahand/`.
+3. Убедитесь что установлен совместимый ovlloader (Atmosphere ≥ 1.6, HOS ≥ 16.0).
+4. Откройте Tesla-меню (`+`) и запустите **Ryzhand** из списка.
 
-- Delete Files or Directories:
-  - Simplify file and directory deletion on your SD card. By specifying the path of the file or directory you want to delete, Ultrahand promptly removes it, making the deletion process hassle-free.
+Для пользователей предыдущих версий: конфиг автоматически мигрирует с `/config/ultrahand/` на `/config/ryazhahand/` (если папка `ultrahand` есть — её нужно вручную перенести).
 
-- Move Files or Directories:
-  - Seamlessly move files or directories between locations on your SD card. Provide the source path and the destination directory path, and Ultrahand takes care of the moving process, ensuring smooth relocation.
+## Требования
 
-- Download Files:
-  - Download files to your SD card with ease. Efficiently retrieve files from repositories or URLs to your desired location. Whether you need to download/update homebrew or transfer files between locations, this feature simplifies the process, making repository management a breeze.
+| Компонент | Версия |
+|-----------|--------|
+| Atmosphere CFW | ≥ 1.6.0 |
+| HOS (firmware) | ≥ 16.0.0 |
+| ovlloader / Tesla | актуальный |
+| SD карта | exFAT/FAT32, ≥ 100 МБ свободно |
 
-- Unzip Files:
-  - Extract compressed zip files on your SD card by unzipping archived files, preserving their original structure. Whether you have downloaded zip archives or received compressed files, this command simplifies the process of extracting them, making it effortless to access the contents within.
+## Сборка из исходников
 
-- Modify INI Files:
-  - Edit INI files on your SD card with ease. Take full control over your configurations by updating existing key-value pairs, adding new entries, or creating new sections within the INI file using Ultrahand.
+Нужны [devkitPro](https://devkitpro.org/) с `devkitA64`, `libnx`, `switch-curl`, `switch-zlib`, `switch-minizip`, `switch-mbedtls`, `switch-libpng`.
 
-- Hex Edit Files:
-  - Perform hexadecimal editing of files on your SD card. Edit the binary data directly, allowing for precise control over your data. Ultrahand's Hex Edit Files feature enables you to analyze, modify, and customize files in their raw form.
+```bash
+git clone https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay.git
+cd Ryazhahand-Overlay
+export DEVKITPRO=/opt/devkitpro
+make -j$(nproc)
+```
 
-- Convert Mods:
-  - Convert `pchtxt` mods into `ips` or `cheats` format.
+Результат — `ovlmenu.ovl` в корне и стейджированная SD-структура в `out/`.
 
-- System Commands:
-  - There are a variety of system commands that users can utilize.  These include functions to shutdown, reboot, reboot directly into Hekate entries/modes, manipulate the screen's backlight, volume settings, and turn off all bluetooth controllers.
+Подробнее о структуре пакетов: [`docs/PACKAGES_RU.md`](docs/PACKAGES_RU.md).
 
-- Run Commmands On Boot:
-  - Users can also utilize their own `/switch/.packages/boot_package.ini` file (with a command section `boot`) to run a series of commands once upon device boot-up.
+## Документация
 
-## Getting Started
+- [`docs/UI_RU.md`](docs/UI_RU.md) — описание экранов и навигации.
+- [`docs/PACKAGES_RU.md`](docs/PACKAGES_RU.md) — формат `package.ini` и список команд.
+- [`docs/INTEGRATION_RU.md`](docs/INTEGRATION_RU.md) — как подключать сторонние оверлеи и взаимодействие с RCU / RyazhaTune.
+- [`docs/CHANGELOG_RU.md`](docs/CHANGELOG_RU.md) — что изменилось от релиза к релизу.
 
-### Usage
+## Связанные проекты
 
-To use Ultrahand, follow these steps:
+| Проект | Назначение |
+|--------|-----------|
+| [libryazhahand](https://github.com/Dimanchikgshehsbshene/libryazhahand) | Форк libultrahand/libtesla — основа оверлея, используется и в смежных проектах. |
+| [RCU](https://github.com/Dimanchikgshehsbshene/RCU) | Разгон/мониторинг Tegra X1+ — оверлей `ryazha-clk`. |
+| [RyazhaTune](https://github.com/Dimasick-git/RyazhaTune) | Фоновый аудиоплеер, форк sys-tune. |
+| [Ryazha-Status-Monitor](https://github.com/Dimasick-git/Ryazha-Status-Monitor) | Мониторинг температуры/FPS, источник модуля LED-Lite. |
 
-1. Download and install the latest [nx-ovlloader](https://github.com/ppkantorski/nx-ovlloader).
-    - **Sidenote:** nx-ovlloader+ consumes 2MB more of system memory than nx-ovlloader and provides expanded features. Users can also switch between the two within the Ultrahand Settings Menu.
-2. Download the latest Ultrahand [ovlmenu.ovl](https://github.com/ppkantorski/Ultrahand-Overlay/releases/latest/download/ovlmenu.ovl) and place it within `/switch/.overlays/`.
-    - **WARNING:** This will overwrite `Tesla Menu` if already installed.
-3. After installing Ultrahand Overlay, a new folder named `ultrahand` will be created within the root config folder on your SD card (`/config/ultrahand/`) along with a `config.ini` file containing various Ultrahand settings.
-4. Launch Ultrahand (similarly to `Tesla Menu`) with Ultrahand's default hotkeys (`ZL+ZR+DDOWN`) or Tesla's.  A new folder will be made (`/switch/.packages/`) with a preset `package.ini` file for your base menu commands.
+Все эти проекты используют один и тот же `libryazhahand` — обновления библиотеки прилетают сразу везде.
 
-5. Place your custom `package.ini` package file in your Ultrahand package directory (`/switch/.packages/<PACKAGE_NAME>/`). This file will contains the commands for your custom Ultrahand package.
-    - **Sidenote:** If your Ultrahand package does not show up, you may need to run `Fix Bit Archive` in Hekate.
-    - See [Ultrahand Packages](https://github.com/ppkantorski/Ultrahand-Packages) for a comprehensive list of known packages.
+## Благодарности
 
-6. Your commands will now show up on the packages menu within Ultrahand.
+Этот проект — глубокий форк замечательного [Ultrahand-Overlay](https://github.com/ppkantorski/Ultrahand-Overlay) автора **ppkantorski**. Без его исходной работы Ryzhand был бы невозможен. Также спасибо:
 
-## Additional Features
-- You can click `A` to execute any command as well as click `MINUS` to view/execute the individual command lines written in the ini for execution.
-- You can click `PLUS` on the main menu to enter the settings menu.
-- You can click `X` on top of an overlay/package to star them.
-- You can click `Y` on top of an overlay/package to configure additional settings.
+- [WerWolv](https://github.com/WerWolv) — за libtesla и Tesla-меню.
+- [HookedBehemoth](https://github.com/HookedBehemoth) — за sys-tune (база RyazhaTune).
+- Авторам `sys-notif-LED` и `liteswitch-led` — за модули управления подсветкой.
 
-For additional assistance with custom packages, feel free to checkout the [Ultrahand Overlay Wiki](https://github.com/ppkantorski/Ultrahand-Overlay/wiki).
+## Лицензия
 
-### Nintendo Switch Compatibility
-To run Ultrahand Overlay on the Nintendo Switch, you need to have the necessary [homebrew environment](https://github.com/Atmosphere-NX/Atmosphere) set up on your console running HOS 16.0.0+. Once you have the homebrew environment set up, you can transfer the compiled .ovl to your Switch and launch it using your old `Tesla Menu` hotkeys.
+GPLv2 — см. [`LICENSE`](LICENSE). На отдельные подмодули и зависимости распространяются их собственные лицензии — см. [`SUB_LICENSE`](SUB_LICENSE).
 
-Please note that running homebrew software on your Nintendo Switch may void your warranty and can carry certain risks. Ensure that you understand the implications and follow the appropriate guidelines and precautions when using homebrew software.
-
-### Compilation Prerequisites
-
-To compile and run the software, you need to have the following C/C++ dependencies installed:
-
-- [libultrahand](https://github.com/ppkantorski/libultrahand)
-- libnx
-- switch-curl
-- switch-zlib
-- switch-mbedtls
-
-## Contributing
-
-Contributions are welcome! If you have any ideas, suggestions, or bug reports, please raise an [issue](https://github.com/ppkantorski/Ultrahand-Overlay/issues/new/choose), submit a [pull request](https://github.com/ppkantorski/Ultrahand-Overlay/compare) or reach out to me directly on [GBATemp](https://gbatemp.net/threads/ultrahand-overlay-the-fully-craft-able-overlay-executor.633560/).
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X3VR194)
-
-## License
-
-This project is licensed and distributed under [GPLv2](LICENSE) with a [custom library](https://github.com/ppkantorski/libultrahand/tree/main/libultra) utilizing [CC-BY-4.0](SUB_LICENSE).
-
-Copyright (c) 2023-2025 ppkantorski
+Автор форка: **Dimasick-git**.  
+Хостинг и автоматические релизы: **Dimanchikgshehsbshene/Ryazhahand-Overlay**.

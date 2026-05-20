@@ -1,4 +1,4 @@
-{
+﻿{
     "ENGLISH": "Engels",
     "SPANISH": "Spaans",
     "FRENCH": "Frans",
@@ -64,7 +64,7 @@
     "LANGUAGE": "Taal",
     "OVERLAY_INFO": "Overlay-info",
     "SOFTWARE_UPDATE": "Updates",
-    "UPDATE_ULTRAHAND": "Ultrahand bijwerken",
+    "UPDATE_RYZHAND": "Ryzhand bijwerken",
     "UPDATE_LANGUAGES": "Talen bijwerken",
     "SYSTEM": "Systeem",
     "DEVICE_INFO": "Apparaatinformatie",
@@ -131,10 +131,10 @@
     "SELECTION_BACKGROUND": "Selectie-achtergrond",
     "SELECTION_TEXT": "Selectietekst",
     "SELECTION_VALUE": "Selectiewaarde",
-    "LIBULTRAHAND_TITLES": "libultrahand-titels",
-    "LIBULTRAHAND_VERSIONS": "libultrahand-versies",
+    "LIBRYZHAND_TITLES": "libryazhahand-titels",
+    "LIBRYZHAND_VERSIONS": "libryazhahand-versies",
     "PACKAGE_TITLES": "Pakkettitels",
-    "ULTRAHAND_HAS_STARTED": "Ultrahand gestart.",
+    "RYZHAND_HAS_STARTED": "Ryzhand gestart.",
     "NEW_UPDATE_IS_AVAILABLE": "Update beschikbaar!",
     "DELETE_PACKAGE": "Pakket verwijderen",
     "DELETE_OVERLAY": "Overlay verwijderen",

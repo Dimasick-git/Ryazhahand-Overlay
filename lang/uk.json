@@ -1,4 +1,4 @@
-{
+﻿{
     "ENGLISH": "Англійська",
     "SPANISH": "Іспанська",
     "FRENCH": "Французька",
@@ -64,7 +64,7 @@
     "LANGUAGE": "Мова",
     "OVERLAY_INFO": "Інфо оверлея",
     "SOFTWARE_UPDATE": "Оновлення",
-    "UPDATE_ULTRAHAND": "Оновити Ultrahand",
+    "UPDATE_RYZHAND": "Оновити Ryzhand",
     "UPDATE_LANGUAGES": "Оновити переклад",
     "SYSTEM": "Система",
     "DEVICE_INFO": "Про пристрій",
@@ -131,10 +131,10 @@
     "SELECTION_BACKGROUND": "Фон виділення",
     "SELECTION_TEXT": "Текст виділення",
     "SELECTION_VALUE": "Значення",
-    "LIBULTRAHAND_TITLES": "Заголовки libultrahand",
-    "LIBULTRAHAND_VERSIONS": "Версії libultrahand",
+    "LIBRYZHAND_TITLES": "Заголовки libryazhahand",
+    "LIBRYZHAND_VERSIONS": "Версії libryazhahand",
     "PACKAGE_TITLES": "Заголовки пакетів",
-    "ULTRAHAND_HAS_STARTED": "Ultrahand запущено",
+    "RYZHAND_HAS_STARTED": "Ryzhand запущено",
     "NEW_UPDATE_IS_AVAILABLE": "Доступне оновлення!",
     "DELETE_PACKAGE": "Видалити пакет",
     "DELETE_OVERLAY": "Видалити оверлей",

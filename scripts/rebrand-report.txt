@@ -1,0 +1,32 @@
+﻿Rebrand run: 2026-05-20 19:03:35
+Dry run: False
+Scanned: 84
+Changed: 27
+
+.gitignore : Ultrahand-Overlayx1
+Makefile : ppkantorskix1, Ultrahand-Overlayx1, libultrahandx1
+README.md : ppkantorskix7, github.com/ppkantorskix13
+.github\FUNDING.yml : ppkantorskix3, github.com/ppkantorskix1
+examples\package.ini : ppkantorskix1
+examples\README.md : ppkantorskix1, github.com/ppkantorskix1
+examples\Broomstick\package.ini : ppkantorskix1
+examples\Broomstick\README.md : github.com/ppkantorskix1
+examples\Cool Curves\package.ini : ppkantorskix1
+examples\Easy Installer\overlays.json : ppkantorskix1
+examples\Easy Installer\package.ini : ppkantorskix1
+examples\Easy Installer\packages.json : ppkantorskix10
+examples\Easy Installer\README.md : github.com/ppkantorskix1
+examples\Host Guard\README.md : github.com/ppkantorskix1
+examples\l4t_reboot\install.sh : ppkantorskix2, github.com/ppkantorskix1
+examples\l4t_reboot\l4t_reboot.py : ppkantorskix2, Ultrahand-Overlayx3, github.com/ppkantorski/Ultrahand-Overlayx1
+examples\l4t_reboot\README.md : ppkantorskix1
+examples\Memory Config\package.ini : ppkantorskix1
+examples\Mod Master\package.ini : ppkantorskix1
+examples\Mod Master\README.md : github.com/ppkantorskix1
+examples\OC Toolkit\package.ini : ppkantorskix1, github.com/ppkantorskix2
+examples\OC Toolkit\README.md : github.com/ppkantorskix1
+extra\pchtxt2ips.py : ppkantorskix2, github.com/ppkantorski/Ultrahand-Overlayx1
+extra\rar2zip.py : ppkantorskix2, github.com/ppkantorski/Ultrahand-Overlayx1
+extra\ryazhahand_notify.py : ultrahandx4
+source\main.cpp : ppkantorskix2, github.com/ppkantorskix1
+source\utils.hpp : ppkantorskix2, github.com/ppkantorskix1

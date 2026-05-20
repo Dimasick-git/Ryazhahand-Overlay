@@ -1,4 +1,4 @@
-{
+﻿{
     "ENGLISH": "Anglais",
     "SPANISH": "Espagnol",
     "FRENCH": "Français",
@@ -64,7 +64,7 @@
     "LANGUAGE": "Langue",
     "OVERLAY_INFO": "Info superposition",
     "SOFTWARE_UPDATE": "Mises à jour",
-    "UPDATE_ULTRAHAND": "MàJ Ultrahand",
+    "UPDATE_RYZHAND": "MàJ Ryzhand",
     "UPDATE_LANGUAGES": "MàJ langues",
     "SYSTEM": "Système",
     "DEVICE_INFO": "Infos appareil",
@@ -131,10 +131,10 @@
     "SELECTION_BACKGROUND": "Fond sélection",
     "SELECTION_TEXT": "Texte sélection",
     "SELECTION_VALUE": "Valeur sélection",
-    "LIBULTRAHAND_TITLES": "Titres libultrahand",
-    "LIBULTRAHAND_VERSIONS": "Versions libultrahand",
+    "LIBRYZHAND_TITLES": "Titres libryazhahand",
+    "LIBRYZHAND_VERSIONS": "Versions libryazhahand",
     "PACKAGE_TITLES": "Titres paquet",
-    "ULTRAHAND_HAS_STARTED": "Ultrahand démarré.",
+    "RYZHAND_HAS_STARTED": "Ryzhand démarré.",
     "NEW_UPDATE_IS_AVAILABLE": "Mise à jour disponible !",
     "DELETE_PACKAGE": "Supprimer paquet",
     "DELETE_OVERLAY": "Supprimer overlay",

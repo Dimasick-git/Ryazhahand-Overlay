@@ -1,0 +1,66 @@
+# Build artifacts
+build/
+out/
+debug/
+*.o
+*.elf
+*.lst
+*.map
+*.nso
+*.nacp
+*.ovl
+*.nro
+*.nsp
+*.bin.h
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local backups and scratch
+.tmp_protect_backup/
+.git.zip
+.pics/*.zip
+*.zip
+*.7z
+
+# Upstream/reference clones (kept locally for study, not committed)
+Atmosphere-CNX-master/
+InfoNX-master/
+libnx-master/
+libnx-upstream/
+nx-ovlloader-master/
+Ultrahand-Overlay-main/
+RCU-main/
+
+# Stray test binaries from other projects
+MicroMemBench.nro
+MicroMemTest.nro
+MicroVramTest.nro
+exefs.nsp
+
+# LED source projects (already imported into source/led/)
+home-led-project/
+liteswitch-main/
+sys-notif-LED-main/
+neo_sys-notif-LED-main/
+
+# Russian-named scratch folders
+Дневник/
+порт/
+пример стукруты/
+00FF0000636C6BFF/
+
+# Local ovlloader/payloads/kips/etc (not part of this overlay)
+kips/
+payloads/
+sounds/
+themes/
+tools/
+
+# Reorg backups
+*.bak
+*.orig
+.upstream-sync.local

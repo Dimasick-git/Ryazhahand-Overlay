@@ -1,19 +1,19 @@
 """
 File: pchtxt2ips.py
-Author: ppkantorski
+Author: Dimasick-git
 Description:
     This script converts a .pchtxt file to an .ips file. It reads the contents
     of the .pchtxt file, extracts the address-value pairs, and generates an .ips
     file in the specified output folder.
 
     For the latest updates and contributions, visit the project's GitHub repository.
-    (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+    (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay)
 
     Note: Please be aware that this notice cannot be altered or removed. It is a part
     of the project's documentation and must remain intact.
     
 Licensed under CC-BY-NC-SA-4.0
-Copyright (c) 2024 ppkantorski
+Copyright (c) 2024 Dimasick-git
 """
 
 import os

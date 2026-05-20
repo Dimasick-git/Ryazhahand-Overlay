@@ -1,4 +1,4 @@
-name: Update HB App Store downloads
+﻿name: Update HB App Store downloads
 
 on:
   schedule:
@@ -19,7 +19,7 @@ jobs:
 
           # Fetch download count
           count=$(curl -s "$JSON_URL" \
-            | jq '.packages | map(select(.name == "UltrahandOverlay"))[0].app_dls // 0')
+            | jq '.packages | map(select(.name == "RyzhandOverlay"))[0].app_dls // 0')
 
           # Format as compact number (k for thousands)
           if [ "$count" -ge 1000 ]; then

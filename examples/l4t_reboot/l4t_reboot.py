@@ -1,24 +1,24 @@
 #!/usr/bin/python3
 """
 File: l4t_reboot.py
-Author: ppkantorski
+Author: Dimasick-git
 Description:
-    This script is part of the Ultrahand-Overlay project and is responsible for
+    This script is part of the Ryazhahand-Overlay project and is responsible for
     handling the reboot functionality for the project. It interacts with the
     bootloader and configuration files to perform the necessary reboot actions.
 
     Key Features:
     - Rebooting the system.
     - Backup and restoration of bootloader configurations.
-    - Integration with the Ultrahand-Overlay project.
+    - Integration with the Ryazhahand-Overlay project.
 
     Note: Please refer to the project documentation and README.md for detailed
-    information on how to use and configure this script within the Ultrahand-Overlay.
+    information on how to use and configure this script within the Ryazhahand-Overlay.
 
     For the latest updates and contributions, visit the project's GitHub repository.
-    (GitHub Repository: https://github.com/ppkantorski/Ultrahand-Overlay)
+    (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay)
 
-Copyright (c) 2023 ppkantorski
+Copyright (c) 2023 Dimasick-git
 All rights reserved.
 """
 import os, shutil, time

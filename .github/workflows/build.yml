@@ -1,0 +1,71 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.pics/**'
+      - 'examples/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Сборка ovlmenu.ovl
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Mark workspace safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Информация о devkitPro
+        run: |
+          echo "DEVKITPRO=$DEVKITPRO"
+          aarch64-none-elf-gcc --version | head -1
+
+      - name: Установить switch-* зависимости
+        run: |
+          set -e
+          (yes | sudo -E dkp-pacman -Syu --noconfirm) || \
+            (yes | dkp-pacman -Syu --noconfirm)
+          dkp-pacman -S --needed --noconfirm \
+            switch-curl switch-zlib switch-libpng \
+            switch-mbedtls switch-bzip2 switch-libjpeg-turbo \
+            switch-pkg-config switch-glm switch-libjson-c || true
+
+      - name: make
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          make -j$(nproc)
+
+      - name: Подготовить артефакты
+        run: |
+          mkdir -p artifacts
+          if [ -f ovlmenu.ovl ]; then cp ovlmenu.ovl artifacts/Ryzhand-Overlay.ovl; fi
+          if [ -d out ]; then cp -r out artifacts/out; fi
+          ls -la artifacts/
+
+      - name: Загрузить артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ryzhand-Overlay-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
