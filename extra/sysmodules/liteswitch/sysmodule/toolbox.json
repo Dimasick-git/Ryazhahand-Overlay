@@ -1,0 +1,5 @@
+{
+  "name": "SysLEDControl",
+  "tid": "0100000000000FED",
+  "requires_reboot": false
+}

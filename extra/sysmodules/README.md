@@ -44,9 +44,43 @@ LED_SKIP_FETCH=1 make
 (оверлей останется работоспособным, просто LED не будет применяться
 без отдельной установки sysmodule).
 
-## Switch Lite
+## liteswitch (Zach van Welzen)
 
-На Switch Lite Joy-Con отсутствуют и работает только power-LED через i2c.
-Совместимого open-source sysmodule под Lite в публичных репозиториях
-сейчас нет. Если он появится -- добавим аналогичный fetch-скрипт и
-параллельный subdir здесь.
+- **Источник:** vendored в `extra/sysmodules/liteswitch/` (upstream:
+  Zach van Welzen, MIT)
+- **Лицензия:** MIT (см. `liteswitch.LICENSE` и `liteswitch/LICENSE`)
+- **Title ID:** `0100000000000FED`
+- **Назначение:** управление HOME-кнопкой LED на Switch Lite. Sysmodule
+  + собственный overlay управления (`liteswitch.ovl`) -- работает с
+  отдельным конфигом `/config/led-control/`, не с нашим `led.ini`.
+
+Source-код **вендорится** в репо (в отличие от sys-notif-LED, который
+просто скачивается): он маленький (~60K), и пересобирать его на месте
+devkitpro toolchain'ом дешевле, чем тянуть готовый zip каждый раз.
+
+Сборка:
+
+```sh
+bash scripts/build_lite_led.sh out/
+```
+
+Скрипт делает `make all` в копии vendored-источников, кладёт
+`atmosphere/contents/0100000000000FED/exefs.nsp` + flag + toolbox +
+`switch/.overlays/liteswitch.ovl` в `out/`. Требует
+`DEVKITPRO=/opt/devkitpro` (есть в CI-контейнере). При
+`LED_SKIP_FETCH=1` шаг молча пропускается.
+
+### Сосуществование с sys-notif-LED
+
+Оба sysmodule попадают в один dist, у них разные title IDs (0895 vs
+FED). Atmosphere стартует оба; на обычной Switch / OLED работает 0895,
+на Switch Lite -- FED. Никаких ручных переключений не требуется.
+
+### Интеграция с Ryazha-LED
+
+Сейчас liteswitch использует **свой** INI (`/config/led-control/`),
+а наш Ryazha-LED -- свой (`/config/ryazhahand/led.ini`). На Lite это
+значит, что наш UI настройки LED в Ryazhahand-Overlay физически
+ничего не применит -- нужно либо использовать поставляемый
+`liteswitch.ovl`, либо адаптировать Ryazha-LED, чтобы он на Lite ещё
+и писал в `/config/led-control/`. Последнее в TODO.

@@ -272,6 +272,11 @@ $(BUILD):
 	@# применяет их к железу. Скрипт скачивает релиз из upstream; если
 	@# интернета нет, ставим LED_SKIP_FETCH=1 и собираем без него.
 	@bash $(CURDIR)/scripts/fetch_led_sysmodule.sh out/ || true
+	@# liteswitch sysmodule для Switch Lite (Zach van Welzen, MIT).
+	@# Source вендорится в extra/sysmodules/liteswitch/, билдится во
+	@# временной директории devkitpro-toolchain'ом, .nsp+.ovl кладутся
+	@# в out/. Тот же LED_SKIP_FETCH=1 пропускает шаг.
+	@bash $(CURDIR)/scripts/build_lite_led.sh out/ || true
 
 #---------------------------------------------------------------------------------
 clean:

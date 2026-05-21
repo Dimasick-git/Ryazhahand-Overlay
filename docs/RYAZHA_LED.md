@@ -109,9 +109,16 @@ updated_at = 2026-05-20T17:32:11Z
   В git репозитории бинарь не хранится -- описание в
   [`extra/sysmodules/README.md`](../extra/sysmodules/README.md), MIT-attribution
   в [`extra/sysmodules/sys-notif-LED.LICENSE`](../extra/sysmodules/sys-notif-LED.LICENSE).
-- **liteswitch-led** -- модуль для Switch Lite. Совместимого open-source
-  проекта в публичных репах пока нет; добавим аналогичный fetch-скрипт
-  как только появится.
+- **liteswitch** ([Zach van Welzen, MIT](https://github.com/zachvanwelzen/liteswitch)) --
+  HOME-LED для Switch Lite. Source вендорится в
+  [`extra/sysmodules/liteswitch/`](../extra/sysmodules/liteswitch/),
+  собирается на CI через
+  [`scripts/build_lite_led.sh`](../scripts/build_lite_led.sh), готовый
+  `.nsp` кладётся в `out/atmosphere/contents/0100000000000FED/` плюс
+  свой UI-overlay в `out/switch/.overlays/liteswitch.ovl`. MIT-attribution
+  в [`extra/sysmodules/liteswitch.LICENSE`](../extra/sysmodules/liteswitch.LICENSE).
+  Сейчас читает свой конфиг `/config/led-control/` -- интеграция с
+  нашим `/config/ryazhahand/led.ini` запланирована (см. README в `extra/sysmodules/`).
 - **RyazhaTune** -- может читать тот же `led.ini` для синхронизации UI.
 
 ### Локальная сборка без интернета
