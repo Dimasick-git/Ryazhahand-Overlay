@@ -267,16 +267,12 @@ $(BUILD):
 	@cp $(CURDIR)/$(TARGET).ovl out/switch/.overlays/$(TARGET).ovl
 	@mkdir -p out/config/ryazhahand/lang/
 	@cp -r $(CURDIR)/lang/* out/config/ryazhahand/lang/
-	@# Prebuilt LED sysmodule -- Ryazha-LED модуль оверлея пишет настройки в
-	@# /config/ryazhahand/led.ini, а sysmodule sys-notif-LED (Xc987, MIT)
-	@# применяет их к железу. Скрипт скачивает релиз из upstream; если
-	@# интернета нет, ставим LED_SKIP_FETCH=1 и собираем без него.
-	@bash $(CURDIR)/scripts/fetch_led_sysmodule.sh out/ || true
-	@# liteswitch sysmodule для Switch Lite (Zach van Welzen, MIT).
-	@# Source вендорится в extra/sysmodules/liteswitch/, билдится во
-	@# временной директории devkitpro-toolchain'ом, .nsp+.ovl кладутся
-	@# в out/. Тот же LED_SKIP_FETCH=1 пропускает шаг.
-	@bash $(CURDIR)/scripts/build_lite_led.sh out/ || true
+	@# Единый Ryazha-LED sysmodule (extra/sysmodules/ryazha-led/). Один
+	@# бинарь auto-detect'ит железо: Switch Lite -> GPIO PWM, обычная
+	@# Switch / OLED -> hidsys notification LED. Раньше тут крутились
+	@# два отдельных sysmodule'а (0895 и FED) -- теперь оба слиты в
+	@# 0100000000000ED1. LED_SKIP_FETCH=1 пропускает шаг для offline.
+	@bash $(CURDIR)/scripts/build_ryazha_led.sh out/ || true
 
 #---------------------------------------------------------------------------------
 clean:

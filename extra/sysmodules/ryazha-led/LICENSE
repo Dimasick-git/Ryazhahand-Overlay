@@ -1,0 +1,43 @@
+Ryazha-LED sysmodule -- единый sysmodule для управления HOME / notification
+LED на любых моделях Switch (Erista, Mariko, OLED, Lite). Title ID
+0100000000000ED1.
+
+Лицензия: MIT
+Автор сборки/композиции: Dimasick-git, 2026
+
+----------------------------------------------------------------------
+Production code объединяет логику из двух upstream-проектов (оба MIT):
+
+1) liteswitch -- GPIO PWM control для Switch Lite
+   Copyright (c) 2026 Zach van Welzen
+   https://github.com/zachvanwelzen/liteswitch
+
+2) sys-notif-LED -- hidsys notification LED для обычной Switch / OLED
+   Copyright (c) 2025 Xc987
+   https://github.com/Xc987/sys-notif-LED
+
+Конкретно из liteswitch взята GPIO-ветка (gpioInitialize/gpioSetValue +
+ledOn/ledOff/pulseLoop). Из sys-notif-LED -- hidsys-ветка (паттерны
+HidsysNotificationLedPattern + scanForControllers).
+
+----------------------------------------------------------------------
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

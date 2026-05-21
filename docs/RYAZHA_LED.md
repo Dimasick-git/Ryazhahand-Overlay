@@ -101,30 +101,24 @@ updated_at = 2026-05-20T17:32:11Z
 ## Совместимость с экосистемой
 
 - **Ryazhahand-Overlay** (v2.3.0+) -- пишет настройки в `led.ini`.
-- **sys-notif-LED** ([Xc987/sys-notif-LED](https://github.com/Xc987/sys-notif-LED), MIT) --
-  фоновый sysmodule, применяет настройки на железе. Поставляется в нашем
-  релизе автоматически: при `make` скрипт
-  [`scripts/fetch_led_sysmodule.sh`](../scripts/fetch_led_sysmodule.sh)
-  скачивает свежий релиз и кладёт в `out/atmosphere/contents/0100000000000895/`.
-  В git репозитории бинарь не хранится -- описание в
-  [`extra/sysmodules/README.md`](../extra/sysmodules/README.md), MIT-attribution
-  в [`extra/sysmodules/sys-notif-LED.LICENSE`](../extra/sysmodules/sys-notif-LED.LICENSE).
-- **liteswitch** ([Zach van Welzen, MIT](https://github.com/zachvanwelzen/liteswitch)) --
-  HOME-LED для Switch Lite. Source вендорится в
-  [`extra/sysmodules/liteswitch/`](../extra/sysmodules/liteswitch/),
-  собирается на CI через
-  [`scripts/build_lite_led.sh`](../scripts/build_lite_led.sh), готовый
-  `.nsp` кладётся в `out/atmosphere/contents/0100000000000FED/` плюс
-  свой UI-overlay в `out/switch/.overlays/liteswitch.ovl`. MIT-attribution
-  в [`extra/sysmodules/liteswitch.LICENSE`](../extra/sysmodules/liteswitch.LICENSE).
-  Сейчас читает свой конфиг `/config/led-control/` -- интеграция с
-  нашим `/config/ryazhahand/led.ini` запланирована (см. README в `extra/sysmodules/`).
+- **Ryazha-LED sysmodule** -- единый фоновый сервис, sammelt оба
+  старых отдельных модуля (sys-notif-LED и liteswitch) в одном бинаре
+  с title id `0100000000000ED1`. Sами выбирает GPIO-ветку (Lite) или
+  hidsys-ветку (обычная/OLED) через `setsysGetProductModel`. Source
+  вендорится в [`extra/sysmodules/ryazha-led/`](../extra/sysmodules/ryazha-led/),
+  собирается на CI скриптом
+  [`scripts/build_ryazha_led.sh`](../scripts/build_ryazha_led.sh) и
+  кладётся в `out/atmosphere/contents/0100000000000ED1/`.
+  MIT-attribution для обоих upstream-проектов в
+  [`extra/sysmodules/ryazha-led/LICENSE`](../extra/sysmodules/ryazha-led/LICENSE).
 - **RyazhaTune** -- может читать тот же `led.ini` для синхронизации UI.
 
 ### Локальная сборка без интернета
 
-CI и обычный `make` тянут sysmodule через `scripts/fetch_led_sysmodule.sh`.
-Если интернета на машине нет, отключите автозагрузку:
+CI и обычный `make` собирают sysmodule через
+`scripts/build_ryazha_led.sh`. Если devkitpro не установлен или нет
+интернета (хотя в этом случае ничего скачивать и не нужно), отключите
+шаг:
 
 ```sh
 LED_SKIP_FETCH=1 make
