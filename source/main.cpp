@@ -12243,6 +12243,13 @@ bool drawCommandsMenu(
 
                             case 'h':
 
+                                // PR #310 minimal: ;hold_seconds=N -- per-item override для
+                                // hold duration. Полная UI-сторона ещё не подключена, но
+                                // директиву парсим как комментарий, чтобы скрипты не падали.
+                                if (commandName.compare(0, 14, ";hold_seconds=") == 0) {
+                                    continue;
+                                }
+
                                 if (commandName.compare(0, HOLD_PATTERN_LEN, HOLD_PATTERN) == 0) {
 
                                     switch (commandName[HOLD_PATTERN_LEN]) {
@@ -12549,6 +12556,13 @@ bool drawCommandsMenu(
 
                             case 'a':
 
+                                // PR #310 minimal: ;accept=Текст подтверждения -- задаёт
+                                // label кнопки accept в warning-banner. Полный UI пока
+                                // не подключен, директива съедается без действия.
+                                if (commandName.compare(0, 8, ";accept=") == 0) {
+                                    continue;
+                                }
+
                                 if (commandName.compare(0, ALIGNMENT_PATTERN_LEN, ALIGNMENT_PATTERN) == 0) {
 
                                     tableAlignment = commandName.substr(ALIGNMENT_PATTERN_LEN);
@@ -12562,6 +12576,19 @@ bool drawCommandsMenu(
                                 
 
                             case 'w':
+
+                                // Минимальный backport PR #310 (warning-confirm): директивы
+                                // ;warning=, ;warning_on=, ;warning_off=, ;warning_color=,
+                                // ;warning_icon= парсятся, чтобы пакетные скрипты с upstream
+                                // подсказками не выдавали ошибок. Полный inline-banner +
+                                // hold-A UI -- TODO #51. Сейчас просто съедаем директиву.
+                                if (commandName.compare(0, 9, ";warning=") == 0 ||
+                                    commandName.compare(0, 12, ";warning_on=") == 0 ||
+                                    commandName.compare(0, 13, ";warning_off=") == 0 ||
+                                    commandName.compare(0, 15, ";warning_color=") == 0 ||
+                                    commandName.compare(0, 14, ";warning_icon=") == 0) {
+                                    continue;
+                                }
 
                                 if (commandName.compare(0, WRAPPING_MODE_PATTERN_LEN, WRAPPING_MODE_PATTERN) == 0) {
 
