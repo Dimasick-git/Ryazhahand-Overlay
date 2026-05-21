@@ -100,12 +100,32 @@ updated_at = 2026-05-20T17:32:11Z
 
 ## Совместимость с экосистемой
 
-- **Ryazhahand-Overlay** (v2.3.0+) -- пишет настройки.
-- **sys-notif-LED** (модуль из Ryazha-Status-Monitor) -- читает и применяет
-  на обычной Switch / OLED.
-- **liteswitch-led** (модуль из Ryazha-Status-Monitor) -- читает и применяет
-  на Switch Lite.
+- **Ryazhahand-Overlay** (v2.3.0+) -- пишет настройки в `led.ini`.
+- **sys-notif-LED** ([Xc987/sys-notif-LED](https://github.com/Xc987/sys-notif-LED), MIT) --
+  фоновый sysmodule, применяет настройки на железе. Поставляется в нашем
+  релизе автоматически: при `make` скрипт
+  [`scripts/fetch_led_sysmodule.sh`](../scripts/fetch_led_sysmodule.sh)
+  скачивает свежий релиз и кладёт в `out/atmosphere/contents/0100000000000895/`.
+  В git репозитории бинарь не хранится -- описание в
+  [`extra/sysmodules/README.md`](../extra/sysmodules/README.md), MIT-attribution
+  в [`extra/sysmodules/sys-notif-LED.LICENSE`](../extra/sysmodules/sys-notif-LED.LICENSE).
+- **liteswitch-led** -- модуль для Switch Lite. Совместимого open-source
+  проекта в публичных репах пока нет; добавим аналогичный fetch-скрипт
+  как только появится.
 - **RyazhaTune** -- может читать тот же `led.ini` для синхронизации UI.
+
+### Локальная сборка без интернета
+
+CI и обычный `make` тянут sysmodule через `scripts/fetch_led_sysmodule.sh`.
+Если интернета на машине нет, отключите автозагрузку:
+
+```sh
+LED_SKIP_FETCH=1 make
+```
+
+Релизный ZIP получится без `atmosphere/contents/` -- оверлей и
+`led.ini` останутся, просто LED не будет применяться, пока sysmodule
+не установят вручную.
 
 API стабилен с версии 2.3.0; добавление новых полей идёт только append-only
 в `Settings` чтобы не сломать форматы существующих INI.

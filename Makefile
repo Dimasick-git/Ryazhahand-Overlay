@@ -267,6 +267,11 @@ $(BUILD):
 	@cp $(CURDIR)/$(TARGET).ovl out/switch/.overlays/$(TARGET).ovl
 	@mkdir -p out/config/ryazhahand/lang/
 	@cp -r $(CURDIR)/lang/* out/config/ryazhahand/lang/
+	@# Prebuilt LED sysmodule -- Ryazha-LED модуль оверлея пишет настройки в
+	@# /config/ryazhahand/led.ini, а sysmodule sys-notif-LED (Xc987, MIT)
+	@# применяет их к железу. Скрипт скачивает релиз из upstream; если
+	@# интернета нет, ставим LED_SKIP_FETCH=1 и собираем без него.
+	@bash $(CURDIR)/scripts/fetch_led_sysmodule.sh out/ || true
 
 #---------------------------------------------------------------------------------
 clean:
