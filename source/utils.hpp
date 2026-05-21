@@ -3337,9 +3337,15 @@ bool applyPlaceholderReplacements(std::vector<std::string>& cmd, const std::stri
         {"{length(", [&](const std::string& placeholder) { return handleLength(placeholder); }},
         // PR #b7aff08 backport: вытащить версию из .ovl по пути.
         // Использование в скрипте: {ovl_version(/switch/.overlays/foo.ovl)}.
+        // Парсинг аргумента сделан inline (как у {timestamp(/{list(/...}})
+        // -- upstream использует helper getPlaceholderContent которого
+        // у нас нет.
         {"{ovl_version(", [&](const std::string& placeholder) {
-            std::string ovlPath;
-            if (!getPlaceholderContent(placeholder, ovlPath)) return NULL_STR;
+            const size_t openParen  = placeholder.find('(');
+            const size_t closeParen = placeholder.find(')', openParen + 1);
+            if (openParen == std::string::npos || closeParen == std::string::npos)
+                return NULL_STR;
+            std::string ovlPath = placeholder.substr(openParen + 1, closeParen - openParen - 1);
             removeQuotes(ovlPath);
             trim(ovlPath);
             if (ovlPath.empty() || !isFileOrDirectory(ovlPath)) return NULL_STR;
