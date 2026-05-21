@@ -5500,13 +5500,20 @@ public:
 
 
 
-            hideOverlayVersions = getBoolValue("hide_overlay_versions", false); // FALSE_STR default
+            // Дубли убраны: OVERLAY_VERSIONS / PACKAGE_VERSIONS toggle'ы
+            // раньше показывались здесь (Настройки меню) И ниже в
+            // Настройках темы с одинаковыми labels. Юзер видел два
+            // одинаковых пункта с противоположными ini-ключами
+            // (hide_*_versions vs *_versions). Оставили только версии в
+            // Настройках темы (use*Versions) -- они и есть то, что
+            // пользователь обычно хочет включать/выключать.
 
-            createToggleListItem(list, OVERLAY_VERSIONS, hideOverlayVersions, "hide_overlay_versions", true, true);
-
-            hidePackageVersions = getBoolValue("hide_package_versions", false); // FALSE_STR default
-
-            createToggleListItem(list, PACKAGE_VERSIONS, hidePackageVersions, "hide_package_versions", true, true);
+            // hideOverlayVersions / hidePackageVersions всё ещё доступны
+            // как ini-ключи hide_overlay_versions / hide_package_versions
+            // в /config/ryazhahand/config.ini -- кто пишет пакеты вручную
+            // может ими пользоваться, в UI они просто не маячат дублем.
+            hideOverlayVersions = getBoolValue("hide_overlay_versions", false);
+            hidePackageVersions = getBoolValue("hide_package_versions", false);
 
             cleanVersionLabels = getBoolValue("clean_version_labels", false); // FALSE_STR default
 
