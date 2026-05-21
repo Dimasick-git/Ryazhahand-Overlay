@@ -55,12 +55,8 @@ if [ -d "$TMP/extracted/atmosphere" ]; then
     echo "  + $DEST/atmosphere/contents/0100000000000895/ -- prebuilt sysmodule"
 fi
 
-# Оверлей управления (отдельный от нашего Ryzhand)
-if [ -f "$TMP/extracted/switch/.overlays/sys-notif-LED.ovl" ]; then
-    mkdir -p "$DEST/switch/.overlays"
-    cp "$TMP/extracted/switch/.overlays/sys-notif-LED.ovl" \
-       "$DEST/switch/.overlays/sys-notif-LED.ovl"
-    echo "  + $DEST/switch/.overlays/sys-notif-LED.ovl"
-fi
+# Upstream-овский control overlay (sys-notif-LED.ovl) НЕ копируем --
+# управление вынесено внутрь нашего Ryazhahand (секция "Свечение LED"),
+# отдельный .ovl в /switch/.overlays/ только засоряет меню.
 
 echo "  ~ sys-notif-LED@${TAG} установлен. Лицензия MIT, автор Xc987."

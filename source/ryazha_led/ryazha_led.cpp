@@ -129,13 +129,60 @@ Settings load() {
     return s;
 }
 
+namespace {
+// liteswitch (Zach van Welzen, MIT) sysmodule -- путь и формат,
+// которые он читает в loadConfig() из своего main.cpp. Сам по себе
+// поддерживает три режима: off / solid / pulse. Brightness и
+// другие наши поля он не использует, но писать их не вредно --
+// формат строчно-key=value, неизвестные ключи он просто пропускает.
+constexpr const char* LITE_CONFIG_DIR    = "sdmc:/config/led-control";
+constexpr const char* LITE_CONFIG_FILE   = "sdmc:/config/led-control/config.txt";
+constexpr const char* LITE_RELOAD_FILE   = "sdmc:/config/led-control/reload";
+
+const char* liteModeKey(Mode m) {
+    switch (m) {
+        case Mode::Off:     return "off";
+        case Mode::Solid:   return "solid";
+        // У liteswitch нет fade -- маппим в pulse, ближайший по поведению.
+        case Mode::Pulse:   return "pulse";
+        case Mode::Fade:    return "pulse";
+        case Mode::OnPress: return "off"; // pulse-per-press снизу обрабатывается отдельным триггером
+    }
+    return "off";
+}
+
+void writeLiteConfig(const Settings& s) {
+    mkdir("sdmc:/config", 0777);
+    mkdir(LITE_CONFIG_DIR, 0777);
+    FILE* f = fopen(LITE_CONFIG_FILE, "w");
+    if (!f) return;
+    fprintf(f, "# /config/led-control/config.txt -- liteswitch sysmodule\n");
+    fprintf(f, "# Пишется Ryzhand UI; держим в синхроне с led.ini.\n\n");
+    fprintf(f, "mode=%s\n", liteModeKey(s.mode));
+    // pulse_interval у нас в ms на полупериод, у них -- ms между миганиями.
+    // Совпадает (см. их ledPulseLoop).
+    fprintf(f, "pulse_interval=%u\n", (unsigned)s.pulseIntervalMs);
+    // pulse_count = 0 в их формате значит бесконечно. UI не показывает
+    // конкретное значение -- ставим 0 чтобы лампа пульсировала постоянно.
+    fprintf(f, "pulse_count=0\n");
+    // Brightness у liteswitch не используется, оставляем для будущей
+    // совместимости (их config.txt parser игнорирует неизвестное).
+    fprintf(f, "brightness=%.2f\n", (double)s.brightness / 100.0);
+    fclose(f);
+
+    // touch reload -- их sysmodule перечитает config без перезагрузки.
+    FILE* r = fopen(LITE_RELOAD_FILE, "w");
+    if (r) fclose(r);
+}
+} // namespace
+
 bool save(const Settings& s) {
     ensureDir();
     FILE* f = fopen(CONFIG_FILE, "w");
     if (!f) return false;
 
-    fprintf(f, "# Ryzhand LED settings — управляется через UI оверлея\n");
-    fprintf(f, "# Применяется фоновым sysmodule sys-notif-LED / liteswitch-led\n\n");
+    fprintf(f, "# Ryzhand LED settings -- управляется через UI оверлея\n");
+    fprintf(f, "# Применяется фоновым sysmodule sys-notif-LED / liteswitch\n\n");
 
     writeKV(f, "mode",       modeKey(s.mode));
     writeKV(f, "target",     targetKey(s.target));
@@ -147,9 +194,35 @@ bool save(const Settings& s) {
 
     fclose(f);
 
-    // touch reload trigger
+    // touch reload trigger для sys-notif-LED (Xc987) -- он опрашивает
+    // /config/ryazhahand/led.reload.
     FILE* t = fopen(RELOAD_TRIGGER, "w");
     if (t) fclose(t);
+
+    // Дополнительно пишем настройки в формате liteswitch (Zach van Welzen)
+    // чтобы один UI обслуживал и обычную Switch (через sys-notif-LED), и
+    // Switch Lite (через liteswitch). На обычной Switch lite-config просто
+    // не используется, на Lite -- наоборот, sys-notif-LED не активируется.
+    writeLiteConfig(s);
+
+    // Legacy ledCfgDir совместимость: старый UI homeLedToggleItem писал в
+    // /config/ryazhahand-led/mode значения disabled / smart / battery. Этот
+    // file читает наш собственный hidsys-loop (см. applyHomeLedPatternForKeys
+    // и initialiseLedThread в main.cpp). При mode=Off в нашем enum должны
+    // явно записать "disabled" сюда -- иначе lampa зажигается через
+    // hidsys по событиям, даже если sys-notif-LED корректно потушил.
+    mkdir("sdmc:/config/ryazhahand-led", 0777);
+    FILE* lmf = fopen("sdmc:/config/ryazhahand-led/mode", "w");
+    if (lmf) {
+        if (s.mode == Mode::Off) {
+            fputs("disabled", lmf);
+        } else {
+            fputs("smart", lmf);
+        }
+        fclose(lmf);
+    }
+    FILE* lrf = fopen("sdmc:/config/ryazhahand-led/reset", "w");
+    if (lrf) fclose(lrf);
 
     return true;
 }

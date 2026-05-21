@@ -54,10 +54,19 @@ BUILD_TMP=$(mktemp -d)
 trap 'rm -rf "$BUILD_TMP"' EXIT
 cp -r "$LITE_SRC/." "$BUILD_TMP/"
 
-if ! (cd "$BUILD_TMP" && make -s all 2>&1 | tail -20); then
-    echo "[!] liteswitch make all упал -- пропускаем, overlay остаётся без Lite-sysmodule" >&2
+if ! (cd "$BUILD_TMP" && make -s sysmodule 2>&1 | tail -20); then
+    echo "[!] liteswitch sysmodule сборка упала -- пропускаем" >&2
     exit 0
 fi
+
+# Раскладка sysmodule вручную (upstream make all делает то же самое,
+# но он также собирает overlay -- нам он не нужен).
+mkdir -p "$BUILD_TMP/out/atmosphere/contents/0100000000000FED/flags"
+cp "$BUILD_TMP/sysmodule/sysmodule.nsp" \
+   "$BUILD_TMP/out/atmosphere/contents/0100000000000FED/exefs.nsp"
+cp "$BUILD_TMP/sysmodule/toolbox.json" \
+   "$BUILD_TMP/out/atmosphere/contents/0100000000000FED/"
+touch "$BUILD_TMP/out/atmosphere/contents/0100000000000FED/flags/boot2.flag"
 
 # Раскладка по out/
 if [ -d "$BUILD_TMP/out/atmosphere" ]; then
@@ -66,13 +75,11 @@ if [ -d "$BUILD_TMP/out/atmosphere" ]; then
     echo "  + $DEST/atmosphere/contents/0100000000000FED/ -- liteswitch sysmodule"
 fi
 
-# Overlay управления (отдельный от Ryazha-LED -- работает с config
-# /config/led-control/, см. README liteswitch). Если найден -- кладём.
-LITE_OVL=$(find "$BUILD_TMP/overlay" -maxdepth 2 -name '*.ovl' 2>/dev/null | head -1 || true)
-if [ -n "$LITE_OVL" ]; then
-    mkdir -p "$DEST/switch/.overlays"
-    cp "$LITE_OVL" "$DEST/switch/.overlays/liteswitch.ovl"
-    echo "  + $DEST/switch/.overlays/liteswitch.ovl"
-fi
+# Control overlay liteswitch.ovl НЕ копируем -- весь UI управления
+# Switch Lite LED уже встроен в нашу секцию "Свечение LED" в
+# Ryazhahand, отдельный .ovl только дублирует функционал и захламляет
+# /switch/.overlays/. ryz::led::save() пишет в оба формата одновременно
+# (наш /config/ryazhahand/led.ini + /config/led-control/config.txt),
+# поэтому liteswitch sysmodule подхватит изменения сразу.
 
 echo "  ~ liteswitch собран. Лицензия MIT, автор Zach van Welzen."

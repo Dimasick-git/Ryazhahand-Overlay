@@ -5309,41 +5309,61 @@ public:
             homeLedEnabled = getBoolValue("home_led", true);
 
             {
-                const std::string ledLastModePath = ledCfgDir + "/last_mode";
+                // === Ryazha-LED -- единый UI секции LED ===
+                // Раньше тут был ToggleListItem (вкл/выкл),
+                // плюс отдельная фича "мигать на нажатие кнопки" (агрессивно
+                // мерцала). Заменили на NamedStepTrackBar по режиму (Off /
+                // Solid / Pulse / Fade), который пишет настройки через
+                // ryz::led::save -- модуль кладёт их одновременно в
+                // /config/ryazhahand/led.ini (наш sysmodule) и в
+                // /config/led-control/config.txt (liteswitch sysmodule для
+                // Switch Lite). Один UI -- обе платформы.
+                using ryz::led::Mode;
+                ryz::led::Settings s = ryz::led::load();
 
-                auto* homeLedToggleItem = new tsl::elm::ToggleListItem(HOME_LED_GLOW, homeLedEnabled, ON, OFF, true);
-                homeLedToggleItem->setValueColor(homeLedEnabled ? tsl::Color{0, 255, 0, 255} : tsl::Color{255, 0, 0, 255});
+                // Названия для трекбара -- порядок строго соответствует
+                // enum Mode (Off=0, Solid=1, Pulse=2, Fade=3, OnPress=4).
+                // OnPress намеренно не показываем в UI: pulse-on-key он
+                // делается через отдельный триггер из main.cpp и не
+                // относится к фоновому режиму.
+                static const std::vector<std::string> ledModeLabels = {
+                    ryz::led::modeName(Mode::Off),
+                    ryz::led::modeName(Mode::Solid),
+                    ryz::led::modeName(Mode::Pulse),
+                    ryz::led::modeName(Mode::Fade),
+                };
+                const u8 initialIdx = std::min<u8>((u8)s.mode, (u8)(ledModeLabels.size() - 1));
 
-                homeLedToggleItem->setStateChangedListener([this, ledCfgDir, ledModePath, ledLastModePath, ledResetPath, listItem = homeLedToggleItem](bool newState) {
-                    if (runningInterpreter.load(acquire)) return;
+                auto* ledModeBar = new tsl::elm::NamedStepTrackBar(
+                    "☀" /* sun icon */, ledModeLabels);
+                ledModeBar->setProgress(initialIdx);
+                ledModeBar->setValue(ledModeLabels[initialIdx]);
 
-                    tsl::Overlay::get()->getCurrentGui()->requestFocus(listItem, tsl::FocusDirection::None);
-
-                    ensureDirExists(ledCfgDir);
-
-                    homeLedEnabled = newState;
-                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "home_led", homeLedEnabled ? TRUE_STR : FALSE_STR);
-
-                    listItem->setValueColor(homeLedEnabled ? tsl::Color{0, 255, 0, 255} : tsl::Color{255, 0, 0, 255});
-
-                    if (!homeLedEnabled) {
-                        // Save current mode (unless already disabled) then disable everything immediately.
-                        std::string cur = readFirstLineFile(ledModePath, "battery");
-                        if (cur != "disabled" && (cur == "off" || cur == "smart" || cur == "battery")) {
-                            writeTextFile(ledLastModePath, cur);
-                        }
-                        writeTextFile(ledModePath, "disabled");
-                        touchFile(ledResetPath);
-                    } else {
-                        // Restore last mode.
-                        std::string last = readFirstLineFile(ledLastModePath, "smart");
-                        if (last != "off" && last != "smart" && last != "battery") last = "smart";
-                        writeTextFile(ledModePath, last);
-                        touchFile(ledResetPath);
-                    }
+                ledModeBar->setValueChangedListener([](u8 newIdx) {
+                    auto cur = ryz::led::load();
+                    cur.mode = static_cast<Mode>(newIdx);
+                    ryz::led::save(cur);
                 });
+                list->addItem(ledModeBar);
 
-                // list->addItem(homeLedToggleItem); // Скрыть пункт Свечение HOME LED
+                // Яркость 0..100 % шагами по 5 (21 шаг). У liteswitch
+                // brightness не используется, у sys-notif-LED -- да.
+                auto* ledBrightnessBar = new tsl::elm::StepTrackBar(
+                    "" /* sun */, 21);
+                ledBrightnessBar->setProgress(std::min<u8>(s.brightness / 5, 20));
+                ledBrightnessBar->setValueChangedListener([](u8 step) {
+                    auto cur = ryz::led::load();
+                    cur.brightness = std::min<uint8_t>(step * 5, 100);
+                    ryz::led::save(cur);
+                });
+                list->addItem(ledBrightnessBar);
+
+                // Совместимость со старой настройкой home_led -- пишем
+                // её в INI чтобы boot-логика и autostart-нотификация знали
+                // включено ли свечение в принципе.
+                homeLedEnabled = (s.mode != Mode::Off);
+                setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                "home_led", homeLedEnabled ? TRUE_STR : FALSE_STR);
             }
 
 
@@ -5395,6 +5415,25 @@ public:
             enableUpdateScanner = getBoolValue("update_scanner", false);
 
             createToggleListItem(list, "Сканер обновлений", enableUpdateScanner, "update_scanner");
+
+            // Явная кнопка "Проверить сейчас". Сама проверка делает синхронные
+            // HTTPS-запросы к GitHub и съедает curl-канал; делаем её ручной,
+            // чтобы автоматический скан не мешал скачивать пакеты.
+            {
+                auto* scanNowItem = new tsl::elm::ListItem("Проверить обновления");
+                scanNowItem->setValue(g_updateScanState == UpdateScanState::Downloading
+                                          ? "Сканирую..." : "");
+                scanNowItem->setClickListener([scanNowItem](u64 keys) {
+                    if (!(keys & HidNpadButton_A)) return false;
+                    if (g_updateScanState == UpdateScanState::Downloading) return true;
+                    scanNowItem->setValue("Сканирую...");
+                    g_updateScanState = UpdateScanState::Idle;
+                    startOverlayUpdateScan();    // блокирует UI на 10-30с -- это явный выбор юзера
+                    scanNowItem->setValue("Готово");
+                    return true;
+                });
+                list->addItem(scanNowItem);
+            }
 
 
 
@@ -14607,17 +14646,18 @@ public:
 
 
 
-        // Progress update scan continuously while user is in Packages root.
-
+        // Прогресс сканера обновлений тикаем, но НЕ запускаем сканирование
+        // автоматически при заходе в Packages: startOverlayUpdateScan
+        // делает синхронные downloadFile() в цикле и блокирует
+        // curl-канал на 10-30 секунд -- из-за этого пользователь не
+        // может скачать ничего из своих пакетов. Сканирование теперь
+        // только по явному нажатию кнопки "Проверить сейчас" в
+        // настройках; полностью отключённый toggle всё ещё гасит
+        // даже это.
         if (inPackagesPage.load(std::memory_order_acquire) && dropdownSection.empty()) {
 
             if (!enableUpdateScanner) {
                 g_updateScanArmedForPackages = false;
-            } else {
-                if (!g_updateScanArmedForPackages && g_updateScanState == UpdateScanState::Idle) {
-                    startOverlayUpdateScan();
-                    g_updateScanArmedForPackages = true;
-                }
             }
 
             tickOverlayUpdateScan();
@@ -17331,13 +17371,14 @@ public:
 
                 } else {
 
-                    if (!g_updateScanArmedForPackages && g_updateScanState != UpdateScanState::Downloading) {
+                    // Сканер ВКЛ != "сканируй каждый кадр": сканирование
+                    // блокирует curl на 10-30с, в это время пользователь
+                    // не может скачать пакет своим download-командой.
+                    // Тут просто показываем подсказку, что нужно открыть
+                    // настройки и явно нажать "Проверить обновления".
+                    if (g_updateScanState == UpdateScanState::Idle) {
 
-                        g_updateScanState = UpdateScanState::Idle;
-
-                        startOverlayUpdateScan();
-
-                        g_updateScanArmedForPackages = true;
+                        setUpdateInfoText("Откройте Настройки → Проверить обновления");
 
                     }
 
