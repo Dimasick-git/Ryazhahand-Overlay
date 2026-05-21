@@ -65,6 +65,10 @@ static char hosVersion[12];
 static std::string memoryVendor = UNAVAILABLE_SELECTION;
 static std::string memoryModel = UNAVAILABLE_SELECTION;
 static std::string memorySize = UNAVAILABLE_SELECTION;
+// PR #b7aff08: cache hekate version once at startup -- extractVersionFromBinary
+// читает 100+ MB update.bin, и дёргать его на каждый placeholder eval -- плохо.
+// Заполняется в unpackDeviceInfo() ниже.
+static std::string hekateVersion = UNAVAILABLE_SELECTION;
 static uint32_t cpuSpeedo0, cpuSpeedo2, socSpeedo0; // CPU, GPU, SOC
 static uint32_t cpuIDDQ, gpuIDDQ, socIDDQ;
 static bool usingEmunand = true;
@@ -720,6 +724,13 @@ void unpackDeviceInfo() {
 
     splGetConfig((SplConfigItem)65007, &packed_version);
     usingEmunand = (packed_version != 0);
+
+    // PR #b7aff08 backport: cache hekate version (читает 100+ MB update.bin).
+    {
+        const std::string raw = extractVersionFromBinary("sdmc:/bootloader/update.bin");
+        hekateVersion = raw.empty() ? UNAVAILABLE_SELECTION : raw;
+    }
+
     fuseDumpToIni();
     
     if (isFileOrDirectory(FUSE_DATA_INI_PATH)) {
@@ -3072,6 +3083,10 @@ void updateGeneralPlaceholders() {
         {"{ram_model}", memoryModel},
         {"{ams_version}", amsVersion},
         {"{hos_version}", hosVersion},
+        // PR #b7aff08 backport: версии CFW-стека -- удобно для пакетов
+        // которые проверяют совместимость.
+        {"{hekate_version}", hekateVersion},
+        {"{ultrahand_version}", std::string(APP_VERSION)},
         {"{cpu_speedo}", ult::to_string(cpuSpeedo0)},
         {"{cpu_iddq}", ult::to_string(cpuIDDQ)},
         {"{gpu_speedo}", ult::to_string(cpuSpeedo2)},
@@ -3320,6 +3335,17 @@ bool applyPlaceholderReplacements(std::vector<std::string>& cmd, const std::stri
         }},
         {"{math(", [&](const std::string& placeholder) { return handleMath(placeholder); }},
         {"{length(", [&](const std::string& placeholder) { return handleLength(placeholder); }},
+        // PR #b7aff08 backport: вытащить версию из .ovl по пути.
+        // Использование в скрипте: {ovl_version(/switch/.overlays/foo.ovl)}.
+        {"{ovl_version(", [&](const std::string& placeholder) {
+            std::string ovlPath;
+            if (!getPlaceholderContent(placeholder, ovlPath)) return NULL_STR;
+            removeQuotes(ovlPath);
+            trim(ovlPath);
+            if (ovlPath.empty() || !isFileOrDirectory(ovlPath)) return NULL_STR;
+            const auto& [res, _ovlName, version, _lib, _ams] = getOverlayInfo(ovlPath);
+            return res != ResultSuccess ? NULL_STR : returnOrNull(version);
+        }},
     };
 
     updateGeneralPlaceholders();
