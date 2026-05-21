@@ -5348,7 +5348,8 @@ public:
                     false
                 );
                 ledModeBar->setProgress(initialMode);
-                ledModeBar->setValue(ledModeLabels[initialMode]);
+                // NamedStepTrackBarV2 derives its displayed value from
+                // setProgress() + the labels vector -- нет отдельного setValue.
                 ledModeBar->setSimpleCallback([](s16 /*value*/, s16 index) {
                     if (index < 0) return;
                     auto cur = ryz::led::load();
