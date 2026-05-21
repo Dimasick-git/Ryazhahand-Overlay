@@ -88,24 +88,27 @@ extern "C" {
 
 // ─── GPIO LED control (Switch Lite, PWM на пин Y,5) ─────────────────────────
 // DeviceCode 0x35000065 = GPIO pad Y,5 = Notification LED PWM.
+//
+// libnx уже несёт enum GpioValue (Low/High) и публичные gpioInitialize/Exit
+// для сервиса. Но нам нужен **сырой** доступ к device-code 0x35000065 через
+// serviceDispatchIn (cmd 7 / 8 / 19), которого высокоуровневый libnx API
+// не покрывает. Поэтому делаем свой набор функций с префиксом liteGpio*,
+// чтобы не конфликтовать с libnx-овскими символами.
 
-typedef enum {
-    GpioOpenMode_None      = 0,
-    GpioOpenMode_Read      = 1,
-    GpioOpenMode_Write     = 2,
-    GpioOpenMode_ReadWrite = 3,
-} GpioOpenMode;
+namespace {
 
-typedef enum {
-    GpioValue_Low  = 0,
-    GpioValue_High = 1,
-} GpioValue;
+enum LiteGpioOpenMode : u32 {
+    LiteGpioOpenMode_None      = 0,
+    LiteGpioOpenMode_Read      = 1,
+    LiteGpioOpenMode_Write     = 2,
+    LiteGpioOpenMode_ReadWrite = 3,
+};
 
-static Service g_gpioSrv  = {};
-static Service g_gpioPad  = {};
-static bool    g_gpioInit = false;
+Service g_gpioSrv  = {};
+Service g_gpioPad  = {};
+bool    g_gpioInit = false;
 
-static Result gpioInitialize() {
+Result liteGpioOpen() {
     if (g_gpioInit) return 0;
 
     Result rc = smGetService(&g_gpioSrv, "gpio");
@@ -113,7 +116,7 @@ static Result gpioInitialize() {
 
     // OpenSession (cmd 7) -- DeviceCode + OpenMode -> session к конкретному GPIO.
     const struct { u32 device_code; u32 open_mode; } in =
-        { 0x35000065, GpioOpenMode_ReadWrite };
+        { 0x35000065, LiteGpioOpenMode_ReadWrite };
 
     rc = serviceDispatchIn(&g_gpioSrv, 7, in,
         .out_num_objects = 1,
@@ -122,7 +125,7 @@ static Result gpioInitialize() {
     if (R_SUCCEEDED(rc)) {
         g_gpioInit = true;
         // SetDirectionOutput (cmd 19) с начальным значением Low.
-        const struct { u32 value; } dir_in = { GpioValue_Low };
+        const struct { u32 value; } dir_in = { (u32)GpioValue_Low };
         serviceDispatchIn(&g_gpioPad, 19, dir_in);
     } else {
         serviceClose(&g_gpioSrv);
@@ -130,7 +133,7 @@ static Result gpioInitialize() {
     return rc;
 }
 
-static void gpioExit() {
+void liteGpioClose() {
     if (g_gpioInit) {
         serviceClose(&g_gpioPad);
         serviceClose(&g_gpioSrv);
@@ -138,14 +141,16 @@ static void gpioExit() {
     }
 }
 
-static Result gpioSetValue(GpioValue value) {
+Result liteGpioSetValue(GpioValue value) {
     if (!g_gpioInit) return MAKERESULT(Module_Libnx, LibnxError_NotInitialized);
     const struct { u32 value; } in = { (u32)value };
     return serviceDispatchIn(&g_gpioPad, 8, in);
 }
 
-static void gpioLedOn()  { gpioSetValue(GpioValue_High); }
-static void gpioLedOff() { gpioSetValue(GpioValue_Low);  }
+void gpioLedOn()  { liteGpioSetValue(GpioValue_High); }
+void gpioLedOff() { liteGpioSetValue(GpioValue_Low);  }
+
+} // namespace
 
 // ─── hidsys LED control (обычная Switch / OLED, Joy-Con notification LED) ──
 // Базовый паттерн -- solid или blink. Полный набор upstream-овских
@@ -329,7 +334,7 @@ int main(int /*argc*/, char** /*argv*/) {
     detectHardware();
 
     if (g_isLite) {
-        Result rc = gpioInitialize();
+        Result rc = liteGpioOpen();
         if (R_FAILED(rc)) {
             // GPIO недоступен (странно для Lite, но не валим консоль) --
             // просто спим и ждём reload, на случай если железо вернётся.
@@ -352,6 +357,6 @@ int main(int /*argc*/, char** /*argv*/) {
         svcSleepThread(500000000ULL);  // 500 ms
     }
 
-    if (g_isLite) gpioExit();
+    if (g_isLite) liteGpioClose();
     return 0;
 }
