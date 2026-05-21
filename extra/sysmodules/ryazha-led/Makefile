@@ -37,7 +37,12 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+# TARGET hardcoded (не $(notdir $(CURDIR))) -- сборка идёт во временной
+# директории mktemp -d с именем tmp.XXXXXX, и автодетект ловил это имя.
+# CONFIG_JSON тоже жёстко -- иначе fallback ищет $(TARGET).json по имени
+# временной директории и не находит, билд скатывается в .nro вместо .nsp.
+TARGET		:=	ryazha-led
+CONFIG_JSON	:=	ryazha-led.json
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
