@@ -5311,57 +5311,86 @@ public:
             homeLedEnabled = getBoolValue("home_led", true);
 
             {
-                // === Ryazha-LED -- единый UI секции LED ===
-                // Раньше тут был ToggleListItem (вкл/выкл),
-                // плюс отдельная фича "мигать на нажатие кнопки" (агрессивно
-                // мерцала). Заменили на NamedStepTrackBar по режиму (Off /
-                // Solid / Pulse / Fade), который пишет настройки через
-                // ryz::led::save -- модуль кладёт их одновременно в
-                // /config/ryazhahand/led.ini (наш sysmodule) и в
-                // /config/led-control/config.txt (liteswitch sysmodule для
-                // Switch Lite). Один UI -- обе платформы.
+                // ═══ СВЕЧЕНИЕ LED ═══
+                //
+                // Управляет встроенным Ryazha-LED sysmodule (title id
+                // 0100000000000ED1). Sysmodule auto-detect'ит железо
+                // (Lite / обычная Switch) и применяет настройки в
+                // соответствующий бэкенд (GPIO PWM для Lite,
+                // hidsysSetNotificationLedPattern для остального).
+                //
+                // ryz::led::save() пишет:
+                //   /config/ryazhahand/led.ini    -- наш канонический
+                //   /config/ryazhahand/led.reload -- touch для hot-reload
+                //   /config/led-control/...       -- back-compat liteswitch
+                //   /config/ryazhahand-led/mode   -- back-compat legacy
+                //                                    hidsys-loop в overlay
+                // На Off везде уходит в disabled -- лампа физически гаснет.
+                addHeader(list, "СВЕЧЕНИЕ LED");
+
                 using ryz::led::Mode;
-                ryz::led::Settings s = ryz::led::load();
+                ryz::led::Settings ledS = ryz::led::load();
 
-                // Названия для трекбара -- порядок строго соответствует
-                // enum Mode (Off=0, Solid=1, Pulse=2, Fade=3, OnPress=4).
-                // OnPress намеренно не показываем в UI: pulse-on-key он
-                // делается через отдельный триггер из main.cpp и не
-                // относится к фоновому режиму.
-                // Без const -- NamedStepTrackBarV2 ctor берёт vector& (mutable),
-                // и compile падал на "binding reference ... discards qualifiers".
+                // --- Режим (Откл / Постоянно / Пульсация / Плавный) ---
+                // OnPress намеренно не показываем -- это поведение на
+                // нажатие, оно крутится через отдельный триггер из main.
                 static std::vector<std::string> ledModeLabels = {
-                    std::string(ryz::led::modeName(ryz::led::Mode::Off)),
-                    std::string(ryz::led::modeName(ryz::led::Mode::Solid)),
-                    std::string(ryz::led::modeName(ryz::led::Mode::Pulse)),
-                    std::string(ryz::led::modeName(ryz::led::Mode::Fade)),
+                    std::string(ryz::led::modeName(Mode::Off)),
+                    std::string(ryz::led::modeName(Mode::Solid)),
+                    std::string(ryz::led::modeName(Mode::Pulse)),
+                    std::string(ryz::led::modeName(Mode::Fade)),
                 };
-                const u8 initialMode = std::min<u8>(static_cast<u8>(s.mode),
+                const u8 initialMode = std::min<u8>(static_cast<u8>(ledS.mode),
                                                     static_cast<u8>(ledModeLabels.size() - 1));
-
                 auto* ledModeBar = new tsl::elm::NamedStepTrackBarV2(
-                    HOME_LED_GLOW,
+                    "Режим",
                     "",
                     ledModeLabels,
                     nullptr, nullptr, {}, "",
-                    false,
-                    false
+                    false,   // unlockedTrackbar
+                    false    // executeOnEveryTick -- сохраняем на release
                 );
                 ledModeBar->setProgress(initialMode);
-                // NamedStepTrackBarV2 derives its displayed value from
-                // setProgress() + the labels vector -- нет отдельного setValue.
                 ledModeBar->setSimpleCallback([](s16 /*value*/, s16 index) {
                     if (index < 0) return;
                     auto cur = ryz::led::load();
-                    cur.mode = static_cast<ryz::led::Mode>(index);
+                    cur.mode = static_cast<Mode>(index);
                     ryz::led::save(cur);
                 });
                 list->addItem(ledModeBar);
 
-                // Совместимость со старой настройкой home_led -- пишем
-                // её в INI чтобы boot-логика и autostart-нотификация знали
-                // включено ли свечение в принципе.
-                homeLedEnabled = (s.mode != Mode::Off);
+                // --- Яркость 0..100 % шагами по 5 (21 шаг) ---
+                // На обычной Switch sys-notif-LED ветка маппит это в 0..15
+                // hidsys-intensity. На Lite GPIO -- бит вкл/выкл, поэтому
+                // brightness там игнорируется, но писать в один INI
+                // безопасно (sysmodule просто не читает соответствующий
+                // ключ на Lite-ветке).
+                static std::vector<std::string> ledBrightLabels;
+                if (ledBrightLabels.empty()) {
+                    for (int i = 0; i <= 20; i++) ledBrightLabels.push_back(std::to_string(i * 5) + "%");
+                }
+                const u8 initialBright = std::min<u8>(ledS.brightness / 5, 20);
+                auto* ledBrightBar = new tsl::elm::NamedStepTrackBarV2(
+                    "Яркость",
+                    "",
+                    ledBrightLabels,
+                    nullptr, nullptr, {}, "",
+                    false,
+                    false
+                );
+                ledBrightBar->setProgress(initialBright);
+                ledBrightBar->setSimpleCallback([](s16 /*value*/, s16 index) {
+                    if (index < 0) return;
+                    auto cur = ryz::led::load();
+                    cur.brightness = static_cast<uint8_t>(std::min<int>(index * 5, 100));
+                    ryz::led::save(cur);
+                });
+                list->addItem(ledBrightBar);
+
+                // Совместимость со старой настройкой home_led: boot-логика
+                // и autostart-нотификация читают именно её. mode==Off ->
+                // false, иначе true.
+                homeLedEnabled = (ledS.mode != Mode::Off);
                 setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
                                 "home_led", homeLedEnabled ? TRUE_STR : FALSE_STR);
             }
