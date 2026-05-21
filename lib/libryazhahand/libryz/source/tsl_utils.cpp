@@ -272,6 +272,9 @@ namespace ult {
     bool useEnterSound      = true;
     bool useExitSound       = true;
     bool useWallSound       = true;
+
+    // PR #309 backport: 4 сек = старый захардкоженный default.
+    u64 holdDurationMs = 4000;
     bool usePageSwap = false;
     bool useDynamicLogo = true;
     bool useSelectionBG = true;

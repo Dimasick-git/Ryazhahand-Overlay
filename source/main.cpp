@@ -2147,7 +2147,12 @@ bool processHold(uint64_t keysDown, uint64_t keysHeld, u64& holdStartTick, bool&
 
     const u64 elapsedMs = armTicksToNs(armGetSystemTick() - holdStartTick) / 1000000;
 
-    const int percentage = std::min(100, static_cast<int>((elapsedMs * 100) / 4000));
+    // PR #309 backport: было захардкожено / 4000. Теперь делитель из
+    // ult::holdDurationMs, настраивается в UI Settings -> Input -> Hold Time.
+    // 0 в качестве защиты не должен случиться (UI клампит), но на всякий --
+    // fallback на 4000 чтобы не делить на ноль.
+    const u64 holdMs = (ult::holdDurationMs > 0) ? ult::holdDurationMs : 4000ull;
+    const int percentage = std::min(100, static_cast<int>((elapsedMs * 100) / holdMs));
 
     displayPercentage.store(percentage, std::memory_order_release);
 
@@ -5448,6 +5453,48 @@ public:
             createToggleListItem(list, HAPTIC_FEEDBACK, useHapticFeedback, "haptic_feedback");
 
 
+
+            // ═══ УПРАВЛЕНИЕ ═══
+            // PR #309 backport: время удержания A для confirm-команд.
+            // 500-5000 мс, шаг 500. ult::holdDurationMs читается на
+            // каждый кадр в processHold, изменение применяется сразу.
+            addHeader(list, "УПРАВЛЕНИЕ");
+            {
+                // Default 4000 = 4 сек = старое захардкоженное значение.
+                auto holdIt = ryazhahandSection.find("hold_duration_ms");
+                u64 currentHoldMs = (holdIt != ryazhahandSection.end())
+                    ? static_cast<u64>(std::max(500, std::min(5000, ult::stoi(holdIt->second))))
+                    : 4000ull;
+                ult::holdDurationMs = currentHoldMs;
+
+                // 0.5, 1.0, 1.5, ... 5.0 секунды -- 10 шагов.
+                static std::vector<std::string> holdLabels;
+                if (holdLabels.empty()) {
+                    for (int i = 1; i <= 10; i++) {
+                        char buf[8];
+                        snprintf(buf, sizeof buf, "%.1fс", i * 0.5);
+                        holdLabels.emplace_back(buf);
+                    }
+                }
+                const u8 initialHoldStep = std::min<u8>(static_cast<u8>(currentHoldMs / 500 - 1), 9);
+                auto* holdBar = new tsl::elm::NamedStepTrackBarV2(
+                    "Время удержания",
+                    "",
+                    holdLabels,
+                    nullptr, nullptr, {}, "",
+                    false,
+                    false
+                );
+                holdBar->setProgress(initialHoldStep);
+                holdBar->setSimpleCallback([](s16 /*value*/, s16 index) {
+                    if (index < 0) return;
+                    const u64 ms = static_cast<u64>((index + 1) * 500);
+                    ult::holdDurationMs = ms;
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "hold_duration_ms", ult::to_string(ms));
+                });
+                list->addItem(holdBar);
+            }
 
             // ═══ ИНТЕРФЕЙС ═══
             addHeader(list, "ИНТЕРФЕЙС");
@@ -18578,6 +18625,15 @@ void initializeSettingsAndDirectories() {
     setDefaultValue("sound_wall",       TRUE_STR, ult::useWallSound);
 
     setDefaultValue("haptic_feedback", FALSE_STR, useHapticFeedback);
+
+    // PR #309 backport: persist hold-time slider значение.
+    if (parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "hold_duration_ms").empty()) {
+        setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                        "hold_duration_ms", ult::to_string(ult::holdDurationMs));
+    } else {
+        ult::holdDurationMs = static_cast<u64>(std::max(500, std::min(5000,
+            ult::stoi(parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "hold_duration_ms")))));
+    }
 
     setDefaultValue("page_swap", FALSE_STR, usePageSwap);
 

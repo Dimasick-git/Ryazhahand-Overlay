@@ -181,6 +181,11 @@ namespace ult {
     extern bool useEnterSound;
     extern bool useExitSound;
     extern bool useWallSound;
+
+    // PR #309 backport: настраиваемая длительность hold-press. processHold
+    // делит elapsed на это значение для получения процента прогресса.
+    // Default 4000 ms -- то значение, что было раньше захардкожено.
+    extern u64 holdDurationMs;
     extern bool usePageSwap;
     extern std::atomic<bool> noClickableItems;
 
