@@ -5403,37 +5403,46 @@ public:
 
 
 
-            useStartupNotification = getBoolValue("startup_notification", true); // TRUE_STR default
+            // ═══ УВЕДОМЛЕНИЯ ═══
+            // Сгруппировали в отдельную подсекцию, чтобы юзер видел что
+            // относится к notify-системе. Сами toggle'ы те же, просто
+            // под понятным header'ом.
+            addHeader(list, "УВЕДОМЛЕНИЯ");
 
+            useStartupNotification = getBoolValue("startup_notification", true);
             createToggleListItem(list, STARTUP_NOTIFICATION, useStartupNotification, "startup_notification");
 
-            useNotifications = getBoolValue("notifications", true); // TRUE_STR default
-
+            useNotifications = getBoolValue("notifications", true);
             createToggleListItem(list, EXTERNAL_NOTIFICATIONS, useNotifications, "notifications");
 
 
 
+            // ═══ ЗВУК / ВИБРАЦИЯ ═══
+            // Раздельный per-event toggle (navigation / enter / exit ...)
+            // потребует extension'а libtesla -- отдельная задача. Сейчас
+            // общий выключатель + haptic.
+            addHeader(list, "ЗВУК И ВИБРАЦИЯ");
+
             if (!ult::limitedMemory) {
-
-                useSoundEffects = getBoolValue("sound_effects", false); // TRUE_STR default
-
+                useSoundEffects = getBoolValue("sound_effects", false);
                 createToggleListItem(list, SOUND_EFFECTS, useSoundEffects, "sound_effects");
-
             }
 
-            useHapticFeedback = getBoolValue("haptic_feedback", false); // FALSE_STR default
-
+            useHapticFeedback = getBoolValue("haptic_feedback", false);
             createToggleListItem(list, HAPTIC_FEEDBACK, useHapticFeedback, "haptic_feedback");
 
-            useOpaqueScreenshots = getBoolValue("opaque_screenshots", true); // TRUE_STR default
 
+
+            // ═══ ИНТЕРФЕЙС ═══
+            addHeader(list, "ИНТЕРФЕЙС");
+
+            useOpaqueScreenshots = getBoolValue("opaque_screenshots", true);
             createToggleListItem(list, OPAQUE_SCREENSHOTS, useOpaqueScreenshots, "opaque_screenshots");
 
-            useSwipeToOpen = getBoolValue("swipe_to_open", true); // TRUE_STR default
-
+            useSwipeToOpen = getBoolValue("swipe_to_open", true);
             createToggleListItem(list, SWIPE_TO_OPEN, useSwipeToOpen, "swipe_to_open");
 
-            rightAlignmentState = useRightAlignment = getBoolValue("right_alignment"); // FALSE_STR default
+            rightAlignmentState = useRightAlignment = getBoolValue("right_alignment");
 
             createToggleListItem(list, RIGHT_SIDE_MODE, useRightAlignment, "right_alignment");
 

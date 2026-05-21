@@ -35,7 +35,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define INNER_HEAP_SIZE 0x80000
+// 0x40000 = 256 KB heap. Раньше брали 0x80000 (512 KB) -- осталось от
+// исходного liteswitch шаблона, реально sysmodule только читает INI и
+// дёргает hidsys / GPIO, никакого heavy-allocation тут нет. Экономим
+// 256 KB на каждой включённой консоли. Если когда-то заведётся OOM --
+// поднимем обратно, но при таких объёмах работы это маловероятно.
+#define INNER_HEAP_SIZE 0x40000
 #define MAX_PADS 8
 
 extern "C" {
