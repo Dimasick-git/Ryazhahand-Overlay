@@ -64,9 +64,17 @@ jobs:
         run: |
           TAG="${{ steps.tag.outputs.tag }}"
           mkdir -p release
-          # .ovl как отдельный файл
-          cp ovlmenu.ovl "release/Ryzhand-Overlay-${TAG}.ovl"
-          # Полный zip со структурой SD-карты (out/ содержит switch/.overlays/ и config/)
+          # Главный .ovl: ровно ovlmenu.ovl без префикса -- так его
+          # ожидает Tesla-loader / Ultrahand-Overlay экосистема в
+          # /switch/.overlays/. Версия зашивается в zip name ниже.
+          cp ovlmenu.ovl "release/ovlmenu.ovl"
+          # Полный zip со структурой SD-карты. out/ уже собран Makefile-ом
+          # с правильным layout:
+          #   switch/.overlays/ovlmenu.ovl
+          #   atmosphere/contents/0100000000000895/ (sys-notif-LED)
+          #   atmosphere/contents/0100000000000FED/ (liteswitch)
+          #   config/ryazhahand/lang/*.json
+          # Распаковка в корень SD-карты ставит сразу всё.
           if [ -d out ]; then
             (cd out && zip -r "../release/Ryzhand-Overlay-${TAG}.zip" .)
           fi

@@ -80,14 +80,18 @@ jobs:
       - name: Подготовить артефакты
         run: |
           mkdir -p artifacts
-          if [ -f ovlmenu.ovl ]; then cp ovlmenu.ovl artifacts/Ryzhand-Overlay.ovl; fi
+          # Сохраняем имя ovlmenu.ovl как есть -- так его ожидает Tesla-loader
+          # и Ultrahand-Overlay экосистема. out/ уже содержит правильную
+          # SD-структуру (switch/.overlays/ovlmenu.ovl + atmosphere/contents/
+          # 0100000000000895 + 0100000000000FED + config/ryazhahand/lang/).
+          if [ -f ovlmenu.ovl ]; then cp ovlmenu.ovl artifacts/ovlmenu.ovl; fi
           if [ -d out ]; then cp -r out artifacts/out; fi
           ls -la artifacts/
 
       - name: Загрузить артефакт
         uses: actions/upload-artifact@v4
         with:
-          name: Ryzhand-Overlay-${{ github.sha }}
+          name: ovlmenu-${{ github.sha }}
           path: artifacts/
           if-no-files-found: error
           retention-days: 30

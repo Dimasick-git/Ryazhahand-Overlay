@@ -5328,7 +5328,9 @@ public:
                 // OnPress намеренно не показываем в UI: pulse-on-key он
                 // делается через отдельный триггер из main.cpp и не
                 // относится к фоновому режиму.
-                static const std::vector<std::string> ledModeLabels = {
+                // Без const -- NamedStepTrackBarV2 ctor берёт vector& (mutable),
+                // и compile падал на "binding reference ... discards qualifiers".
+                static std::vector<std::string> ledModeLabels = {
                     std::string(ryz::led::modeName(ryz::led::Mode::Off)),
                     std::string(ryz::led::modeName(ryz::led::Mode::Solid)),
                     std::string(ryz::led::modeName(ryz::led::Mode::Pulse)),
