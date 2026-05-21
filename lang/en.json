@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "English",
     "SPANISH": "Spanish",
     "FRENCH": "French",
@@ -187,5 +187,9 @@
     "SEP": "Sep",
     "OCT": "Oct",
     "NOV": "Nov",
-    "DEC": "Dec"
+    "DEC": "Dec",
+    "SOUND_NAVIGATION": "Navigation sound",
+    "SOUND_ENTER": "Confirm sound",
+    "SOUND_EXIT": "Cancel sound",
+    "SOUND_WALL": "Wall sound"
 }

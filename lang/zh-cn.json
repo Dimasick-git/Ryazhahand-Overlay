@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "启动通知",
     "TEXT_COLOR": "文本颜色",
     "TEXT_COLOR_PICKER_HINT": "左/右: 通道  上/下: ±1  L/R: ±10  A: 保存  B: 返回",
-    "TXT_READER": "TXT 阅读器"
+    "TXT_READER": "TXT 阅读器",
+    "SOUND_NAVIGATION": "导航声音",
+    "SOUND_ENTER": "确认声音",
+    "SOUND_EXIT": "取消声音",
+    "SOUND_WALL": "撞壁声音"
 }

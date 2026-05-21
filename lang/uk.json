@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Сповіщення при запуску",
     "TEXT_COLOR": "Колір тексту",
     "TEXT_COLOR_PICKER_HINT": "←/→: канал  ↑/↓: ±1  L/R: ±10  A: Зберегти  B: Назад",
-    "TXT_READER": "Читач TXT"
+    "TXT_READER": "Читач TXT",
+    "SOUND_NAVIGATION": "Звук навігації",
+    "SOUND_ENTER": "Звук підтвердження",
+    "SOUND_EXIT": "Звук скасування",
+    "SOUND_WALL": "Звук удару"
 }

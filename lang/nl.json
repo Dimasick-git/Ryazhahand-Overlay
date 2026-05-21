@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Opstartmelding",
     "TEXT_COLOR": "Tekstkleur",
     "TEXT_COLOR_PICKER_HINT": "L/R: kanaal  O/N: ±1  L/R: ±10  A: Opslaan  B: Terug",
-    "TXT_READER": "TXT-lezer"
+    "TXT_READER": "TXT-lezer",
+    "SOUND_NAVIGATION": "Navigatiegeluid",
+    "SOUND_ENTER": "Bevestigingsgeluid",
+    "SOUND_EXIT": "Annulerengeluid",
+    "SOUND_WALL": "Stuitgeluid"
 }

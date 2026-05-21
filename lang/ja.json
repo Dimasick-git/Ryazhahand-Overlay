@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "起動時通知",
     "TEXT_COLOR": "テキストの色",
     "TEXT_COLOR_PICKER_HINT": "←/→: チャンネル  ↑/↓: ±1  L/R: ±10  A: 保存  B: 戻る",
-    "TXT_READER": "TXTリーダー"
+    "TXT_READER": "TXTリーダー",
+    "SOUND_NAVIGATION": "ナビゲーション音",
+    "SOUND_ENTER": "決定音",
+    "SOUND_EXIT": "キャンセル音",
+    "SOUND_WALL": "壁音"
 }

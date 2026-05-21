@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Notifica di avvio",
     "TEXT_COLOR": "Colore del testo",
     "TEXT_COLOR_PICKER_HINT": "S/D: canale  Su/Giu: ±1  L/R: ±10  A: Salva  B: Indietro",
-    "TXT_READER": "Lettore TXT"
+    "TXT_READER": "Lettore TXT",
+    "SOUND_NAVIGATION": "Suono di navigazione",
+    "SOUND_ENTER": "Suono di conferma",
+    "SOUND_EXIT": "Suono di annullamento",
+    "SOUND_WALL": "Suono di battuta"
 }

@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Notification au démarrage",
     "TEXT_COLOR": "Couleur du texte",
     "TEXT_COLOR_PICKER_HINT": "G/D: canal  H/B: ±1  L/R: ±10  A: Sauver  B: Retour",
-    "TXT_READER": "Lecteur TXT"
+    "TXT_READER": "Lecteur TXT",
+    "SOUND_NAVIGATION": "Son de navigation",
+    "SOUND_ENTER": "Son de confirmation",
+    "SOUND_EXIT": "Son d'annulation",
+    "SOUND_WALL": "Son de butée"
 }

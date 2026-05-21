@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Notificación de inicio",
     "TEXT_COLOR": "Color del texto",
     "TEXT_COLOR_PICKER_HINT": "Izq/Der: canal  Arr/Aba: ±1  L/R: ±10  A: Guardar  B: Atrás",
-    "TXT_READER": "Lector de TXT"
+    "TXT_READER": "Lector de TXT",
+    "SOUND_NAVIGATION": "Sonido de navegación",
+    "SOUND_ENTER": "Sonido de confirmación",
+    "SOUND_EXIT": "Sonido de cancelación",
+    "SOUND_WALL": "Sonido de tope"
 }

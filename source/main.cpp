@@ -5429,18 +5429,19 @@ public:
 
                 // Per-event mute. Дефолт true, чтобы не выключать
                 // звуки никому при апгрейде. Хранятся в той же секции
-                // ryzhand/ ini-файла.
+                // ryzhand/ ini-файла. Метки берутся из lang/ через
+                // getTranslated -- ключи SOUND_* в каждом локали.
                 ult::useNavigationSound = getBoolValue("sound_navigation", true);
-                createToggleListItem(list, "Звук навигации", ult::useNavigationSound, "sound_navigation");
+                createToggleListItem(list, SOUND_NAVIGATION, ult::useNavigationSound, "sound_navigation");
 
                 ult::useEnterSound = getBoolValue("sound_enter", true);
-                createToggleListItem(list, "Звук подтверждения", ult::useEnterSound, "sound_enter");
+                createToggleListItem(list, SOUND_ENTER, ult::useEnterSound, "sound_enter");
 
                 ult::useExitSound = getBoolValue("sound_exit", true);
-                createToggleListItem(list, "Звук отмены", ult::useExitSound, "sound_exit");
+                createToggleListItem(list, SOUND_EXIT, ult::useExitSound, "sound_exit");
 
                 ult::useWallSound = getBoolValue("sound_wall", true);
-                createToggleListItem(list, "Звук упора", ult::useWallSound, "sound_wall");
+                createToggleListItem(list, SOUND_WALL, ult::useWallSound, "sound_wall");
             }
 
             useHapticFeedback = getBoolValue("haptic_feedback", false);

@@ -474,6 +474,10 @@ namespace ult {
     extern std::string STARTUP_NOTIFICATION;
     extern std::string EXTERNAL_NOTIFICATIONS;
     extern std::string SOUND_EFFECTS;
+    extern std::string SOUND_NAVIGATION;
+    extern std::string SOUND_ENTER;
+    extern std::string SOUND_EXIT;
+    extern std::string SOUND_WALL;
     extern std::string HAPTIC_FEEDBACK;
     extern std::string OPAQUE_SCREENSHOTS;
 

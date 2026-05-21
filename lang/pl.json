@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Powiadomienie startowe",
     "TEXT_COLOR": "Kolor tekstu",
     "TEXT_COLOR_PICKER_HINT": "L/P: kanał  G/D: ±1  L/R: ±10  A: Zapisz  B: Wstecz",
-    "TXT_READER": "Czytnik TXT"
+    "TXT_READER": "Czytnik TXT",
+    "SOUND_NAVIGATION": "Dźwięk nawigacji",
+    "SOUND_ENTER": "Dźwięk potwierdzenia",
+    "SOUND_EXIT": "Dźwięk anulowania",
+    "SOUND_WALL": "Dźwięk granicy"
 }

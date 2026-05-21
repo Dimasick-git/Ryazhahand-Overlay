@@ -188,5 +188,9 @@
     "OCT": "Окт",
     "NOV": "Ноя",
     "DEC": "Дек",
-    "RYZHAND_HAS_RESTARTED": "Ryzhand перезапущен."
+    "RYZHAND_HAS_RESTARTED": "Ryzhand перезапущен.",
+    "SOUND_NAVIGATION": "Звук навигации",
+    "SOUND_ENTER": "Звук подтверждения",
+    "SOUND_EXIT": "Звук отмены",
+    "SOUND_WALL": "Звук упора"
 }

@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "시작 알림",
     "TEXT_COLOR": "텍스트 색상",
     "TEXT_COLOR_PICKER_HINT": "←/→: 채널  ↑/↓: ±1  L/R: ±10  A: 저장  B: 뒤로",
-    "TXT_READER": "TXT 리더"
+    "TXT_READER": "TXT 리더",
+    "SOUND_NAVIGATION": "탐색 사운드",
+    "SOUND_ENTER": "확인 사운드",
+    "SOUND_EXIT": "취소 사운드",
+    "SOUND_WALL": "벽 사운드"
 }

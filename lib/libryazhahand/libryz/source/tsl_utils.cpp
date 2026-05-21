@@ -553,6 +553,10 @@ namespace ult {
     std::string STARTUP_NOTIFICATION = "Startup Notification";
     std::string EXTERNAL_NOTIFICATIONS = "External Notifications";
     std::string SOUND_EFFECTS = "Sound Effects";
+    std::string SOUND_NAVIGATION = "Navigation sound";
+    std::string SOUND_ENTER      = "Confirm sound";
+    std::string SOUND_EXIT       = "Cancel sound";
+    std::string SOUND_WALL       = "Wall sound";
     std::string HAPTIC_FEEDBACK = "Haptic Feedback";
     std::string OPAQUE_SCREENSHOTS = "Opaque Screenshots";
 
@@ -1024,6 +1028,10 @@ namespace ult {
             {"STARTUP_NOTIFICATION", &STARTUP_NOTIFICATION},
             {"EXTERNAL_NOTIFICATIONS", &EXTERNAL_NOTIFICATIONS},
             {"SOUND_EFFECTS", &SOUND_EFFECTS},
+            {"SOUND_NAVIGATION", &SOUND_NAVIGATION},
+            {"SOUND_ENTER",      &SOUND_ENTER},
+            {"SOUND_EXIT",       &SOUND_EXIT},
+            {"SOUND_WALL",       &SOUND_WALL},
             {"HAPTIC_FEEDBACK", &HAPTIC_FEEDBACK},
             {"OPAQUE_SCREENSHOTS", &OPAQUE_SCREENSHOTS},
 

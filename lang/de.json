@@ -188,5 +188,9 @@
     "STARTUP_NOTIFICATION": "Start-Benachrichtigung",
     "TEXT_COLOR": "Textfarbe",
     "TEXT_COLOR_PICKER_HINT": "L/R: Kanal  O/U: ±1  L/R: ±10  A: Speichern  B: Zurück",
-    "TXT_READER": "TXT-Leser"
+    "TXT_READER": "TXT-Leser",
+    "SOUND_NAVIGATION": "Navigationston",
+    "SOUND_ENTER": "Bestätigungston",
+    "SOUND_EXIT": "Abbrechen-Ton",
+    "SOUND_WALL": "Anschlagton"
 }
