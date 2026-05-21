@@ -172,6 +172,15 @@ namespace ult {
     extern bool useStartupNotification;
     extern bool useSoundEffects;
     extern bool useHapticFeedback;
+
+    // Per-event sound toggles. Считываются в triggerXFeedback() ниже в
+    // tesla.hpp перед store(true) -- даёт раздельный mute на категорию
+    // (Навигация / Подтверждение / Отмена / Тычок в стену). Master
+    // useSoundEffects работает сверху как общий mute, не дублирует.
+    extern bool useNavigationSound;
+    extern bool useEnterSound;
+    extern bool useExitSound;
+    extern bool useWallSound;
     extern bool usePageSwap;
     extern std::atomic<bool> noClickableItems;
 

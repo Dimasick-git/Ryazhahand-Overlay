@@ -5417,15 +5417,30 @@ public:
 
 
 
-            // ═══ ЗВУК / ВИБРАЦИЯ ═══
-            // Раздельный per-event toggle (navigation / enter / exit ...)
-            // потребует extension'а libtesla -- отдельная задача. Сейчас
-            // общий выключатель + haptic.
+            // ═══ ЗВУК И ВИБРАЦИЯ ═══
+            // Общий мастер-mute + раздельные toggle на категорию.
+            // ult::use*Sound гасит отдельно навигацию / подтверждение /
+            // отмену / стену; работают поверх useSoundEffects.
             addHeader(list, "ЗВУК И ВИБРАЦИЯ");
 
             if (!ult::limitedMemory) {
                 useSoundEffects = getBoolValue("sound_effects", false);
                 createToggleListItem(list, SOUND_EFFECTS, useSoundEffects, "sound_effects");
+
+                // Per-event mute. Дефолт true, чтобы не выключать
+                // звуки никому при апгрейде. Хранятся в той же секции
+                // ryzhand/ ini-файла.
+                ult::useNavigationSound = getBoolValue("sound_navigation", true);
+                createToggleListItem(list, "Звук навигации", ult::useNavigationSound, "sound_navigation");
+
+                ult::useEnterSound = getBoolValue("sound_enter", true);
+                createToggleListItem(list, "Звук подтверждения", ult::useEnterSound, "sound_enter");
+
+                ult::useExitSound = getBoolValue("sound_exit", true);
+                createToggleListItem(list, "Звук отмены", ult::useExitSound, "sound_exit");
+
+                ult::useWallSound = getBoolValue("sound_wall", true);
+                createToggleListItem(list, "Звук упора", ult::useWallSound, "sound_wall");
             }
 
             useHapticFeedback = getBoolValue("haptic_feedback", false);
@@ -18554,6 +18569,12 @@ void initializeSettingsAndDirectories() {
     setDefaultValue("startup_notification", TRUE_STR, useStartupNotification);
 
     setDefaultValue("sound_effects", TRUE_STR, useSoundEffects);
+
+    // Per-event sound toggles -- default true.
+    setDefaultValue("sound_navigation", TRUE_STR, ult::useNavigationSound);
+    setDefaultValue("sound_enter",      TRUE_STR, ult::useEnterSound);
+    setDefaultValue("sound_exit",       TRUE_STR, ult::useExitSound);
+    setDefaultValue("sound_wall",       TRUE_STR, ult::useWallSound);
 
     setDefaultValue("haptic_feedback", FALSE_STR, useHapticFeedback);
 

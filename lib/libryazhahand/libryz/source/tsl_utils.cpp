@@ -265,6 +265,13 @@ namespace ult {
     bool useStartupNotification = false;
     bool useSoundEffects = true;
     bool useHapticFeedback = false;
+
+    // Per-event sound toggles -- по умолчанию все true, чтобы апгрейд
+    // не отключал звуки у тех, у кого они работали.
+    bool useNavigationSound = true;
+    bool useEnterSound      = true;
+    bool useExitSound       = true;
+    bool useWallSound       = true;
     bool usePageSwap = false;
     bool useDynamicLogo = true;
     bool useSelectionBG = true;

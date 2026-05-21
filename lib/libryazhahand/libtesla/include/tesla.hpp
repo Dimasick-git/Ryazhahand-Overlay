@@ -216,24 +216,31 @@ inline std::atomic<bool> triggerRumbleClick{false};
 inline std::atomic<bool> triggerRumbleDoubleClick{false};
 
 
+// Per-event sound guards. ult::use*Sound flags гасят отдельные
+// категории звуков. Rumble триггерится безусловно -- useHapticFeedback
+// его контролирует на уровне playback'а отдельно.
 static inline void triggerNavigationFeedback() {
     triggerRumbleClick.store(true, std::memory_order_release);
-    triggerNavigationSound.store(true, std::memory_order_release);
+    if (ult::useNavigationSound)
+        triggerNavigationSound.store(true, std::memory_order_release);
 }
 
 static inline void triggerWallFeedback() {
     triggerRumbleClick.store(true, std::memory_order_release);
-    triggerWallSound.store(true, std::memory_order_release);
+    if (ult::useWallSound)
+        triggerWallSound.store(true, std::memory_order_release);
 }
 
 static inline void triggerEnterFeedback() {
     triggerRumbleClick.store(true, std::memory_order_release);
-    triggerEnterSound.store(true, std::memory_order_release);
+    if (ult::useEnterSound)
+        triggerEnterSound.store(true, std::memory_order_release);
 }
 
 static inline void triggerExitFeedback() {
     triggerRumbleDoubleClick.store(true, std::memory_order_release);
-    triggerExitSound.store(true, std::memory_order_release);
+    if (ult::useExitSound)
+        triggerExitSound.store(true, std::memory_order_release);
 }
 
 
