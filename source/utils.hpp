@@ -4600,13 +4600,22 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
                     if (secondArg.length() >= 4 && secondArg.substr(secondArg.length() - 4) == ".ini") {
                         std::string iniPath = secondArg;
                         preprocessPath(iniPath, packagePath);
-                        
+
+                        // PR #b7aff08: при ссылке на ini из ДРУГОГО пакета
+                        // executeIniCommands должен видеть packagePath того
+                        // ini-файла, иначе относительные пути внутри секций
+                        // resolved'ятся в текущий пакет (источник "пакет не
+                        // открывается" / тихие фейлы copy/move).
+                        const size_t lastSlash = iniPath.find_last_of('/');
+                        const std::string iniPackagePath = (lastSlash != std::string::npos)
+                            ? iniPath.substr(0, lastSlash + 1) : packagePath;
+
                         bool resetCommandSuccess = false;
                         if (!commandSuccess.load(std::memory_order_acquire))
                             resetCommandSuccess = true;
-                        
-                        executeIniCommands(iniPath, sectionName, packagePath);
-                        
+
+                        executeIniCommands(iniPath, sectionName, iniPackagePath);
+
                         if (resetCommandSuccess)
                             setCommandFailed();
                     } else {

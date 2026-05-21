@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "英語",
     "SPANISH": "西班牙語",
     "FRENCH": "法語",
@@ -179,5 +179,14 @@
     "SEP": "9月",
     "OCT": "10月",
     "NOV": "11月",
-    "DEC": "12月"
+    "DEC": "12月",
+    "EXTERNAL_NOTIFICATIONS": "外部通知",
+    "HOME_LED_GLOW": "HOME 燈效",
+    "NO_TXT_FILES_FOUND": "找不到 TXT 檔案",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand 已重啟。",
+    "STAIRCASE_EFFECT": "階梯效果",
+    "STARTUP_NOTIFICATION": "啟動通知",
+    "TEXT_COLOR": "文字顏色",
+    "TEXT_COLOR_PICKER_HINT": "左/右: 通道  上/下: ±1  L/R: ±10  A: 儲存  B: 返回",
+    "TXT_READER": "TXT 閱讀器"
 }

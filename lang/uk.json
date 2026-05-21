@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "Англійська",
     "SPANISH": "Іспанська",
     "FRENCH": "Французька",
@@ -179,5 +179,14 @@
     "SEP": "Вер",
     "OCT": "Жовт",
     "NOV": "Лист",
-    "DEC": "Груд"
+    "DEC": "Груд",
+    "EXTERNAL_NOTIFICATIONS": "Зовнішні сповіщення",
+    "HOME_LED_GLOW": "Свічення HOME LED",
+    "NO_TXT_FILES_FOUND": "TXT-файли не знайдено",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand перезапущено.",
+    "STAIRCASE_EFFECT": "Ефект сходів",
+    "STARTUP_NOTIFICATION": "Сповіщення при запуску",
+    "TEXT_COLOR": "Колір тексту",
+    "TEXT_COLOR_PICKER_HINT": "←/→: канал  ↑/↓: ±1  L/R: ±10  A: Зберегти  B: Назад",
+    "TXT_READER": "Читач TXT"
 }

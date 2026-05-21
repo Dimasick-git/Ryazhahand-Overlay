@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "Engels",
     "SPANISH": "Spaans",
     "FRENCH": "Frans",
@@ -179,5 +179,14 @@
     "SEP": "Sep",
     "OCT": "Okt",
     "NOV": "Nov",
-    "DEC": "Dec"
+    "DEC": "Dec",
+    "EXTERNAL_NOTIFICATIONS": "Externe meldingen",
+    "HOME_LED_GLOW": "HOME LED-gloed",
+    "NO_TXT_FILES_FOUND": "Geen TXT-bestanden gevonden",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand is opnieuw gestart.",
+    "STAIRCASE_EFFECT": "Trapeffect",
+    "STARTUP_NOTIFICATION": "Opstartmelding",
+    "TEXT_COLOR": "Tekstkleur",
+    "TEXT_COLOR_PICKER_HINT": "L/R: kanaal  O/N: ±1  L/R: ±10  A: Opslaan  B: Terug",
+    "TXT_READER": "TXT-lezer"
 }

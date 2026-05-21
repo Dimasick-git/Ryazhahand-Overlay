@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "Inglês",
     "SPANISH": "Espanhol",
     "FRENCH": "Francês",
@@ -179,5 +179,14 @@
     "SEP": "Set",
     "OCT": "Out",
     "NOV": "Nov",
-    "DEC": "Dez"
+    "DEC": "Dez",
+    "EXTERNAL_NOTIFICATIONS": "Notificações externas",
+    "HOME_LED_GLOW": "Brilho do LED HOME",
+    "NO_TXT_FILES_FOUND": "Nenhum ficheiro TXT encontrado",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand foi reiniciado.",
+    "STAIRCASE_EFFECT": "Efeito escada",
+    "STARTUP_NOTIFICATION": "Notificação de inicialização",
+    "TEXT_COLOR": "Cor do texto",
+    "TEXT_COLOR_PICKER_HINT": "Esq/Dir: canal  Cima/Bxo: ±1  L/R: ±10  A: Guardar  B: Voltar",
+    "TXT_READER": "Leitor de TXT"
 }

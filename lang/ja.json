@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "英語",
     "SPANISH": "スペイン語",
     "FRENCH": "フランス語",
@@ -179,5 +179,14 @@
     "SEP": "9月",
     "OCT": "10月",
     "NOV": "11月",
-    "DEC": "12月"
+    "DEC": "12月",
+    "EXTERNAL_NOTIFICATIONS": "外部通知",
+    "HOME_LED_GLOW": "HOME LED の発光",
+    "NO_TXT_FILES_FOUND": "TXTファイルが見つかりません",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand を再起動しました。",
+    "STAIRCASE_EFFECT": "階段エフェクト",
+    "STARTUP_NOTIFICATION": "起動時通知",
+    "TEXT_COLOR": "テキストの色",
+    "TEXT_COLOR_PICKER_HINT": "←/→: チャンネル  ↑/↓: ±1  L/R: ±10  A: 保存  B: 戻る",
+    "TXT_READER": "TXTリーダー"
 }

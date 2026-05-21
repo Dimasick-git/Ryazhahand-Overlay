@@ -1,4 +1,4 @@
-﻿{
+{
     "ENGLISH": "영어",
     "SPANISH": "스페인어",
     "FRENCH": "프랑스어",
@@ -179,5 +179,14 @@
     "SEP": "9월",
     "OCT": "10월",
     "NOV": "11월",
-    "DEC": "12월"
+    "DEC": "12월",
+    "EXTERNAL_NOTIFICATIONS": "외부 알림",
+    "HOME_LED_GLOW": "HOME LED 발광",
+    "NO_TXT_FILES_FOUND": "TXT 파일을 찾을 수 없음",
+    "RYZHAND_HAS_RESTARTED": "Ryzhand 재시작됨.",
+    "STAIRCASE_EFFECT": "계단 효과",
+    "STARTUP_NOTIFICATION": "시작 알림",
+    "TEXT_COLOR": "텍스트 색상",
+    "TEXT_COLOR_PICKER_HINT": "←/→: 채널  ↑/↓: ±1  L/R: ±10  A: 저장  B: 뒤로",
+    "TXT_READER": "TXT 리더"
 }
