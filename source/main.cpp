@@ -62,6 +62,8 @@
 
 #include <utils.hpp>
 
+#include "ryazha_led/ryazha_led.hpp"
+
 #include <set>
 
 #include <algorithm>
