@@ -5329,36 +5329,31 @@ public:
                 // делается через отдельный триггер из main.cpp и не
                 // относится к фоновому режиму.
                 static const std::vector<std::string> ledModeLabels = {
-                    ryz::led::modeName(Mode::Off),
-                    ryz::led::modeName(Mode::Solid),
-                    ryz::led::modeName(Mode::Pulse),
-                    ryz::led::modeName(Mode::Fade),
+                    std::string(ryz::led::modeName(ryz::led::Mode::Off)),
+                    std::string(ryz::led::modeName(ryz::led::Mode::Solid)),
+                    std::string(ryz::led::modeName(ryz::led::Mode::Pulse)),
+                    std::string(ryz::led::modeName(ryz::led::Mode::Fade)),
                 };
-                const u8 initialIdx = std::min<u8>((u8)s.mode, (u8)(ledModeLabels.size() - 1));
+                const u8 initialMode = std::min<u8>(static_cast<u8>(s.mode),
+                                                    static_cast<u8>(ledModeLabels.size() - 1));
 
-                auto* ledModeBar = new tsl::elm::NamedStepTrackBar(
-                    "☀" /* sun icon */, ledModeLabels);
-                ledModeBar->setProgress(initialIdx);
-                ledModeBar->setValue(ledModeLabels[initialIdx]);
-
-                ledModeBar->setValueChangedListener([](u8 newIdx) {
+                auto* ledModeBar = new tsl::elm::NamedStepTrackBarV2(
+                    HOME_LED_GLOW,
+                    "",
+                    ledModeLabels,
+                    nullptr, nullptr, {}, "",
+                    false,
+                    false
+                );
+                ledModeBar->setProgress(initialMode);
+                ledModeBar->setValue(ledModeLabels[initialMode]);
+                ledModeBar->setSimpleCallback([](s16 /*value*/, s16 index) {
+                    if (index < 0) return;
                     auto cur = ryz::led::load();
-                    cur.mode = static_cast<Mode>(newIdx);
+                    cur.mode = static_cast<ryz::led::Mode>(index);
                     ryz::led::save(cur);
                 });
                 list->addItem(ledModeBar);
-
-                // Яркость 0..100 % шагами по 5 (21 шаг). У liteswitch
-                // brightness не используется, у sys-notif-LED -- да.
-                auto* ledBrightnessBar = new tsl::elm::StepTrackBar(
-                    "" /* sun */, 21);
-                ledBrightnessBar->setProgress(std::min<u8>(s.brightness / 5, 20));
-                ledBrightnessBar->setValueChangedListener([](u8 step) {
-                    auto cur = ryz::led::load();
-                    cur.brightness = std::min<uint8_t>(step * 5, 100);
-                    ryz::led::save(cur);
-                });
-                list->addItem(ledBrightnessBar);
 
                 // Совместимость со старой настройкой home_led -- пишем
                 // её в INI чтобы boot-логика и autostart-нотификация знали
