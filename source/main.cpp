@@ -10431,28 +10431,42 @@ public:
                 
 
                 // Handle package config footer logic
+                // PR #0d98f42: если в конфиге футер не задан или невалиден,
+                // надо явно восстановить OPTION_SYMBOL ("never set"), а не
+                // оставлять предыдущее значение на UI -- иначе после первого
+                // выбора пункт остаётся в "выбранном" состоянии навсегда.
 
-                if (commandMode == OPTION_STR && isFile(packageConfigIniPath)) {
+                if (commandMode == OPTION_STR) {
 
-                    const auto packageConfigData = getParsedDataFromIniFile(packageConfigIniPath);
+                    std::string restoreFooter = OPTION_SYMBOL; // never-set indicator
 
-                    auto it = packageConfigData.find(specificKey);
+                    if (isFile(packageConfigIniPath)) {
 
-                    if (it != packageConfigData.end()) {
+                        const auto packageConfigData = getParsedDataFromIniFile(packageConfigIniPath);
 
-                        auto& optionSection = it->second;
+                        auto it = packageConfigData.find(specificKey);
 
-                        auto footerIt = optionSection.find(FOOTER_STR);
+                        if (it != packageConfigData.end()) {
 
-                        if (footerIt != optionSection.end() && (footerIt->second.find(NULL_STR) == std::string::npos)) {
+                            auto& optionSection = it->second;
 
-                            if (selectedListItem)
+                            auto footerIt = optionSection.find(FOOTER_STR);
 
-                                selectedListItem->setValue(footerIt->second);
+                            if (footerIt != optionSection.end() &&
+                                !footerIt->second.empty() &&
+                                footerIt->second.find(NULL_STR) == std::string::npos) {
+
+                                restoreFooter = footerIt->second;
+
+                            }
 
                         }
 
                     }
+
+                    if (selectedListItem)
+
+                        selectedListItem->setValue(restoreFooter);
 
                 }
 

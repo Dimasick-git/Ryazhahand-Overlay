@@ -3087,13 +3087,17 @@ bool applyPlaceholderReplacements(std::vector<std::string>& cmd, const std::stri
     bool replacementsMade = false;
     
     std::vector<std::pair<std::string, std::function<std::string(const std::string&)>>> placeholders = {
-        {"{hex_file(", [&](const std::string& placeholder) { 
+        {"{hex_file(", [&](const std::string& placeholder) {
+            // PR #13e02a6: bail if the file doesn't exist so the placeholder
+            // resolves to NULL_STR instead of silently returning a bogus value.
+            if (hexPath.empty() || !isFileOrDirectory(hexPath)) return NULL_STR;
             std::string result = replaceHexPlaceholder(placeholder, hexPath);
             return returnOrNull(result);
         }},
-        {"{ini_file(", [&](const std::string& placeholder) { 
+        {"{ini_file(", [&](const std::string& placeholder) {
+            if (iniPath.empty() || !isFileOrDirectory(iniPath)) return NULL_STR;
             std::string result = placeholder;
-            applyReplaceIniPlaceholder(result, INI_FILE_STR, iniPath); 
+            applyReplaceIniPlaceholder(result, INI_FILE_STR, iniPath);
             return result;
         }},
         {"{list(", [&](const std::string& placeholder) {
@@ -3123,12 +3127,14 @@ bool applyPlaceholderReplacements(std::vector<std::string>& cmd, const std::stri
             if (!isValidNumber(indexStr)) {
                 return NULL_STR;
             }
+            if (listPath.empty() || !isFileOrDirectory(listPath)) return NULL_STR;
             return returnOrNull(getEntryFromListFile(listPath, ult::stoi(indexStr)));
         }},
-        {"{json(", [&](const std::string& placeholder) { 
+        {"{json(", [&](const std::string& placeholder) {
             return replaceJsonPlaceholder(placeholder, JSON_STR, jsonString);
         }},
-        {"{json_file(", [&](const std::string& placeholder) { 
+        {"{json_file(", [&](const std::string& placeholder) {
+            if (jsonPath.empty() || !isFileOrDirectory(jsonPath)) return NULL_STR;
             return replaceJsonPlaceholder(placeholder, JSON_FILE_STR, jsonPath);
         }},
         {"{timestamp(", [&](const std::string& placeholder) {
@@ -4634,6 +4640,13 @@ void processCommand(const std::vector<std::string>& cmd, const std::string& pack
             break;
             
         case 'f':
+            // PR #13e02a6: пакет может явно завалить выполнение.
+            // Полезно в комбинации с {ini_file(...)} проверками --
+            // когда исходные данные битые, не доводить до side effect'ов.
+            if (commandName == "force_failure") {
+                commandSuccess.store(false, std::memory_order_release);
+                return;
+            }
             if (commandName == "flag") {
                 if (cmdSize >= 3) {
                     std::string wildcardPattern = cmd[1];
