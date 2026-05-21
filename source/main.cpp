@@ -13654,9 +13654,24 @@ bool drawCommandsMenu(
 
                                     selectedListItem = listItem;
 
-                                    
+
 
                                     std::string newKey = "";
+
+                                    // PR #fd335d6: нормализуем footer для checkmark в OPTION-режиме.
+                                    // SelectionOverlay режет item на " - " и сравнивает только левую
+                                    // часть (itemName). Поэтому в selectedFooterDict тоже надо класть
+                                    // только левую часть -- иначе footer'ы вида "18 - (0)" из
+                                    // boot_package.ini не совпадают с itemName "18", и галочка не
+                                    // подсвечивается.
+
+                                    const auto normalizeFooterKey = [](const std::string& f) -> std::string {
+
+                                        const size_t dashPos = f.find(" - ");
+
+                                        return (dashPos != std::string::npos) ? f.substr(0, dashPos) : f;
+
+                                    };
 
                                     if (inPackageMenu) {
 
@@ -13664,7 +13679,7 @@ bool drawCommandsMenu(
 
                                         if (selectedFooterDict.find(newKey) == selectedFooterDict.end())
 
-                                            selectedFooterDict[newKey] = footer;
+                                            selectedFooterDict[newKey] = normalizeFooterKey(footer);
 
                                     } else {
 
@@ -13672,7 +13687,7 @@ bool drawCommandsMenu(
 
                                         if (selectedFooterDict.find(newKey) == selectedFooterDict.end())
 
-                                            selectedFooterDict[newKey] = footer;
+                                            selectedFooterDict[newKey] = normalizeFooterKey(footer);
 
                                     }
 

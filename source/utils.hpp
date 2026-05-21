@@ -430,9 +430,13 @@ void writeFuseIni(const std::string& outputPath, const char* data = nullptr) {
             fprintf(outFile, "cpu_speedo_0=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_CPU_SPEEDO_0_CALIB));
             fprintf(outFile, "cpu_speedo_2=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_CPU_SPEEDO_2_CALIB));
             fprintf(outFile, "soc_speedo_0=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_SOC_SPEEDO_0_CALIB));
-            fprintf(outFile, "cpu_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_CPU_IDDQ_CALIB));
-            fprintf(outFile, "soc_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_SOC_IDDQ_CALIB));
-            fprintf(outFile, "gpu_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_GPU_IDDQ_CALIB));
+            // PR #6d69db2: raw IDDQ calibration values нужно умножить на
+            // фиксированный множитель (CPU/SOC x4, GPU x5), иначе fuse.ini
+            // отдаёт цифры в "сырых" единицах, которые downstream-инструменты
+            // интерпретируют неправильно (заниженный IDDQ -> завышенное V_min).
+            fprintf(outFile, "cpu_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_CPU_IDDQ_CALIB) * 4);
+            fprintf(outFile, "soc_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_SOC_IDDQ_CALIB) * 4);
+            fprintf(outFile, "gpu_iddq=%u\n", *reinterpret_cast<const uint32_t*>(data + FUSE_GPU_IDDQ_CALIB) * 5);
             fputs("disable_reload=false\n", outFile);
         } else {
             // Single fputs call instead of seven separate ones
