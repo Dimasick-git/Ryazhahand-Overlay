@@ -3849,6 +3849,16 @@ public:
 
             }
 
+            // Звуки -- выбор звукового пака. Аналог "Sounds" из upstream
+            // ppkantorski/Ultrahand-Overlay. Список собирается из подкаталогов
+            // /config/ryazhahand/sounds/packs/<name>/.
+            {
+                std::string currentSounds = parseValueFromIniSection(
+                    RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_sounds");
+                if (currentSounds.empty()) currentSounds = OPTION_SYMBOL;
+                addListItem(list, "Звуки", currentSounds, "soundsMenu");
+            }
+
             addListItem(list, WIDGET, DROPDOWN_SYMBOL, "widgetMenu");
 
             addListItem(list, MISCELLANEOUS, DROPDOWN_SYMBOL, "miscMenu");
@@ -4837,6 +4847,108 @@ public:
 
             }
 
+        } else if (dropdownSelection == "soundsMenu") {
+
+            // ──────────────────────────────────────────────────────────
+            // Звуковые паки. Структура на диске:
+            //   /config/ryazhahand/sounds/                <-- активные WAV'ы (читает Audio)
+            //   /config/ryazhahand/sounds/packs/<name>/   <-- доступные паки
+            //
+            // При выборе пака копируем все *.wav из packs/<name>/
+            // в /config/ryazhahand/sounds/ и просим Audio
+            // перезагрузить кеш (reloadSoundCacheNow).
+            //
+            // OPTION_SYMBOL = "Выкл" -- выключает sound_effects и сбрасывает кеш.
+            // ──────────────────────────────────────────────────────────
+            addHeader(list, "Звуки");
+
+            std::string currentSounds = parseValueFromIniSection(
+                RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_sounds");
+            if (currentSounds.empty()) currentSounds = OPTION_SYMBOL;
+
+            const std::string packsRoot = SOUNDS_PATH + "packs/";
+            createDirectory(packsRoot);  // безопасно, no-op если есть
+
+            // "Выкл" -- никакого пака, sound_effects off.
+            {
+                auto* noneItem = new tsl::elm::ListItem(OPTION_SYMBOL);
+                if (currentSounds == OPTION_SYMBOL) {
+                    noneItem->setValue(CHECKMARK_SYMBOL);
+                    lastSelectedListItem = noneItem;
+                }
+                noneItem->setClickListener([noneItem](uint64_t keys) {
+                    if (runningInterpreter.load(acquire)) return false;
+                    if (!((keys & KEY_A) && !(keys & ~KEY_A & ALL_KEYS_MASK))) return false;
+
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "current_sounds", OPTION_SYMBOL);
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "sound_effects", FALSE_STR);
+                    useSoundEffects = false;
+                    ult::Audio::unloadAllSounds({});
+
+                    if (lastSelectedListItem) lastSelectedListItem->setValue("");
+                    noneItem->setValue(CHECKMARK_SYMBOL);
+                    lastSelectedListItem = noneItem;
+                    shiftItemFocus(noneItem);
+                    if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
+                    return true;
+                });
+                list->addItem(noneItem);
+            }
+
+            // Список подкаталогов в packs/.
+            auto packs = getSubdirectories(packsRoot);
+            // default должен быть сверху, остальные алфавитно.
+            std::sort(packs.begin(), packs.end());
+            for (auto it = packs.begin(); it != packs.end(); ++it) {
+                if (*it == DEFAULT_STR) { std::swap(*it, packs.front()); break; }
+            }
+
+            for (const auto& packName : packs) {
+                auto* item = new tsl::elm::ListItem(packName);
+                if (packName == currentSounds) {
+                    item->setValue(CHECKMARK_SYMBOL);
+                    lastSelectedListItem = item;
+                }
+                const std::string packDir = packsRoot + packName + "/";
+                item->setClickListener([item, packName, packDir](uint64_t keys) {
+                    if (runningInterpreter.load(acquire)) return false;
+                    if (!((keys & KEY_A) && !(keys & ~KEY_A & ALL_KEYS_MASK))) return false;
+
+                    // Копируем все *.wav из packs/<name>/ поверх активных.
+                    copyFileOrDirectoryByPattern(packDir + "*.wav", SOUNDS_PATH);
+
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "current_sounds", packName);
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "sound_effects", TRUE_STR);
+                    useSoundEffects = true;
+                    // Audio::initialize() идемпотентен (no-op если уже).
+                    ult::Audio::initialize();
+                    reloadSoundCacheNow.store(true, std::memory_order_release);
+                    triggerEnterFeedback();
+
+                    if (lastSelectedListItem) lastSelectedListItem->setValue("");
+                    item->setValue(CHECKMARK_SYMBOL);
+                    lastSelectedListItem = item;
+                    shiftItemFocus(item);
+                    if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
+                    return true;
+                });
+                list->addItem(item);
+            }
+
+            if (packs.empty()) {
+                // Подсказка юзеру: куда класть паки.
+                auto* hint = new tsl::elm::ListItem("Нет паков");
+                hint->setValue("packs/");
+                list->addItem(hint);
+                auto* hint2 = new tsl::elm::ListItem("Положите *.wav сюда:");
+                hint2->setValue(packsRoot + "<имя>/");
+                list->addItem(hint2);
+            }
+
         } else if (dropdownSelection == "wallpaperMenu") {
 
             addHeader(list, WALLPAPER);
@@ -5203,6 +5315,78 @@ public:
 
             useNotifications = getBoolValue("notifications", true);
             createToggleListItem(list, EXTERNAL_NOTIFICATIONS, useNotifications, "notifications");
+
+            // Per-event toggle для категорий уведомлений.
+            // Гранулярнее чем "notifications" -- можно отключить только
+            // info-сообщения но оставить ошибки, и т.п.
+            {
+                bool notifyInfo = getBoolValue("notify_info", true);
+                createToggleListItem(list, "Информационные", notifyInfo, "notify_info");
+
+                bool notifySuccess = getBoolValue("notify_success", true);
+                createToggleListItem(list, "Успехи", notifySuccess, "notify_success");
+
+                bool notifyWarning = getBoolValue("notify_warning", true);
+                createToggleListItem(list, "Предупреждения", notifyWarning, "notify_warning");
+
+                bool notifyError = getBoolValue("notify_error", true);
+                createToggleListItem(list, "Ошибки", notifyError, "notify_error");
+            }
+
+            // Длительность показа уведомления (1.5с..5с шаг 500мс = 8 шагов).
+            {
+                auto durIt = ryazhahandSection.find("notify_duration_ms");
+                u32 currentDurMs = (durIt != ryazhahandSection.end())
+                    ? static_cast<u32>(std::max(1500, std::min(5000, ult::stoi(durIt->second))))
+                    : 2500u;
+
+                static std::vector<std::string> durLabels;
+                if (durLabels.empty()) {
+                    for (int i = 0; i < 8; i++) {
+                        char buf[16];
+                        // 1.5, 2.0, 2.5, ... 5.0
+                        snprintf(buf, sizeof buf, "%.1fс", 1.5 + i * 0.5);
+                        durLabels.emplace_back(buf);
+                    }
+                }
+                const u8 initialDurStep = std::min<u8>(
+                    static_cast<u8>(((currentDurMs - 1500) / 500)), 7);
+                auto* durBar = new tsl::elm::NamedStepTrackBarV2(
+                    "Длительность",
+                    "",
+                    durLabels,
+                    nullptr, nullptr, {}, "",
+                    false,
+                    false
+                );
+                durBar->setSimpleCallback([](s16 /*value*/, s16 index) {
+                    if (index < 0) return;
+                    const u32 ms = 1500u + static_cast<u32>(index) * 500u;
+                    setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
+                                    "notify_duration_ms", ult::to_string(ms));
+                });
+                durBar->setProgress(initialDurStep);
+                list->addItem(durBar);
+            }
+
+            // Очистить историю уведомлений (стереть все *.notify в NOTIFICATIONS_PATH).
+            {
+                auto* clearItem = new tsl::elm::ListItem("Очистить историю", "");
+                clearItem->setClickListener([clearItem](u64 keys) {
+                    if (runningInterpreter.load(acquire)) return false;
+                    if (!((keys & KEY_A) && !(keys & ~KEY_A & ALL_KEYS_MASK))) return false;
+                    {
+                        std::lock_guard<std::mutex> jsonLock(tsl::notificationJsonMutex);
+                        deleteFileOrDirectoryByPattern(ult::NOTIFICATIONS_PATH + "*.notify");
+                    }
+                    clearItem->setValue(CHECKMARK_SYMBOL);
+                    if (tsl::notification) {
+                        tsl::notification->showNow("История очищена");
+                    }
+                    return true;
+                });
+                list->addItem(clearItem);
+            }
 
 
 
