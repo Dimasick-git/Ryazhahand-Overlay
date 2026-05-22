@@ -10804,8 +10804,27 @@ namespace tsl {
                         currentDescIndex = m_index;
                     }
                 }
-            
+
             virtual ~NamedStepTrackBarV2() {}
+
+            // FIX: NamedStepTrackBarV2 всегда работает в диапазоне [0..N-1] (m_minValue=0,
+            // m_maxValue=N-1). Базовый StepTrackBarV2::setProgress использует
+            // *устаревший* legacy-путь, когда m_simpleCallback ещё не назначен:
+            //   m_value = value * (100 / (numSteps-1))
+            // что для нашего диапазона даёт значения многократно больше maxValue
+            // (например, при 4 шагах step=33, и m_value=33 при index=1 -- хотя
+            // maxValue=3). Из-за этого слайдер визуально "уезжает вправо" после
+            // повторного захода в меню. Решаем -- всегда используем index-based
+            // математику, независимо от того, назначен ли callback.
+            virtual void setProgress(u8 value) override {
+                value = std::min(value, u8(this->m_numSteps - 1));
+                this->m_index = value;
+                this->m_value = value;  // 1:1 с m_minValue..m_maxValue
+                if (!m_stepDescriptions.empty()) {
+                    this->m_selection = m_stepDescriptions[m_index];
+                    this->currentDescIndex = m_index;
+                }
+            }
                         
             virtual void draw(gfx::Renderer *renderer) override {
                 // Cache frequently used values

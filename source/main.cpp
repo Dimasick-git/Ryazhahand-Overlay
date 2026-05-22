@@ -789,207 +789,145 @@ static void setHomeLedPatternForAllControllers(const HidsysNotificationLedPatter
 
 
 
-static void applyHomeLedPatternForKeys(uint64_t /*keysDown*/, uint64_t /*keysHeld*/) {
-    // Полностью отключено: per-button LED-pulse через
-    // hidsysSetNotificationLedPattern давал заметное мерцание на любом
-    // нажатии и конкурировал с фоновым LED-режимом из Ryazha-LED
-    // (Solid/Pulse/Fade). Если когда-нибудь захотим вернуть -- надо
-    // делать через триггер-файл к sys-notif-LED, а не дёргать pattern
-    // на каждый клавиатурный edge.
-    return;
+// Pulse pattern (мягкий on-off) для HOME ring через hidsys.
+// transitionSteps=0xF даёт плавный fade между ledIntensity полями.
+static HidsysNotificationLedPattern makePulseHomeLedPattern(u8 maxIntensity, u8 stepDuration) {
+    HidsysNotificationLedPattern p;
+    std::memset(&p, 0, sizeof(p));
+    p.baseMiniCycleDuration = stepDuration & 0xF;   // 1..F (~12.5ms unit)
+    p.totalMiniCycles = 0x1;    // 2 cycles
+    p.totalFullCycles = 0x0;    // infinite (until timeout)
+    p.startIntensity = 0x0;
+
+    p.miniCycles[0].ledIntensity = maxIntensity & 0xF;
+    p.miniCycles[0].transitionSteps = 0x4;   // быстрый ramp-up
+    p.miniCycles[0].finalStepDuration = 0xF; // держим максимум
+
+    p.miniCycles[1].ledIntensity = 0x0;
+    p.miniCycles[1].transitionSteps = 0x4;   // быстрый ramp-down
+    p.miniCycles[1].finalStepDuration = 0xF;
+    return p;
 }
 
-[[maybe_unused]] static void applyHomeLedPatternForKeysDISABLED(uint64_t keysDown, uint64_t keysHeld) {
-
-    if (!homeLedEnabled) return;
-
-
-
-    static uint64_t s_prevKeysHeld = 0;
-
-    const uint64_t edgeDown = keysHeld & ~s_prevKeysHeld;
-
-    s_prevKeysHeld = keysHeld;
-
-
-
-    uint64_t effectiveDown = keysDown | edgeDown;
-
-
-
-    // Some UI blocks consume KEY_A so keysDown/edgeDown never reaches our handleInput.
-
-    // Fallback: if a relevant key is held, trigger at most every 250ms.
-
-    constexpr uint64_t LED_KEYS_MASK =
-
-        KEY_A | KEY_B | KEY_X | KEY_Y |
-
-        KEY_L | KEY_R | KEY_ZL | KEY_ZR |
-
-        KEY_PLUS | KEY_MINUS |
-
-        KEY_DUP | KEY_DDOWN | KEY_DLEFT | KEY_DRIGHT |
-
-        KEY_LSTICK | KEY_RSTICK;
-
-
-
-    if (effectiveDown == 0) {
-
-        const uint64_t heldRelevant = keysHeld & LED_KEYS_MASK;
-
-        if (heldRelevant != 0) {
-
-            static u64 s_lastHeldTriggerTick = 0;
-
-            const u64 now = armGetSystemTick();
-
-            const u64 elapsedMs = armTicksToNs(now - s_lastHeldTriggerTick) / 1000000ULL;
-
-            if (elapsedMs >= 250) {
-
-                s_lastHeldTriggerTick = now;
-
-                effectiveDown = heldRelevant;
-
-            }
-
-        }
-
-    }
-
-
-
-    if (effectiveDown == 0) return;
-
-
-
-    // Small timeout so the ring doesn't get stuck ON forever.
-
-    constexpr u64 TIMEOUT_NS = 1000ULL * 1000ULL * 1000ULL; // 1s
-
-
-
-    // Priority order: first matching key wins.
-
-    if (effectiveDown & KEY_A) {
-
-        const auto p = makeBlinkHomeLedPattern(0x1, 0xF, 0x1, 0x0, 0x1); // very fast, starts ON
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_B) {
-
-        const auto p = makeBlinkHomeLedPattern(0x4, 0xF, 0x1, 0x0, 0x4); // on then longer off
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_X) {
-
-        const auto p = makeBlinkHomeLedPattern(0x3, 0xF, 0x1, 0x0, 0x2); // blink
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_Y) {
-
-        const auto p = makeBlinkHomeLedPattern(0x2, 0xF, 0x2, 0x0, 0x2); // visible blink, starts ON
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_L) {
-
-        const auto p = makeBlinkHomeLedPattern(0x6, 0x0, 0x2, 0xF, 0x1); // slow blink
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_R) {
-
-        const auto p = makeBlinkHomeLedPattern(0x1, 0xF, 0x1, 0x0, 0x1); // very fast
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_ZL) {
-
-        const auto p = makeSolidHomeLedPattern(0xF);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_ZR) {
-
-        const auto p = makeSolidHomeLedPattern(0xF);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_PLUS) {
-
-        static const HomeLedStep steps[] = {
-
-            {0xF, 0x1}, {0x0, 0x1},
-
-            {0xF, 0x1}, {0x0, 0x1},
-
-            {0xF, 0x1}, {0x0, 0x6},
-
-        };
-
-        const auto p = makeCustomHomeLedPattern(0x1, steps, (u8)(sizeof(steps) / sizeof(steps[0])));
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_MINUS) {
-
-        static const HomeLedStep steps[] = {
-
-            {0xF, 0x4}, {0x0, 0x1},
-
-            {0xF, 0x1}, {0x0, 0x6},
-
-        };
-
-        const auto p = makeCustomHomeLedPattern(0x2, steps, (u8)(sizeof(steps) / sizeof(steps[0])));
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_DUP) {
-
-        const auto p = makeBlinkHomeLedPattern(0x1, 0xF, 0x1, 0x0, 0x1);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_DDOWN) {
-
-        const auto p = makeBlinkHomeLedPattern(0x1, 0xF, 0x2, 0x0, 0x1);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_DLEFT) {
-
-        const auto p = makeBlinkHomeLedPattern(0x6, 0xF, 0x2, 0x0, 0x2); // slow blink
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_DRIGHT) {
-
-        const auto p = makeBlinkHomeLedPattern(0x2, 0xF, 0x2, 0x0, 0x1); // medium blink
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_LSTICK) {
-
-        const auto p = makeSolidHomeLedPattern(0xF);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    } else if (effectiveDown & KEY_RSTICK) {
-
-        const auto p = makeSolidHomeLedPattern(0xF);
-
-        setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-    }
-
+// Fade pattern -- плавнее чем pulse, transitionSteps максимум.
+static HidsysNotificationLedPattern makeFadeHomeLedPattern(u8 maxIntensity, u8 stepDuration) {
+    HidsysNotificationLedPattern p;
+    std::memset(&p, 0, sizeof(p));
+    p.baseMiniCycleDuration = stepDuration & 0xF;
+    p.totalMiniCycles = 0x1;
+    p.totalFullCycles = 0x0;
+    p.startIntensity = 0x0;
+
+    p.miniCycles[0].ledIntensity = maxIntensity & 0xF;
+    p.miniCycles[0].transitionSteps = 0xF;   // максимально плавный fade
+    p.miniCycles[0].finalStepDuration = 0x2;
+
+    p.miniCycles[1].ledIntensity = 0x0;
+    p.miniCycles[1].transitionSteps = 0xF;
+    p.miniCycles[1].finalStepDuration = 0x2;
+    return p;
 }
+
+static HidsysNotificationLedPattern makeOffHomeLedPattern() {
+    // Pattern с нулевой интенсивностью и быстрым step -- гарантированно гасит.
+    HidsysNotificationLedPattern p;
+    std::memset(&p, 0, sizeof(p));
+    p.baseMiniCycleDuration = 0x1;
+    p.totalMiniCycles = 0x0;
+    p.totalFullCycles = 0x0;
+    p.startIntensity = 0x0;
+    p.miniCycles[0].ledIntensity = 0x0;
+    p.miniCycles[0].transitionSteps = 0x0;
+    p.miniCycles[0].finalStepDuration = 0x1;
+    return p;
+}
+
+// Главная точка применения LED-настроек. Вызывается из:
+//   1) UI слайдеров (Режим, Яркость) -- мгновенный отклик.
+//   2) initServices() / firstBoot -- восстановить состояние после рестарта.
+// Применяет паттерн БЕЗ timeout (0), чтобы режим Solid/Pulse/Fade держался
+// постоянно до следующей записи. Off использует короткий timeout-патерн,
+// чтобы ring физически погас.
+//
+// На Switch Lite hidsys ring отсутствует -- ryz::led::save() уже
+// записал config для liteswitch sysmodule, дополнительно ничего не делаем.
+static void applyRyzhaLedFromSettings(const ryz::led::Settings& s) {
+    using ryz::led::Mode;
+
+    // На Lite hidsys ring всё равно нет, поэтому только пишем config.
+    if (ryz::led::isLiteDetected()) {
+        return;
+    }
+
+    if (!ensureHidsysReady()) return;
+
+    // 0..100 % -> 0..15 (hidsys intensity).
+    const u8 intensity = static_cast<u8>(std::min<int>(15, (s.brightness * 15 + 50) / 100));
+
+    HidsysNotificationLedPattern p{};
+    bool persistent = true;
+    switch (s.mode) {
+        case Mode::Off:
+            p = makeOffHomeLedPattern();
+            persistent = false;  // ставим короткий timeout, чтобы гарантированно погасло
+            break;
+        case Mode::Solid:
+            p = makeSolidHomeLedPattern(intensity);
+            break;
+        case Mode::Pulse:
+            p = makePulseHomeLedPattern(intensity, 0x4);
+            break;
+        case Mode::Fade:
+            p = makeFadeHomeLedPattern(intensity, 0x4);
+            break;
+        case Mode::OnPress:
+            // Базовый паттерн -- выключенный; импульс будет приходить
+            // от onButtonPress(). Гасим, чтобы между нажатиями не светило.
+            p = makeOffHomeLedPattern();
+            persistent = false;
+            break;
+    }
+
+    // 0 -> бесконечный паттерн; иначе короткий, чтобы погасло.
+    const u64 timeoutNs = persistent ? 0ULL : (500ULL * 1000ULL * 1000ULL);
+    setHomeLedPatternForAllControllers(p, timeoutNs);
+}
+
+static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/) {
+    // Активна только когда пользователь явно выбрал режим OnPress в LED-меню.
+    // Иначе тихо выходим, чтобы не конкурировать с фоновыми Solid/Pulse/Fade
+    // паттернами и не молотить hidsys на каждый кадр.
+    if (keysDown == 0) return;
+
+    static ryz::led::Mode s_cachedMode = ryz::led::Mode::Off;
+    static uint64_t s_lastModeReadTick = 0;
+    const uint64_t nowTick = armGetSystemTick();
+    // Перечитываем режим из конфига раз в секунду, чтобы UI-изменение
+    // немедленно отражалось, но не дёргать FS на каждый клик.
+    if (nowTick - s_lastModeReadTick > armNsToTicks(1'000'000'000ULL)) {
+        s_cachedMode = ryz::led::load().mode;
+        s_lastModeReadTick = nowTick;
+    }
+    if (s_cachedMode != ryz::led::Mode::OnPress) return;
+
+    // Троттлинг: не чаще 6 раз в секунду, чтобы спам кнопок не перегружал
+    // hidsysSetNotificationLedPattern (он не дешёвый).
+    static uint64_t s_lastPulseTick = 0;
+    if (nowTick - s_lastPulseTick < armNsToTicks(160'000'000ULL)) return;
+    s_lastPulseTick = nowTick;
+
+    if (!ensureHidsysReady()) return;
+
+    // Короткий импульс. Затем pattern сам "уйдёт" к Off через timeout.
+    constexpr u64 PULSE_NS = 180ULL * 1000ULL * 1000ULL; // 180ms
+    const auto p = makeSolidHomeLedPattern(0xF);
+    setHomeLedPatternForAllControllers(p, PULSE_NS);
+}
+
+// applyHomeLedPatternForKeysDISABLED удалён (200 строк мёртвого кода). Был
+// прототипом per-button мерцания; функциональность теперь покрывается
+// режимом OnPress в applyHomeLedPatternForKeys -- более экономным
+// (один паттерн вместо 16) и троттлингованным.
 
 
 
@@ -2262,368 +2200,329 @@ static tsl::Color getCurrentTextColor() {
 
 
 
+// ──────────────────────────────────────────────────────────────────────
+// TXT-читалка (полностью переписана v2.3.x).
+//
+// Что было плохо в старой версии:
+//   - Жёсткий лимит 52 chars/line: для Cyrillic (2 байта на букву в UTF-8)
+//     это резало в середине символа -- получался "мусор" вместо текста.
+//   - Без word-wrap по реальной пиксельной ширине: широкие строки уходили
+//     за правый край и обрезались.
+//   - Размер видимой страницы -- 24 строки -- захардкожен; на разных
+//     темах с разным line-height съезжал и резал низ.
+//   - Был только постраничный/построчный скролл, без индикатора прогресса
+//     справа.
+//
+// Новый дизайн:
+//   - Файл читается один раз в std::string, BOM срезается.
+//   - Логические строки (\n splitting) хранятся отдельно.
+//   - Wrapped layout строится лениво при первом render-pass, когда уже
+//     известна реальная ширина CustomDrawer'а; пересобирается при смене
+//     размера (например при повороте, хоть мы это и не делаем).
+//   - Wrap уважает UTF-8: при поиске break-point двигается назад до
+//     стартового байта (не 10xxxxxx), приоритет на пробел/дефис.
+//   - Видимая страница = floor(h / lineHeight) -- автоматически и точно.
+//   - Скроллбар справа отображает позицию.
+//   - D-Pad: -1 / +1 строка. L/R: -/+ page. ZL/ZR: -/+ половина страницы.
+//   - START: к началу, MINUS: к концу.
+//   - X: меняет размер шрифта 16/18/20/22 (циклически).
+// ──────────────────────────────────────────────────────────────────────
+
 class TxtReaderGui : public tsl::Gui {
-
 private:
-
-    static constexpr size_t MAX_LINES_DISPLAY = 24;
-
     static constexpr s32 TEXT_DRAWER_HEIGHT = 520;
-
-
+    static constexpr s32 TEXT_MARGIN_LEFT   = 18;
+    static constexpr s32 TEXT_MARGIN_RIGHT  = 28;   // место под scrollbar
+    static constexpr s32 TEXT_MARGIN_TOP    = 12;
+    static constexpr s32 TEXT_MARGIN_BOTTOM = 28;   // место под footer
 
     std::string filePath;
-
-    std::vector<std::string> lines;
-
-    std::vector<std::string> displayLines;
-
+    std::string rawContents;                 // весь файл (после BOM-strip)
+    std::vector<std::string_view> logicalLines;
+    // wrappedLines хранит string_view'ы внутрь rawContents. Это даёт zero-copy
+    // wrap -- для файла на 4 МБ это экономит до 4-8 МБ кучи против хранения
+    // std::string копий. ВНИМАНИЕ: при пересборке wrap эти views инвалидируются;
+    // rawContents изменять между rebuildWrap'ами нельзя.
+    std::vector<std::string_view> wrappedLines;
+    // Маленький heap-buffer для null-terminated рендера каждой строки.
+    // drawString требует const char*, а string_view не гарантирует \0.
+    // Чтобы не аллоцировать в render-цикле, переиспользуем один буфер.
+    mutable std::string drawTmp;
     size_t currentLine = 0;
-
+    size_t pageSize = 1;
+    s32 fontSize = 20;
+    s32 lastWrapWidth = -1;
+    s32 lastWrapFontSize = -1;
     tsl::elm::CustomDrawer* textDrawer = nullptr;
+    std::string errorMsg;
 
-
+    static bool isUtf8Continuation(unsigned char c) { return (c & 0xC0) == 0x80; }
 
     void loadFile() {
-
-        FILE* f = fopen(filePath.c_str(), "r");
-
+        FILE* f = std::fopen(filePath.c_str(), "rb");
         if (!f) {
-
-            lines.emplace_back("Не удалось открыть файл");
-
+            errorMsg = "Не удалось открыть файл";
             return;
+        }
+        std::fseek(f, 0, SEEK_END);
+        long sz = std::ftell(f);
+        std::fseek(f, 0, SEEK_SET);
+        if (sz <= 0) {
+            std::fclose(f);
+            errorMsg = "Файл пуст";
+            return;
+        }
+        // Лимит безопасности: 4 MB -- больше не имеет смысла читать в overlay.
+        constexpr long MAX_TXT_BYTES = 4L * 1024 * 1024;
+        const long take = std::min<long>(sz, MAX_TXT_BYTES);
+        rawContents.resize(static_cast<size_t>(take));
+        const size_t got = std::fread(rawContents.data(), 1, static_cast<size_t>(take), f);
+        std::fclose(f);
+        rawContents.resize(got);
 
+        // BOM
+        if (rawContents.size() >= 3 &&
+            (unsigned char)rawContents[0] == 0xEF &&
+            (unsigned char)rawContents[1] == 0xBB &&
+            (unsigned char)rawContents[2] == 0xBF) {
+            rawContents.erase(0, 3);
         }
 
-
-
-        char buffer[512];
-
-        std::string line;
-
-        while (fgets(buffer, sizeof(buffer), f)) {
-
-            line.assign(buffer);
-
-
-
-            while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
-
-                line.pop_back();
-
+        // Нормализуем CR/LF: \r\n -> \n, одиночные \r -> \n.
+        std::string normalized;
+        normalized.reserve(rawContents.size());
+        for (size_t i = 0; i < rawContents.size(); ++i) {
+            const char c = rawContents[i];
+            if (c == '\r') {
+                normalized.push_back('\n');
+                if (i + 1 < rawContents.size() && rawContents[i + 1] == '\n') ++i;
+            } else {
+                normalized.push_back(c);
             }
-
-
-
-            lines.emplace_back(line);
-
         }
+        rawContents = std::move(normalized);
 
-        fclose(f);
-
-
-
-        if (!lines.empty()) {
-
-            auto& first = lines.front();
-
-            if (first.size() >= 3 &&
-
-                static_cast<unsigned char>(first[0]) == 0xEF &&
-
-                static_cast<unsigned char>(first[1]) == 0xBB &&
-
-                static_cast<unsigned char>(first[2]) == 0xBF) {
-
-                first.erase(0, 3);
-
+        // Разбиваем на логические строки (string_view -- без копирования).
+        size_t start = 0;
+        for (size_t i = 0; i <= rawContents.size(); ++i) {
+            if (i == rawContents.size() || rawContents[i] == '\n') {
+                logicalLines.emplace_back(rawContents.data() + start, i - start);
+                start = i + 1;
             }
-
-        } else {
-
-            lines.emplace_back("Файл пуст");
-
         }
-
-
-
-        rebuildDisplayLines();
-
+        if (logicalLines.empty()) {
+            errorMsg = "Файл пуст";
+        }
     }
 
+    // UTF-8-safe word wrap. Использует tsl::gfx::calculateStringWidth для
+    // точного break-point по реальной пиксельной ширине.
+    void rebuildWrap(s32 maxWidth) {
+        wrappedLines.clear();
+        if (maxWidth <= 0) return;
+        const float fs = static_cast<float>(fontSize);
 
+        // Один разделяемый буфер для measurement -- избегаем тысяч аллокаций
+        // при больших файлах. capacity предалоцирована под ~1 wrapped line.
+        static thread_local std::string measureBuf;
+        measureBuf.reserve(256);
 
-    void rebuildDisplayLines() {
-
-        static constexpr size_t MAX_CHARS_PER_LINE = 52;
-
-        displayLines.clear();
-
-        for (const auto& rawLine : lines) {
-
-            if (rawLine.empty()) {
-
-                displayLines.emplace_back("");
-
-                continue;
-
-            }
-
-
+        for (const auto sv : logicalLines) {
+            if (sv.empty()) { wrappedLines.emplace_back(); continue; }
 
             size_t pos = 0;
-
-            const size_t len = rawLine.length();
-
+            const size_t len = sv.size();
             while (pos < len) {
-
-                size_t take = std::min(MAX_CHARS_PER_LINE, len - pos);
-
-
-
-                if (pos + take < len) {
-
-                    const size_t lastSpace = rawLine.find_last_of(' ', pos + take - 1);
-
-                    if (lastSpace != std::string::npos && lastSpace >= pos && (lastSpace - pos) >= 8) {
-
-                        take = lastSpace - pos + 1;
-
+                // бинарным поиском найдём максимальный prefix, который влезает.
+                // НО -- prefix должен оканчиваться на UTF-8 boundary и
+                // желательно на пробеле/дефисе.
+                size_t lo = 1, hi = len - pos;
+                while (lo < hi) {
+                    const size_t mid = (lo + hi + 1) / 2;
+                    if (pos + mid < len && isUtf8Continuation((unsigned char)sv[pos + mid])) {
+                        hi = mid - 1;
+                        continue;
                     }
-
+                    measureBuf.assign(sv.data() + pos, mid);
+                    const float w = tsl::gfx::calculateStringWidth(measureBuf, fs, false);
+                    if (w <= static_cast<float>(maxWidth)) {
+                        lo = mid;
+                    } else {
+                        hi = mid - 1;
+                    }
                 }
-
-
-
-                std::string chunk = rawLine.substr(pos, take);
-
-                while (!chunk.empty() && chunk.back() == ' ') {
-
-                    chunk.pop_back();
-
+                size_t take = lo;
+                if (take == 0) take = 1;
+                if (pos + take < len) {
+                    size_t breakAt = take;
+                    for (size_t j = take; j > 0; --j) {
+                        const char c = sv[pos + j - 1];
+                        if (c == ' ' || c == '\t') { breakAt = j; break; }
+                        if (c == '-' || c == '/' || c == ',' || c == '.') { breakAt = j; break; }
+                        if (j == 1) break;
+                    }
+                    if (breakAt > 1 && breakAt < take) take = breakAt;
                 }
-
-                displayLines.emplace_back(std::move(chunk));
-
-
-
+                while (take > 1 && pos + take < len &&
+                       isUtf8Continuation((unsigned char)sv[pos + take])) {
+                    --take;
+                }
+                // ZERO-COPY: храним view в rawContents, а не копию.
+                wrappedLines.emplace_back(sv.data() + pos, take);
                 pos += take;
-
-                while (pos < len && rawLine[pos] == ' ') {
-
-                    ++pos;
-
-                }
-
+                while (pos < len && sv[pos] == ' ') ++pos;
             }
-
         }
-
-
-
-        if (displayLines.empty()) {
-
-            displayLines.emplace_back(" ");
-
-        }
-
+        if (wrappedLines.empty()) wrappedLines.emplace_back(" ", 1);
+        lastWrapWidth = maxWidth;
+        lastWrapFontSize = fontSize;
     }
 
+    size_t totalLines() const { return wrappedLines.size(); }
 
-
-    size_t totalLines() const {
-
-        return displayLines.size();
-
+    void clampScroll() {
+        if (wrappedLines.empty()) { currentLine = 0; return; }
+        if (currentLine + 1 > wrappedLines.size()) currentLine = wrappedLines.size() - 1;
     }
 
-
-
-    std::string buildDisplayText() const {
-
-        if (displayLines.empty()) {
-
-            return "";
-
-        }
-
-        const size_t endLine = std::min(currentLine + MAX_LINES_DISPLAY, totalLines());
-
-        std::string buffer;
-
-        buffer.reserve((endLine - currentLine) * 48);
-
-        for (size_t i = currentLine; i < endLine; ++i) {
-
-            buffer += displayLines[i];
-
-            buffer += '\n';
-
-        }
-
-        return buffer;
-
-    }
-
-
-
-    void requestRedraw() {
-
-        if (textDrawer) {
-
-            textDrawer->invalidate();
-
-        }
-
-    }
-
-
+    void requestRedraw() { if (textDrawer) textDrawer->invalidate(); }
 
 public:
-
     explicit TxtReaderGui(std::string path) : filePath(std::move(path)) {
-
         loadFile();
-
     }
-
-
 
     tsl::elm::Element* createUI() override {
-
         auto* frame = new tsl::elm::OverlayFrame(getFileNameFromPath(filePath), TXT_READER);
+        auto* list  = new tsl::elm::List();
 
-        auto* list = new tsl::elm::List();
-
-
-
-        if (displayLines.empty()) {
-
-            auto* errorItem = new tsl::elm::ListItem("Файл не содержит строк");
-
+        if (!errorMsg.empty() && logicalLines.empty()) {
+            auto* errorItem = new tsl::elm::ListItem(errorMsg);
             errorItem->setValue(filePath);
-
             list->addItem(errorItem);
-
         } else {
+            textDrawer = new tsl::elm::CustomDrawer(
+                [this](tsl::gfx::Renderer* renderer, s32 x, s32 y, s32 w, s32 h) {
+                    const s32 textX = x + TEXT_MARGIN_LEFT;
+                    const s32 textY = y + TEXT_MARGIN_TOP;
+                    const s32 textW = w - TEXT_MARGIN_LEFT - TEXT_MARGIN_RIGHT;
+                    const s32 textH = h - TEXT_MARGIN_TOP - TEXT_MARGIN_BOTTOM;
 
-            textDrawer = new tsl::elm::CustomDrawer([this](tsl::gfx::Renderer* renderer, s32 x, s32 y, s32 w, s32 h) {
+                    if (textW <= 0 || textH <= 0) return;
 
-                const std::string text = buildDisplayText();
+                    // (Пере)строить wrap при первом проходе или при смене параметров.
+                    if (wrappedLines.empty() || lastWrapWidth != textW || lastWrapFontSize != fontSize) {
+                        rebuildWrap(textW);
+                        clampScroll();
+                    }
 
-                renderer->drawString(text.c_str(), false, x + 18, y + 38, 20, tsl::Color(0xF, 0xF, 0xF, 0xF));
+                    // Высота линии = font size * 1.25 (запас на диакритики).
+                    const s32 lineHeight = static_cast<s32>(fontSize * 1.25f);
+                    if (lineHeight <= 0) return;
+                    pageSize = std::max<size_t>(1, static_cast<size_t>(textH / lineHeight));
 
+                    const size_t total = totalLines();
+                    const size_t endLine = std::min(currentLine + pageSize, total);
 
+                    const tsl::Color textColor(0xF, 0xF, 0xF, 0xF);
+                    s32 curY = textY + fontSize;
+                    for (size_t i = currentLine; i < endLine; ++i) {
+                        const auto& sv = wrappedLines[i];
+                        if (!sv.empty()) {
+                            // string_view не null-terminated -- копируем в
+                            // переиспользуемый buf (drawTmp), без аллокации
+                            // если capacity достаточна.
+                            drawTmp.assign(sv.data(), sv.size());
+                            renderer->drawString(drawTmp.c_str(), false,
+                                                 textX, curY, fontSize, textColor);
+                        }
+                        curY += lineHeight;
+                    }
 
-                char footer[96];
+                    // Скроллбар справа: трек + thumb.
+                    if (total > pageSize) {
+                        const s32 sbX = x + w - 16;
+                        const s32 sbY = textY;
+                        const s32 sbH = textH;
+                        const s32 sbW = 4;
+                        const tsl::Color trackColor(0x3, 0x3, 0x3, 0x8);
+                        renderer->drawRect(sbX, sbY, sbW, sbH, trackColor);
 
-                snprintf(footer, sizeof(footer), "%zu/%zu  L/R: страница  ⬅➡  D-Pad: строки  B: выход",
+                        const float ratioStart = static_cast<float>(currentLine) / static_cast<float>(total);
+                        const float ratioEnd   = static_cast<float>(std::min(currentLine + pageSize, total)) / static_cast<float>(total);
+                        const s32 thumbY = sbY + static_cast<s32>(ratioStart * sbH);
+                        const s32 thumbH = std::max<s32>(8, static_cast<s32>((ratioEnd - ratioStart) * sbH));
+                        const tsl::Color thumbColor(0xC, 0xC, 0xC, 0xF);
+                        renderer->drawRect(sbX, thumbY, sbW, thumbH, thumbColor);
+                    }
 
-                          totalLines() ? currentLine + 1 : 0, totalLines());
-
-                renderer->drawString(footer, false, x + 18, y + h - 24, 16, tsl::Color(0xB, 0xF, 0xF, 0xF));
-
-            });
-
+                    // Footer: текущая позиция + подсказки.
+                    char footer[160];
+                    const size_t curPage = pageSize ? (currentLine / pageSize) + 1 : 1;
+                    const size_t totPages = pageSize ? ((total + pageSize - 1) / pageSize) : 1;
+                    std::snprintf(footer, sizeof(footer),
+                                  "стр %zu/%zu  D-Pad: строка  L/R: страница  ZL/ZR: пол-стр  X: шрифт %dpx  B: выход",
+                                  curPage, totPages, fontSize);
+                    renderer->drawString(footer, false, textX, y + h - 8, 14,
+                                         tsl::Color(0xB, 0xB, 0xB, 0xF));
+                });
             list->addItem(textDrawer, TEXT_DRAWER_HEIGHT);
-
         }
-
-
 
         frame->setContent(list);
-
         return frame;
-
     }
 
-
-
-    bool handleInput(uint64_t keysDown, uint64_t, const HidTouchState&, HidAnalogStickState, HidAnalogStickState) override {
-
+    bool handleInput(uint64_t keysDown, uint64_t, const HidTouchState&,
+                     HidAnalogStickState, HidAnalogStickState) override {
         applyHomeLedPatternForKeys(keysDown, keysDown);
+        if (keysDown & KEY_B) { tsl::goBack(); return true; }
+        if (wrappedLines.empty()) return false;
 
-        if (keysDown & KEY_B) {
+        const size_t total = totalLines();
+        const size_t page  = std::max<size_t>(1, pageSize);
 
-            tsl::goBack();
-
-            return true;
-
-        }
-
-
-
-        if (lines.empty()) {
-
-            return false;
-
-        }
-
-
-
-        if (keysDown & KEY_L) {
-
-            if (currentLine >= MAX_LINES_DISPLAY) currentLine -= MAX_LINES_DISPLAY;
-
-            else currentLine = 0;
-
+        auto scrollDelta = [&](long delta) {
+            if (delta < 0) {
+                const size_t d = static_cast<size_t>(-delta);
+                currentLine = (currentLine > d) ? currentLine - d : 0;
+            } else {
+                const size_t d = static_cast<size_t>(delta);
+                if (currentLine + d + page > total) {
+                    currentLine = (total > page) ? total - page : 0;
+                } else {
+                    currentLine += d;
+                }
+            }
             requestRedraw();
+        };
 
+        if (keysDown & KEY_UP)    { scrollDelta(-1); return true; }
+        if (keysDown & KEY_DOWN)  { scrollDelta(+1); return true; }
+        if (keysDown & KEY_L)     { scrollDelta(-(long)page); return true; }
+        if (keysDown & KEY_R)     { scrollDelta(+(long)page); return true; }
+        if (keysDown & KEY_ZL)    { scrollDelta(-(long)(page / 2 ? page / 2 : 1)); return true; }
+        if (keysDown & KEY_ZR)    { scrollDelta(+(long)(page / 2 ? page / 2 : 1)); return true; }
+        if (keysDown & KEY_PLUS)  { currentLine = 0; requestRedraw(); return true; }
+        if (keysDown & KEY_MINUS) {
+            currentLine = (total > page) ? total - page : 0;
+            requestRedraw(); return true;
+        }
+        if (keysDown & KEY_X) {
+            // цикл размеров шрифта 16 -> 18 -> 20 -> 22 -> 16
+            static constexpr s32 sizes[] = {16, 18, 20, 22};
+            constexpr size_t N = sizeof(sizes) / sizeof(sizes[0]);
+            size_t idx = 0;
+            for (size_t i = 0; i < N; ++i) if (sizes[i] == fontSize) { idx = i; break; }
+            fontSize = sizes[(idx + 1) % N];
+            // принудительно пересобрать wrap при следующем кадре
+            lastWrapFontSize = -1;
+            requestRedraw();
             return true;
-
         }
-
-        if (keysDown & KEY_R) {
-
-            if (currentLine + MAX_LINES_DISPLAY < totalLines()) {
-
-                currentLine = std::min(currentLine + MAX_LINES_DISPLAY, totalLines() - 1);
-
-                requestRedraw();
-
-                return true;
-
-            }
-
-        }
-
-
-
-        if (keysDown & KEY_UP) {
-
-            if (currentLine > 0) {
-
-                --currentLine;
-
-                requestRedraw();
-
-                return true;
-
-            }
-
-        }
-
-        if (keysDown & KEY_DOWN) {
-
-            if (currentLine + 1 < totalLines()) {
-
-                ++currentLine;
-
-                requestRedraw();
-
-                return true;
-
-            }
-
-        }
-
-
 
         return false;
-
     }
-
 };
 
 
@@ -5186,132 +5085,11 @@ public:
 
 
 
-            const std::string ledCfgDir = "sdmc:/config/ryazhahand-led";
-
-            const std::string ledModePath = ledCfgDir + "/mode";
-
-            const std::string ledResetPath = ledCfgDir + "/reset";
-
-            const std::string ledLastModePath = ledCfgDir + "/last_mode";
-
-            const std::string ledBatteryThresholdPath = ledCfgDir + "/battery_threshold";
-
-
-
-            ensureDirExists(ledCfgDir);
-
-
-
-            auto modeToUi = [](const std::string &m) -> std::string {
-
-                if (m == "disabled") return "Выключено";
-
-                if (m == "off") return "Постоянно";
-
-                if (m == "smart") return "Смарт";
-
-                if (m == "battery") return "Батарея";
-
-                return "Батарея";
-
-            };
-
-
-
-            std::string ledMode = readFirstLineFile(ledModePath, "battery");
-
-            if (ledMode != "disabled" && ledMode != "off" && ledMode != "smart" && ledMode != "battery") ledMode = "battery";
-
-
-
-            {
-
-                auto* homeLedModeItem = new tsl::elm::ListItem("Режим HOME LED", "");
-
-                homeLedModeItem->setValue(modeToUi(ledMode));
-
-                homeLedModeItem->setClickListener([this, ledModePath, ledLastModePath, ledResetPath, homeLedModeItem](u64 keys) {
-
-                    if (runningInterpreter.load(acquire)) return false;
-
-                    if (!(keys & KEY_A) || (keys & ~KEY_A & ALL_KEYS_MASK)) return false;
-
-
-
-                    std::string cur = readFirstLineFile(ledModePath, "battery");
-
-                    if (cur != "disabled" && cur != "off" && cur != "smart" && cur != "battery") cur = "battery";
-
-
-
-                    std::string next;
-
-                    if (cur == "disabled") next = "off";
-                    else if (cur == "off") next = "smart";
-                    else if (cur == "smart") next = "battery";
-                    else if (cur == "battery") next = "disabled";
-                    else next = "off";
-
-
-
-                    // Visual feedback - make it very noticeable
-
-                    if (next == "disabled") {
-
-                        homeLedModeItem->setValueColor(tsl::Color{255, 0, 0, 255});
-
-                        homeLedModeItem->setValue("ВЫКЛЮЧЕНО");
-
-                    } else if (next == "off") {
-
-                        homeLedModeItem->setValueColor(tsl::Color{0, 255, 0, 255});  // Bright Green
-
-                        homeLedModeItem->setValue("ПОСТОЯННО");
-
-                    } else if (next == "smart") {
-
-                        homeLedModeItem->setValueColor(tsl::Color{0, 255, 0, 255});
-
-                        homeLedModeItem->setValue("СМАРТ");
-
-                    } else {
-
-                        homeLedModeItem->setValueColor(tsl::Color{100, 255, 100, 255}); // Light Green
-
-                        homeLedModeItem->setValue("БАТАРЕЯ");
-
-                    }
-
-
-
-                    ensureDirExists("sdmc:/config/ryazhahand-led");
-
-                    if (next == "disabled") {
-                        // Preserve previous mode to allow restoring later.
-                        if (cur == "off" || cur == "smart" || cur == "battery") {
-                            writeTextFile(ledLastModePath, cur);
-                        }
-                    }
-
-                    writeTextFile(ledModePath, next);
-
-                    touchFile(ledResetPath);
-
-                    // Reset touch state to fix B button navigation
-                    stillTouching.store(false, std::memory_order_release);
-                    
-                    // Request focus to update UI immediately
-                    tsl::Overlay::get()->getCurrentGui()->requestFocus(homeLedModeItem, tsl::FocusDirection::None);
-                    
-                    return true;
-
-                });
-
-                list->addItem(homeLedModeItem);
-
-            }
-
-
+            // Старый legacy ListItem "Режим HOME LED" удалён -- его полностью
+            // заменяют ползунки "СВЕЧЕНИЕ LED" ниже (Режим + Яркость).
+            // Здесь оставлен только setup путей для back-compat записи
+            // /config/ryazhahand-led/mode из ryz::led::save().
+            ensureDirExists("sdmc:/config/ryazhahand-led");
 
             homeLedEnabled = getBoolValue("home_led", true);
 
@@ -5336,14 +5114,15 @@ public:
                 using ryz::led::Mode;
                 ryz::led::Settings ledS = ryz::led::load();
 
-                // --- Режим (Откл / Постоянно / Пульсация / Плавный) ---
-                // OnPress намеренно не показываем -- это поведение на
-                // нажатие, оно крутится через отдельный триггер из main.
+                // --- Режим (Откл / Постоянно / Пульсация / Плавный / При нажатии) ---
+                // OnPress теперь работает через applyHomeLedPatternForKeys --
+                // короткий импульс на каждый зарегистрированный KEY_*.
                 static std::vector<std::string> ledModeLabels = {
                     std::string(ryz::led::modeName(Mode::Off)),
                     std::string(ryz::led::modeName(Mode::Solid)),
                     std::string(ryz::led::modeName(Mode::Pulse)),
                     std::string(ryz::led::modeName(Mode::Fade)),
+                    std::string(ryz::led::modeName(Mode::OnPress)),
                 };
                 const u8 initialMode = std::min<u8>(static_cast<u8>(ledS.mode),
                                                     static_cast<u8>(ledModeLabels.size() - 1));
@@ -5355,13 +5134,17 @@ public:
                     false,   // unlockedTrackbar
                     false    // executeOnEveryTick -- сохраняем на release
                 );
-                ledModeBar->setProgress(initialMode);
+                // ВАЖНО: setSimpleCallback ДО setProgress. Иначе StepTrackBarV2::setProgress
+                // уходит в legacy 0..100 ветку (m_simpleCallback == nullptr) и зажирает
+                // m_value 33-ками вместо 0..3, из-за чего ползунок визуально съезжает.
                 ledModeBar->setSimpleCallback([](s16 /*value*/, s16 index) {
                     if (index < 0) return;
                     auto cur = ryz::led::load();
                     cur.mode = static_cast<Mode>(index);
                     ryz::led::save(cur);
+                    applyRyzhaLedFromSettings(cur);   // мгновенное применение к Joy-Con HOME ring
                 });
+                ledModeBar->setProgress(initialMode);
                 list->addItem(ledModeBar);
 
                 // --- Яркость 0..100 % шагами по 5 (21 шаг) ---
@@ -5383,13 +5166,15 @@ public:
                     false,
                     false
                 );
-                ledBrightBar->setProgress(initialBright);
+                // Callback ДО setProgress (см. комментарий выше про legacy ветку).
                 ledBrightBar->setSimpleCallback([](s16 /*value*/, s16 index) {
                     if (index < 0) return;
                     auto cur = ryz::led::load();
                     cur.brightness = static_cast<uint8_t>(std::min<int>(index * 5, 100));
                     ryz::led::save(cur);
+                    applyRyzhaLedFromSettings(cur);
                 });
+                ledBrightBar->setProgress(initialBright);
                 list->addItem(ledBrightBar);
 
                 // Совместимость со старой настройкой home_led: boot-логика
@@ -5402,11 +5187,8 @@ public:
 
 
 
-            transitionEffectEnabled = getBoolValue("transition_effect", true);
-
-            createToggleListItem(list, STAIRCASE_EFFECT, transitionEffectEnabled, "transition_effect");
-
-
+            // transition_effect, page_swap, dynamic_logo, selection_bg переехали
+            // в секцию "ИНТЕРФЕЙС" ниже -- они все про внешний вид меню.
 
             // ═══ УВЕДОМЛЕНИЯ ═══
             // Сгруппировали в отдельную подсекцию, чтобы юзер видел что
@@ -5485,7 +5267,7 @@ public:
                     false,
                     false
                 );
-                holdBar->setProgress(initialHoldStep);
+                // Callback до setProgress -- иначе ползунок съезжает после re-entry в меню.
                 holdBar->setSimpleCallback([](s16 /*value*/, s16 index) {
                     if (index < 0) return;
                     const u64 ms = static_cast<u64>((index + 1) * 500);
@@ -5493,12 +5275,35 @@ public:
                     setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
                                     "hold_duration_ms", ult::to_string(ms));
                 });
+                holdBar->setProgress(initialHoldStep);
                 list->addItem(holdBar);
             }
 
             // ═══ ИНТЕРФЕЙС ═══
+            // Все настройки, влияющие на внешний вид и поведение UI,
+            // собраны здесь. Раньше были разбросаны по 3 секциям
+            // (ИНТЕРФЕЙС / MENU_SETTINGS / THEME_SETTINGS) и юзеру
+            // приходилось скроллить весь экран чтобы их найти.
             addHeader(list, "ИНТЕРФЕЙС");
 
+            // -- внешний вид --
+            useDynamicLogo = getBoolValue("dynamic_logo", true); // TRUE_STR default
+            createToggleListItem(list, DYNAMIC_LOGO, useDynamicLogo, "dynamic_logo");
+
+            useSelectionBG = getBoolValue("selection_bg", true);
+            createToggleListItem(list, SELECTION_BACKGROUND, useSelectionBG, "selection_bg", false, true);
+
+            useSelectionText = getBoolValue("selection_text", false);
+            createToggleListItem(list, SELECTION_TEXT, useSelectionText, "selection_text", false, true);
+
+            useSelectionValue = getBoolValue("selection_value", false);
+            createToggleListItem(list, SELECTION_VALUE, useSelectionValue, "selection_value", false, true);
+
+            // -- эффекты переходов --
+            transitionEffectEnabled = getBoolValue("transition_effect", true);
+            createToggleListItem(list, STAIRCASE_EFFECT, transitionEffectEnabled, "transition_effect");
+
+            // -- навигация и взаимодействие --
             useOpaqueScreenshots = getBoolValue("opaque_screenshots", true);
             createToggleListItem(list, OPAQUE_SCREENSHOTS, useOpaqueScreenshots, "opaque_screenshots");
 
@@ -5506,10 +5311,11 @@ public:
             createToggleListItem(list, SWIPE_TO_OPEN, useSwipeToOpen, "swipe_to_open");
 
             rightAlignmentState = useRightAlignment = getBoolValue("right_alignment");
-
             createToggleListItem(list, RIGHT_SIDE_MODE, useRightAlignment, "right_alignment");
 
-
+            // PAGE_SWAP -- swap направления листания страниц.
+            usePageSwap = getBoolValue("page_swap", false);
+            createToggleListItem(list, PAGE_SWAP, usePageSwap, "page_swap", false, true);
 
             addHeader(list, "ОБНОВЛЕНИЯ");
 
@@ -5566,9 +5372,8 @@ public:
 
             }
 
+            // page_swap переехал в "ИНТЕРФЕЙС" -- семантически про навигацию по меню.
             usePageSwap = getBoolValue("page_swap", false); // FALSE_STR default
-
-            createToggleListItem(list, PAGE_SWAP, usePageSwap, "page_swap", false, true);
 
 
 
@@ -5597,21 +5402,13 @@ public:
 
             addHeader(list, THEME_SETTINGS);
 
-            useDynamicLogo = getBoolValue("dynamic_logo", true); // TRUE_STR default
-
-            createToggleListItem(list, DYNAMIC_LOGO, useDynamicLogo, "dynamic_logo");
-
-            useSelectionBG = getBoolValue("selection_bg", true); // TRUE_STR default
-
-            createToggleListItem(list, SELECTION_BACKGROUND, useSelectionBG, "selection_bg", false, true);
-
-            useSelectionText = getBoolValue("selection_text", false); // TRUE_STR default
-
-            createToggleListItem(list, SELECTION_TEXT, useSelectionText, "selection_text", false, true);
-
-            useSelectionValue = getBoolValue("selection_value", false); // FALSE_STR default
-
-            createToggleListItem(list, SELECTION_VALUE, useSelectionValue, "selection_value", false, true);
+            // dynamic_logo / selection_bg / selection_text / selection_value переехали
+            // в "ИНТЕРФЕЙС" -- они всегда касаются того как выглядит интерфейс,
+            // а не темы как таковой. Здесь оставляем только version-toggle'ы.
+            useDynamicLogo = getBoolValue("dynamic_logo", true);
+            useSelectionBG = getBoolValue("selection_bg", true);
+            useSelectionText = getBoolValue("selection_text", false);
+            useSelectionValue = getBoolValue("selection_value", false);
 
             useLibryazhahandTitles = getBoolValue("libryazhahand_titles", false); // FALSE_STR default
 
@@ -19222,6 +19019,14 @@ public:
         deleteFileOrDirectory(RELOADING_FLAG_FILEPATH);
 
         unpackDeviceInfo();
+
+        // Применить LED состояние (Off/Solid/Pulse/Fade) сразу после старта.
+        // Раньше LED работал только когда юзер ткнёт в слайдер, а сразу после
+        // загрузки overlay был "тёмный" даже если в конфиге сохранён Solid.
+        {
+            const auto ledS = ryz::led::load();
+            applyRyzhaLedFromSettings(ledS);
+        }
 
     }
 
