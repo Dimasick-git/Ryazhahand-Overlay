@@ -56,7 +56,8 @@ namespace ult {
     const std::string LANG_PATH                   = BASE_CONFIG_PATH + "lang/";
     const std::string THEMES_PATH                 = BASE_CONFIG_PATH + "themes/";
     const std::string WALLPAPERS_PATH             = BASE_CONFIG_PATH + "wallpapers/";
-    const std::string SOUNDS_PATH                 = BASE_CONFIG_PATH + "sounds/";
+    const std::string SOUNDS_PATH                 = BASE_CONFIG_PATH + "sounds/";          // visible -- ZIP-паки лежат здесь
+    const std::string LOADED_SOUNDS_PATH          = BASE_CONFIG_PATH + ".loaded_sounds/";  // hidden -- активный распакованный пак (Audio читает отсюда)
     const std::string FLAGS_PATH                  = BASE_CONFIG_PATH + "flags/";
     const std::string NOTIFICATIONS_PATH          = BASE_CONFIG_PATH + "notifications/";
     const std::string PAYLOADS_PATH               = BASE_CONFIG_PATH + "payloads/";

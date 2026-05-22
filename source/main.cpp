@@ -556,27 +556,25 @@ public:
 
 
 static HidsysNotificationLedPattern makeSolidHomeLedPattern(u8 intensity) {
-
+    // ВАЖНО: baseMiniCycleDuration = 0 даёт zero-duration cycle ->
+    // ring никогда не достигает целевой intensity (старый баг
+    // "Solid не светит, OnPress не работает").
+    // Правильное solid-значение из libnx example:
+    //   baseMiniCycleDuration = 0x8  (= 8 * 12.5ms = 100ms единица)
+    //   finalStepDuration     = 0xF  (= держать 15 единиц = 1500ms)
+    //   totalMiniCycles       = 0    (encoded "+1" -> 1 цикл)
+    //   totalFullCycles       = 0    (бесконечно)
     HidsysNotificationLedPattern p;
-
     std::memset(&p, 0, sizeof(p));
+    p.baseMiniCycleDuration = 0x8;
+    p.totalMiniCycles       = 0x0;
+    p.totalFullCycles       = 0x0;
+    p.startIntensity        = intensity & 0xF;
 
-    p.baseMiniCycleDuration = 0x0;
-
-    p.totalMiniCycles = 0x0;
-
-    p.totalFullCycles = 0x0;
-
-    p.startIntensity = intensity & 0xF;
-
-    p.miniCycles[0].ledIntensity = intensity & 0xF;
-
-    p.miniCycles[0].transitionSteps = 0x0;
-
-    p.miniCycles[0].finalStepDuration = 0x1;
-
+    p.miniCycles[0].ledIntensity      = intensity & 0xF;
+    p.miniCycles[0].transitionSteps   = 0x0;
+    p.miniCycles[0].finalStepDuration = 0xF;
     return p;
-
 }
 
 
@@ -4850,15 +4848,20 @@ public:
         } else if (dropdownSelection == "soundsMenu") {
 
             // ──────────────────────────────────────────────────────────
-            // Звуковые паки. Структура на диске:
-            //   /config/ryazhahand/sounds/                <-- активные WAV'ы (читает Audio)
-            //   /config/ryazhahand/sounds/packs/<name>/   <-- доступные паки
+            // Звуковые паки. Архитектура -- как у upstream Ultrahand:
             //
-            // При выборе пака копируем все *.wav из packs/<name>/
-            // в /config/ryazhahand/sounds/ и просим Audio
-            // перезагрузить кеш (reloadSoundCacheNow).
+            //   /config/ryazhahand/sounds/<имя>.zip        <-- visible ZIP-паки
+            //   /config/ryazhahand/.loaded_sounds/*.wav    <-- hidden распакованный
+            //                                                    активный пак (Audio
+            //                                                    читает отсюда)
             //
-            // OPTION_SYMBOL = "Выкл" -- выключает sound_effects и сбрасывает кеш.
+            // При выборе пака:
+            //   1. wipe LOADED_SOUNDS_PATH (на случай остатков прошлого).
+            //   2. unzipFile(SOUNDS_PATH + "<имя>.zip", LOADED_SOUNDS_PATH).
+            //   3. set current_sounds = <имя>, sound_effects = true.
+            //   4. reloadSoundCacheNow -- Audio перечитает с диска.
+            //
+            // OPTION_SYMBOL = "Выкл" -- sound_effects=false + unload cache.
             // ──────────────────────────────────────────────────────────
             addHeader(list, "Звуки");
 
@@ -4866,8 +4869,10 @@ public:
                 RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_sounds");
             if (currentSounds.empty()) currentSounds = OPTION_SYMBOL;
 
-            const std::string packsRoot = SOUNDS_PATH + "packs/";
-            createDirectory(packsRoot);  // безопасно, no-op если есть
+            // Создаём обе папки если их нет, иначе getFilesListByWildcards
+            // и unzipFile могут upset'нуть юзера ошибкой на ровном месте.
+            createDirectory(SOUNDS_PATH);
+            createDirectory(LOADED_SOUNDS_PATH);
 
             // "Выкл" -- никакого пака, sound_effects off.
             {
@@ -4886,6 +4891,9 @@ public:
                                     "sound_effects", FALSE_STR);
                     useSoundEffects = false;
                     ult::Audio::unloadAllSounds({});
+                    // Гасим распакованные WAV'ы, чтобы при включении
+                    // пользователь явно выбирал пак, а не получал старый.
+                    deleteFileOrDirectoryByPattern(LOADED_SOUNDS_PATH + "*.wav");
 
                     if (lastSelectedListItem) lastSelectedListItem->setValue("");
                     noneItem->setValue(CHECKMARK_SYMBOL);
@@ -4897,33 +4905,43 @@ public:
                 list->addItem(noneItem);
             }
 
-            // Список подкаталогов в packs/.
-            auto packs = getSubdirectories(packsRoot);
-            // default должен быть сверху, остальные алфавитно.
-            std::sort(packs.begin(), packs.end());
-            for (auto it = packs.begin(); it != packs.end(); ++it) {
-                if (*it == DEFAULT_STR) { std::swap(*it, packs.front()); break; }
+            // Список ZIP-паков в SOUNDS_PATH.
+            auto zipFiles = getFilesListByWildcards(SOUNDS_PATH + "*.zip");
+            std::sort(zipFiles.begin(), zipFiles.end());
+            // default.zip -- сверху как и у upstream.
+            for (auto it = zipFiles.begin(); it != zipFiles.end(); ++it) {
+                if (getNameFromPath(*it) == "default.zip") {
+                    std::swap(*it, zipFiles.front());
+                    break;
+                }
             }
 
-            for (const auto& packName : packs) {
-                auto* item = new tsl::elm::ListItem(packName);
-                if (packName == currentSounds) {
+            for (const auto& zipFile : zipFiles) {
+                std::string soundsName = getNameFromPath(zipFile);
+                dropExtension(soundsName);
+
+                auto* item = new tsl::elm::ListItem(soundsName);
+                if (soundsName == currentSounds) {
                     item->setValue(CHECKMARK_SYMBOL);
                     lastSelectedListItem = item;
                 }
-                const std::string packDir = packsRoot + packName + "/";
-                item->setClickListener([item, packName, packDir](uint64_t keys) {
+                item->setClickListener([item, soundsName, zipFile](uint64_t keys) {
                     if (runningInterpreter.load(acquire)) return false;
                     if (!((keys & KEY_A) && !(keys & ~KEY_A & ALL_KEYS_MASK))) return false;
 
-                    // Копируем все *.wav из packs/<name>/ поверх активных.
-                    copyFileOrDirectoryByPattern(packDir + "*.wav", SOUNDS_PATH);
+                    // Полностью обновляем .loaded_sounds/ -- чтобы не было
+                    // mix'а старых и новых WAV'ов если у нового пака нет
+                    // какого-то sound type.
+                    deleteFileOrDirectoryByPattern(LOADED_SOUNDS_PATH + "*.wav");
+                    createDirectory(LOADED_SOUNDS_PATH);
+                    unzipFile(zipFile, LOADED_SOUNDS_PATH);
 
                     setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
-                                    "current_sounds", packName);
+                                    "current_sounds", soundsName);
                     setIniFileValue(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME,
                                     "sound_effects", TRUE_STR);
                     useSoundEffects = true;
+
                     // Audio::initialize() идемпотентен (no-op если уже).
                     ult::Audio::initialize();
                     reloadSoundCacheNow.store(true, std::memory_order_release);
@@ -4939,13 +4957,13 @@ public:
                 list->addItem(item);
             }
 
-            if (packs.empty()) {
-                // Подсказка юзеру: куда класть паки.
-                auto* hint = new tsl::elm::ListItem("Нет паков");
-                hint->setValue("packs/");
+            if (zipFiles.empty()) {
+                auto* hint = new tsl::elm::ListItem("Нет ZIP-паков");
+                hint->setValue(SOUNDS_PATH);
                 list->addItem(hint);
-                auto* hint2 = new tsl::elm::ListItem("Положите *.wav сюда:");
-                hint2->setValue(packsRoot + "<имя>/");
+
+                auto* hint2 = new tsl::elm::ListItem("Положите *.zip сюда");
+                hint2->setValue("default.zip");
                 list->addItem(hint2);
             }
 

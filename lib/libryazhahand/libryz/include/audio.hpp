@@ -79,15 +79,19 @@ namespace ult {
         
         static bool m_lastDockedState;
         
+        // Audio читает WAV'ы из ".loaded_sounds/" (hidden), куда оверлей
+        // распаковывает выбранный ZIP-пак из видимой /config/ryazhahand/sounds/.
+        // Если папка пуста (пак ещё не выбран) -- playSound() будет no-op,
+        // sound_effects можно держать включёнными без падений.
         inline static constexpr const char* m_soundPaths[static_cast<size_t>(SoundType::Count)] = {
-            "sdmc:/config/ryazhahand/sounds/tick.wav",
-            "sdmc:/config/ryazhahand/sounds/enter.wav",
-            "sdmc:/config/ryazhahand/sounds/exit.wav",
-            "sdmc:/config/ryazhahand/sounds/wall.wav",
-            "sdmc:/config/ryazhahand/sounds/on.wav",
-            "sdmc:/config/ryazhahand/sounds/off.wav",
-            "sdmc:/config/ryazhahand/sounds/settings.wav",
-            "sdmc:/config/ryazhahand/sounds/move.wav"
+            "sdmc:/config/ryazhahand/.loaded_sounds/tick.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/enter.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/exit.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/wall.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/on.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/off.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/settings.wav",
+            "sdmc:/config/ryazhahand/.loaded_sounds/move.wav"
         };
         
         //static void playAudioBuffer(void* buffer, uint32_t bufferSize);

@@ -49,7 +49,8 @@ namespace ult {
     extern const std::string LANG_PATH;
     extern const std::string THEMES_PATH;
     extern const std::string WALLPAPERS_PATH;
-    extern const std::string SOUNDS_PATH;
+    extern const std::string SOUNDS_PATH;          // visible: содержит *.zip паки
+    extern const std::string LOADED_SOUNDS_PATH;   // hidden: .loaded_sounds/ -- сюда extract'им активный пак (Audio читает отсюда)
     extern const std::string FLAGS_PATH;
     extern const std::string NOTIFICATIONS_PATH;
     extern const std::string PAYLOADS_PATH;
