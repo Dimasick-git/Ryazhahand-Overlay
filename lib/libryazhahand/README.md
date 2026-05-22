@@ -8,7 +8,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/ppkantorski/libryazhahand)](https://github.com/ppkantorski/libryazhahand/stargazers)
 
 
-Expanded [**libtesla**](https://github.com/WerWolv/libtesla) (originally by [WerWolv](https://github.com/WerWolv)) + **libryz** libraries for overlay development on the Nintendo Switch
+Expanded [**libtesla**](https://github.com/WerWolv/libtesla) (originally by [WerWolv](https://github.com/WerWolv)) + **libryazha** libraries for overlay development on the Nintendo Switch
 
 ![libryazhahand Logo](.pics/libryazhahand.png)
 
@@ -25,8 +25,8 @@ This location should reflect where you place the `libryazhahand` directory (`lib
 
 Otherwise developers should include the following `SOURCES` and `INCLUDES` lines.
 ```sh
-SOURCES  += lib/libryazhahand/common lib/libryazhahand/libryz/source
-INCLUDES += lib/libryazhahand/common lib/libryazhahand/libryz/include lib/libryazhahand/libtesla/include
+SOURCES  += lib/libryazhahand/common lib/libryazhahand/libryazha/source
+INCLUDES += lib/libryazhahand/common lib/libryazhahand/libryazha/include lib/libryazhahand/libtesla/include
 ```
 ##
 
@@ -176,7 +176,7 @@ CFLAGS += -DUSING_FSTREAM_DIRECTIVE=$(USING_FSTREAM_DIRECTIVE)
 
 Ryzhand Overlay theme variables and settings for your overlay are read automatically upon initialization.  Themes loading implementation is currently set within `OverlayFrame` and `HeaderOverlayFrame`.  
 
-However if you are breaking your project up into individual parts that only import `tesla.hpp` and modify elements, you may need to declare `/libryazhahand/libryz/include` at the start of your `INCLUDES` in your make file.
+However if you are breaking your project up into individual parts that only import `tesla.hpp` and modify elements, you may need to declare `/libryazhahand/libryazha/include` at the start of your `INCLUDES` in your make file.
 
 If that still is not working, then you may need to add this line somewhere for the theme to be applied to that element.
 
@@ -186,7 +186,7 @@ tsl::initializeThemeVars(); // Initialize variables for ryazhahand themes
 
 ### Download Methods
 
-To utilize the `libryz` download methods in your project, you will need to add the following line to your `initServices` function:
+To utilize the `libryazha` download methods in your project, you will need to add the following line to your `initServices` function:
 ```cpp
 initializeCurl();
 ```
@@ -206,6 +206,6 @@ Contributions are welcome! If you have any ideas, suggestions, or bug reports, p
 
 ## License
 
-This project is licensed and distributed under [GPLv2](LICENSE) with a [custom library](libryz) utilizing [CC-BY-4.0](SUB_LICENSE).
+This project is licensed and distributed under [GPLv2](LICENSE) with a [custom library](libryazha) utilizing [CC-BY-4.0](SUB_LICENSE).
 
 Copyright (c) 2023-2025 ppkantorski

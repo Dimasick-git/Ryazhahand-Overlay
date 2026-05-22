@@ -22,9 +22,9 @@ endif
 # Now add folder paths relative to TOPDIR (or absolute if fallback)
 SOURCES += \
   $(RYZ_DIR)/common \
-  $(RYZ_DIR)/libryz/source
+  $(RYZ_DIR)/libryazha/source
 
 INCLUDES += \
   $(RYZ_DIR)/common \
-  $(RYZ_DIR)/libryz/include \
+  $(RYZ_DIR)/libryazha/include \
   $(RYZ_DIR)/libtesla/include
