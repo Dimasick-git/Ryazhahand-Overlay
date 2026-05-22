@@ -895,32 +895,38 @@ static void applyRyzhaLedFromSettings(const ryz::led::Settings& s) {
 
 static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/) {
     // Активна только когда пользователь явно выбрал режим OnPress в LED-меню.
-    // Иначе тихо выходим, чтобы не конкурировать с фоновыми Solid/Pulse/Fade
-    // паттернами и не молотить hidsys на каждый кадр.
     if (keysDown == 0) return;
 
     static ryz::led::Mode s_cachedMode = ryz::led::Mode::Off;
-    static uint64_t s_lastModeReadTick = 0;
+    static uint8_t       s_cachedBright = 80;
+    static uint64_t      s_lastModeReadTick = 0;
     const uint64_t nowTick = armGetSystemTick();
-    // Перечитываем режим из конфига раз в секунду, чтобы UI-изменение
-    // немедленно отражалось, но не дёргать FS на каждый клик.
-    if (nowTick - s_lastModeReadTick > armNsToTicks(1'000'000'000ULL)) {
-        s_cachedMode = ryz::led::load().mode;
+
+    // Перечитываем режим из конфига раз в 500ms (раньше было 1с -- юзер
+    // тыкал toggle в UI и LED не реагировал до целой секунды).
+    if (nowTick - s_lastModeReadTick > armNsToTicks(500'000'000ULL)) {
+        const auto s = ryz::led::load();
+        s_cachedMode   = s.mode;
+        s_cachedBright = s.brightness;
         s_lastModeReadTick = nowTick;
     }
     if (s_cachedMode != ryz::led::Mode::OnPress) return;
 
-    // Троттлинг: не чаще 6 раз в секунду, чтобы спам кнопок не перегружал
-    // hidsysSetNotificationLedPattern (он не дешёвый).
+    // Троттлинг: не чаще ~12 раз в секунду (раньше было 6 -- пользователь
+    // мог быстро тыкать кнопки и половина нажатий "терялась" визуально).
     static uint64_t s_lastPulseTick = 0;
-    if (nowTick - s_lastPulseTick < armNsToTicks(160'000'000ULL)) return;
+    if (nowTick - s_lastPulseTick < armNsToTicks(80'000'000ULL)) return;
     s_lastPulseTick = nowTick;
 
     if (!ensureHidsysReady()) return;
 
-    // Короткий импульс. Затем pattern сам "уйдёт" к Off через timeout.
-    constexpr u64 PULSE_NS = 180ULL * 1000ULL * 1000ULL; // 180ms
-    const auto p = makeSolidHomeLedPattern(0xF);
+    // Импульс 400ms -- достаточно чтобы глаз успел зафиксировать "моргание".
+    // Раньше было 180ms, что глаз воспринимал как очень тусклое мерцание.
+    // intensity берём из настройки яркости пользователя (0..100% -> 0..15)
+    // вместо фиксированного 0xF, чтобы тёмные комнаты не слепило.
+    const u8 intensity = static_cast<u8>(std::min<int>(15, (s_cachedBright * 15 + 50) / 100));
+    constexpr u64 PULSE_NS = 400ULL * 1000ULL * 1000ULL; // 400ms
+    const auto p = makeSolidHomeLedPattern(intensity);
     setHomeLedPatternForAllControllers(p, PULSE_NS);
 }
 
