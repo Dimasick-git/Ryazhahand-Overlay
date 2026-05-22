@@ -5317,19 +5317,25 @@ public:
             createToggleListItem(list, EXTERNAL_NOTIFICATIONS, useNotifications, "notifications");
 
             // Per-event toggle для категорий уведомлений.
+            // ВАЖНО: createToggleListItem захватывает state по ссылке, поэтому
+            // переменные обязаны жить дольше функции -- static-local.
             // Гранулярнее чем "notifications" -- можно отключить только
             // info-сообщения но оставить ошибки, и т.п.
             {
-                bool notifyInfo = getBoolValue("notify_info", true);
+                static bool notifyInfo = false;
+                notifyInfo = getBoolValue("notify_info", true);
                 createToggleListItem(list, "Информационные", notifyInfo, "notify_info");
 
-                bool notifySuccess = getBoolValue("notify_success", true);
+                static bool notifySuccess = false;
+                notifySuccess = getBoolValue("notify_success", true);
                 createToggleListItem(list, "Успехи", notifySuccess, "notify_success");
 
-                bool notifyWarning = getBoolValue("notify_warning", true);
+                static bool notifyWarning = false;
+                notifyWarning = getBoolValue("notify_warning", true);
                 createToggleListItem(list, "Предупреждения", notifyWarning, "notify_warning");
 
-                bool notifyError = getBoolValue("notify_error", true);
+                static bool notifyError = false;
+                notifyError = getBoolValue("notify_error", true);
                 createToggleListItem(list, "Ошибки", notifyError, "notify_error");
             }
 
