@@ -35,12 +35,16 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-// 0x40000 = 256 KB heap. Раньше брали 0x80000 (512 KB) -- осталось от
-// исходного liteswitch шаблона, реально sysmodule только читает INI и
-// дёргает hidsys / GPIO, никакого heavy-allocation тут нет. Экономим
-// 256 KB на каждой включённой консоли. Если когда-то заведётся OOM --
-// поднимем обратно, но при таких объёмах работы это маловероятно.
-#define INNER_HEAP_SIZE 0x40000
+// Sysmodule живёт постоянно в фоне -- каждый KB heap'а отжимает память
+// у игр. Что реально аллоцируется:
+//   - libnx stdio: ~16 KB на fopen handle
+//   - hidsys session: ~8 KB
+//   - fsdev: ~16 KB
+//   - наш struct Settings + char[256] line buffer + g_pads[8]: <2 KB
+// 0x20000 = 128 KB с запасом x2. Раньше было 256 KB (0x40000), до того
+// 512 KB (0x80000). При OOM поднимаем обратно, но смысла держать
+// больше не вижу -- мы только читаем INI и шлём hidsys patterns.
+#define INNER_HEAP_SIZE 0x20000
 #define MAX_PADS 8
 
 extern "C" {

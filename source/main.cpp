@@ -1693,28 +1693,40 @@ static void startOverlayUpdateScan() {
 
     g_updateScanState = UpdateScanState::Done;
 
+    // Освобождаем heap, занятый сканом -- targets и found могут быть
+    // приличного размера (десятки overlay'ев * std::string'и). Текст уже
+    // в g_updateSectionLines/g_updateInfoLines, эти буферы не нужны.
+    g_updateTargets.clear();
+    g_updateTargets.shrink_to_fit();
+    g_updatesFound.clear();
+    g_updatesFound.shrink_to_fit();
+
 }
 
 
 
 static std::string buildUpdatesResultText() {
-
     if (g_updatesFound.empty()) return "Все обновлено";
 
-    std::string out = "Нужно обновить:\n";
+    static constexpr char kHeader[] = "Нужно обновить:\n";
+    static constexpr size_t kHeaderLen = sizeof(kHeader) - 1;
 
-    for (size_t i = 0; i < g_updatesFound.size() && i < 6; ++i) {
+    // Резервируем место под весь текст одним allocation'ом -- избегаем
+    // 6 потенциальных realloc'ов внутри std::string::operator+=.
+    size_t cap = kHeaderLen;
+    const size_t n = std::min<size_t>(g_updatesFound.size(), 6);
+    for (size_t i = 0; i < n; ++i) cap += g_updatesFound[i].size() + 1;
+    if (g_updatesFound.size() > 6) cap += 4;  // "\n..."
 
-        out += g_updatesFound[i];
-
-        if (i + 1 < g_updatesFound.size() && i < 5) out += "\n";
-
+    std::string out;
+    out.reserve(cap);
+    out.append(kHeader, kHeaderLen);
+    for (size_t i = 0; i < n; ++i) {
+        out.append(g_updatesFound[i]);
+        if (i + 1 < n) out.push_back('\n');
     }
-
-    if (g_updatesFound.size() > 6) out += "\n...";
-
+    if (g_updatesFound.size() > 6) out.append("\n...", 4);
     return out;
-
 }
 
 
@@ -1748,13 +1760,15 @@ std::string getValueOrDefault(const Map& data, const std::string& key, const std
 
 
 inline void clearMemory() {
-
     selectedFooterDict = {};
-
+    // shrink_to_fit на промежуточных scan-буферах. clear() сам по себе
+    // не отдаёт capacity обратно malloc'у -- shrink_to_fit отдаёт.
+    // g_updateSectionLines/g_updateInfoLines НЕ трогаем: это persistent
+    // UI-state с текстом, который сейчас показывается в "Обновлениях".
+    g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
+    g_updatesFound.clear();    g_updatesFound.shrink_to_fit();
     clearIniMutexCache();
-
     clearHexSumCache();
-
 }
 
 
