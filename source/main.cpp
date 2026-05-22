@@ -78,6 +78,8 @@
 
 #include <filesystem>
 
+#include <string_view>
+
 #include <switch/services/hid.h>
 
 #include <switch/services/hidsys.h>
