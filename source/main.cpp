@@ -19324,17 +19324,30 @@ public:
         // Pre-warm Audio engine, чтобы первый звук не тормозил на 200-400ms
         // из-за lazy audoutInitialize + WAV-load в момент первого playSound.
         //
-        // Audio::initialize() уже синхронно вызывает audoutStartAudioOut +
-        // reloadAllSounds() (загрузка всех 9 WAV в кеш) -- этого достаточно.
+        // КРИТИЧНО: useSoundEffects здесь ВСЕГДА false. Эта переменная
+        // загружается из INI только в initializeSettingsAndDirectories(),
+        // которая вызывается из loadInitialGui() -- ПОЗЖЕ чем initServices().
+        // Так что прошлая проверка `if (useSoundEffects)` молча пропускала
+        // Audio::initialize, и pre-warm не делался ВООБЩЕ -> первое
+        // воспроизведение шло через ленивый init с DMA-handshake'ом
+        // (~200-400ms). Юзер слышал звук "на одно нажатие позже".
         //
-        // НЕ ставим reloadSoundCacheNow=true: это вызывало второй (избыточный)
-        // reloadAllSounds внутри backgroundSoundPoller'а на ПЕРВОМ wake-up'е,
-        // блокируя первый playSound на ~50-100ms. Из-за этого юзер слышал
-        // звук с задержкой "на одно нажатие": первая нажатая кнопка
-        // блокировала проигрывание, а DMA submission уходил в audout только
-        // когда следующее нажатие будило тот же поток.
-        if (useSoundEffects) {
-            ult::Audio::initialize();
+        // Читаем sound_effects напрямую из конфига. По умолчанию TRUE
+        // (как setDefaultValue делает позже). Если пользователь явно
+        // выключил sound_effects=false -- пропускаем init и audout
+        // не стартует (никаких накладных).
+        //
+        // Audio::initialize() уже синхронно вызывает audoutStartAudioOut +
+        // reloadAllSounds() (загрузка всех 9 WAV в кеш). После него
+        // первый playSound = чистый DMA submit без I/O.
+        {
+            const std::string soundFx = parseValueFromIniSection(
+                RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "sound_effects");
+            const bool soundsEnabled = soundFx.empty() ? true : (soundFx == TRUE_STR);
+            if (soundsEnabled) {
+                ult::Audio::initialize();
+                useSoundEffects = true;  // синхронизируем переменную для остальной логики
+            }
         }
 
     }
