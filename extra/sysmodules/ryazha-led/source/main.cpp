@@ -357,17 +357,20 @@ static void applyConfig() {
 
 // Принудительно гасим LED -- best-effort. Используется в __appExit
 // (HOS вызывает при graceful shutdown nx-ovlloader / выгрузке нашей
-// title-id), а также как helper при ручном reload.
-// Не блокируется и не вызывает scanForControllers (тот может зависнуть
-// если hidsys уже выгружается).
+// title-id).
+// На Lite -- GPIO low. На обычной Switch -- Off pattern в hidsys.
+// Если g_pads пустой (мы выходим до того как main loop сделал первый
+// scan) -- сканируем перед отправкой. Иначе LED останется гореть
+// после power-off, потому что pattern не уйдёт ни на один контроллер.
 extern "C" void forceLedOff_safe() {
     if (g_isLite) {
         if (g_gpioInit) gpioLedOff();
         return;
     }
+    if (g_numPads == 0) {
+        scanForControllers();
+    }
     buildOffPattern();
-    // Используем уже найденные g_pads без нового сканирования --
-    // безопаснее во время shutdown.
     applyHidsysPattern();
 }
 
@@ -398,6 +401,26 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     loadConfig();
+
+    // На обычной Switch: ждём пока Joy-Con/Pro Controller'ы успеют
+    // зарегистрироваться у HID-сервиса. После cold boot контроллеры
+    // подключаются через Bluetooth с задержкой ~1-3 секунды; если
+    // запустить applyConfig сразу -- scanForControllers вернёт пустой
+    // список, pattern не отправится никому, LED останется в state,
+    // которое Joy-Con держал из NVRAM (часто = ничего/off).
+    //
+    // Поллим scanForControllers до тех пор, пока не найдём хотя бы
+    // один контроллер, либо пока не пройдёт ~5 секунд (fallback на
+    // случай отсоединённых Joy-Con в портативке: там HOME ring всё
+    // равно недоступен).
+    if (!g_isLite) {
+        for (int i = 0; i < 50; i++) {
+            scanForControllers();
+            if (g_numPads > 0) break;
+            svcSleepThread(100'000'000ULL);  // 100ms
+        }
+    }
+
     applyConfig();
 
     while (true) {

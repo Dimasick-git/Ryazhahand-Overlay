@@ -828,6 +828,40 @@ static HidsysNotificationLedPattern makeFadeHomeLedPattern(u8 maxIntensity, u8 s
     return p;
 }
 
+// Одиночный flash на ~150мс, затем LED ГАРАНТИРОВАННО гаснет.
+//
+// Раньше OnPress использовал makeSolidHomeLedPattern + WithTimeout(200ms),
+// но это даёт баг: после timeout hidsys прерывает loop, Joy-Con держит
+// последний frame (bright) до следующей команды -> LED горит постоянно.
+//
+// Правильное "flash and off" поведение: pattern с totalFullCycles=1
+// (играется один раз), miniCycles 0 -> bright hold, 1 -> off. После
+// завершения cycle Joy-Con стоит на последнем mini-cycle = 0 intensity.
+// Pattern шлём БЕЗ timeout -- hidsys сам остановит после full cycle.
+static HidsysNotificationLedPattern makeFlashOffHomeLedPattern(u8 intensity) {
+    HidsysNotificationLedPattern p;
+    std::memset(&p, 0, sizeof(p));
+    p.baseMiniCycleDuration = 0x4;   // 4 * 12.5 = 50ms единица
+    p.totalMiniCycles       = 0x1;   // 2 mini cycles
+    p.totalFullCycles       = 0x1;   // PLAY ONCE -- не лупится
+    p.startIntensity        = 0x0;   // старт с темноты
+
+    // Mini cycle 0: вспышка до full intensity.
+    // transitionSteps=0x0 = мгновенный rise.
+    // finalStepDuration=0x6 = держим bright 6*50=300ms.
+    p.miniCycles[0].ledIntensity      = intensity & 0xF;
+    p.miniCycles[0].transitionSteps   = 0x0;
+    p.miniCycles[0].finalStepDuration = 0x6;
+
+    // Mini cycle 1: возврат в 0.
+    // transitionSteps=0x4 = плавный fade ~200ms.
+    // finalStepDuration=0x1 = мгновенно "схлопывается".
+    p.miniCycles[1].ledIntensity      = 0x0;
+    p.miniCycles[1].transitionSteps   = 0x4;
+    p.miniCycles[1].finalStepDuration = 0x1;
+    return p;
+}
+
 static HidsysNotificationLedPattern makeOffHomeLedPattern() {
     // Pattern с нулевой интенсивностью и быстрым step -- гарантированно гасит.
     HidsysNotificationLedPattern p;
@@ -945,9 +979,18 @@ static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/)
     if (!ensureHidsysReady()) return;
 
     const u8 intensity = static_cast<u8>(std::min<int>(15, (s_cachedBright * 15 + 50) / 100));
-    constexpr u64 PULSE_NS = 200ULL * 1000ULL * 1000ULL; // 200ms
-    const auto p = makeSolidHomeLedPattern(intensity);
-    setHomeLedPatternForAllControllers(p, PULSE_NS);
+
+    // ВАЖНО: используем flash-off pattern БЕЗ timeout. Это pattern с
+    // totalFullCycles=1, ring проходит "вспышка -> темнота" один раз и
+    // hidsys корректно останавливает на mini cycle с intensity=0 = LED off.
+    //
+    // Раньше использовали makeSolidHomeLedPattern + timeout. Это давало
+    // баг "LED горит постоянно после нажатия": hidsys прерывал loop по
+    // таймауту, но Joy-Con держал последний frame (bright) до следующего
+    // pattern command. Особенно заметно при быстрых нажатиях -- impulse'ы
+    // накладывались и ring не успевал погаснуть между ними.
+    const auto p = makeFlashOffHomeLedPattern(intensity);
+    setHomeLedPatternForAllControllers(p, 0);  // без timeout
 }
 
 // applyHomeLedPatternForKeysDISABLED удалён (200 строк мёртвого кода). Был
