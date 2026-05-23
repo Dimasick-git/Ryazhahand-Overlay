@@ -19280,16 +19280,18 @@ public:
 
         // Pre-warm Audio engine, чтобы первый звук не тормозил на 200-400ms
         // из-за lazy audoutInitialize + WAV-load в момент первого playSound.
-        // Если sound_effects = false в конфиге -- не дёргаем, Audio::initialize
-        // не запустит audout если не нужен.
+        //
+        // Audio::initialize() уже синхронно вызывает audoutStartAudioOut +
+        // reloadAllSounds() (загрузка всех 9 WAV в кеш) -- этого достаточно.
+        //
+        // НЕ ставим reloadSoundCacheNow=true: это вызывало второй (избыточный)
+        // reloadAllSounds внутри backgroundSoundPoller'а на ПЕРВОМ wake-up'е,
+        // блокируя первый playSound на ~50-100ms. Из-за этого юзер слышал
+        // звук с задержкой "на одно нажатие": первая нажатая кнопка
+        // блокировала проигрывание, а DMA submission уходил в audout только
+        // когда следующее нажатие будило тот же поток.
         if (useSoundEffects) {
-            // Audio::initialize() идемпотентен. Запускает audoutStartAudioOut
-            // и загружает все 9 WAV в кеш. После этого playSound() = pure
-            // memcpy в DMA buffer, никакого I/O.
             ult::Audio::initialize();
-            // Запросить reload кеша из текущего .loaded_sounds/ -- если
-            // пользователь поменял sound pack между сессиями.
-            reloadSoundCacheNow.store(true, std::memory_order_release);
         }
 
     }
