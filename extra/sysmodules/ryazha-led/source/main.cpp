@@ -95,15 +95,24 @@ extern "C" {
         // в loop'е (без активной psc:m подписки -- никто на нас не ждёт).
     }
 
-    // Forward declaration: forceLedOff_safe определён ниже, после GPIO/hidsys
-    // helpers. extern "C" соответствует определению.
-    extern void forceLedOff_safe();
-
     void __appExit(void) {
-        // Best-effort гашение LED перед выгрузкой -- последний шанс пока
-        // hidsys / GPIO сервисы ещё активны. Если что-то падает -- internal
-        // ignore, не блокируем shutdown консоли.
-        forceLedOff_safe();
+        // ВНИМАНИЕ: НЕ гасим LED здесь.
+        //
+        // Раньше тут был forceLedOff_safe() -- отправляли Off pattern в
+        // Joy-Con NVRAM перед выгрузкой. Идея была "LED гаснет при
+        // shutdown консоли". Но это давало баг: после power-on Joy-Cons
+        // помнили саветский Off из NVRAM, и наш next-boot applyConfig
+        // не успевал отослать Solid до того как юзер открывал глаза
+        // ("LED выключился и не врубается" из юзер-репорта). Плюс по
+        // hard power-off __appExit может не вызываться вовсе -- HOS
+        // прерывает сысмодуль абруптно. То есть "гашение при shutdown"
+        // работало эпизодически, а downside (failed boot-restore)
+        // случался стабильно.
+        //
+        // Лучшая стратегия: оставлять Joy-Con LED в последнем настроенном
+        // состоянии (Solid/Pulse/Fade) через NVRAM. При power-on Joy-Cons
+        // подтягивают сохранённый pattern мгновенно, ещё до старта
+        // нашего сысмодуля -- юзер видит LED включённым сразу.
 
         hidsysExit();
         fsdevUnmountAll();
@@ -355,24 +364,10 @@ static void applyConfig() {
     else          applyRegular();
 }
 
-// Принудительно гасим LED -- best-effort. Используется в __appExit
-// (HOS вызывает при graceful shutdown nx-ovlloader / выгрузке нашей
-// title-id).
-// На Lite -- GPIO low. На обычной Switch -- Off pattern в hidsys.
-// Если g_pads пустой (мы выходим до того как main loop сделал первый
-// scan) -- сканируем перед отправкой. Иначе LED останется гореть
-// после power-off, потому что pattern не уйдёт ни на один контроллер.
-extern "C" void forceLedOff_safe() {
-    if (g_isLite) {
-        if (g_gpioInit) gpioLedOff();
-        return;
-    }
-    if (g_numPads == 0) {
-        scanForControllers();
-    }
-    buildOffPattern();
-    applyHidsysPattern();
-}
+// forceLedOff_safe удалена -- была попыткой гасить LED при __appExit'е,
+// но это ломало боот-восстановление user-mode (см. комментарий в
+// __appExit выше). Возвращать функцию обратно НЕ нужно: для штатного
+// "LED off" есть LedMode = Off через UI.
 
 // ─── Main loop ──────────────────────────────────────────────────────────────
 //
@@ -407,21 +402,37 @@ int main(int /*argc*/, char** /*argv*/) {
     // подключаются через Bluetooth с задержкой ~1-3 секунды; если
     // запустить applyConfig сразу -- scanForControllers вернёт пустой
     // список, pattern не отправится никому, LED останется в state,
-    // которое Joy-Con держал из NVRAM (часто = ничего/off).
+    // которое Joy-Con держал из NVRAM.
     //
     // Поллим scanForControllers до тех пор, пока не найдём хотя бы
-    // один контроллер, либо пока не пройдёт ~5 секунд (fallback на
-    // случай отсоединённых Joy-Con в портативке: там HOME ring всё
-    // равно недоступен).
+    // один контроллер, либо пока не пройдёт ~10 секунд.
     if (!g_isLite) {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 100; i++) {
             scanForControllers();
             if (g_numPads > 0) break;
             svcSleepThread(100'000'000ULL);  // 100ms
         }
-    }
 
-    applyConfig();
+        // После того как Joy-Cons зарегистрировались в HID, им нужна
+        // ~ещё 1 секунда чтобы прогреться (BT-handshake + сервис hidsys
+        // регистрирует pad'ы в своей таблице). Если послать pattern
+        // сразу -- hidsysSetNotificationLedPattern вернёт ошибку и
+        // pad'ы вылетят из applyHidsysPattern в drop-логике. После
+        // wait, applyConfig'у уже устойчиво.
+        svcSleepThread(1'000'000'000ULL);  // 1s
+
+        // Multi-retry applyConfig: даже после wait первая попытка может
+        // упасть на одном из 4 pad'ов из-за тайминга. Делаем 3 попытки
+        // с интервалом 300ms, между ними пересканируем.
+        for (int i = 0; i < 3; i++) {
+            scanForControllers();
+            applyConfig();
+            if (g_numPads > 0) break;
+            svcSleepThread(300'000'000ULL);
+        }
+    } else {
+        applyConfig();
+    }
 
     while (true) {
         if (checkReload()) {
