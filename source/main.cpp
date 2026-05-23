@@ -895,15 +895,39 @@ static void applyRyzhaLedFromSettings(const ryz::led::Settings& s) {
 
 static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/) {
     // Активна только когда пользователь явно выбрал режим OnPress в LED-меню.
-    if (keysDown == 0) return;
+
+    // ВАЖНО: фильтруем стик-направления и stick-press. Иначе любое движение
+    // правого/левого стика триггерит LED на 400ms, при удержании стика LED
+    // непрерывно подкачивается impulse'ами и горит постоянно ("после
+    // движения стика вниз LED горит на постоянке" -- баг из юзер-репорта).
+    //
+    // KEY_LSTICK / KEY_RSTICK = нажатие стика (это OK)
+    // KEY_LSTICK_LEFT/RIGHT/UP/DOWN  = направление = НЕ триггер
+    // KEY_RSTICK_LEFT/RIGHT/UP/DOWN  = направление = НЕ триггер
+    // Также фильтруем touch & SL/SR (slide-keys на одном Joy-Con).
+    constexpr uint64_t STICK_DIR_MASK =
+        HidNpadButton_StickLLeft  | HidNpadButton_StickLRight |
+        HidNpadButton_StickLUp    | HidNpadButton_StickLDown  |
+        HidNpadButton_StickRLeft  | HidNpadButton_StickRRight |
+        HidNpadButton_StickRUp    | HidNpadButton_StickRDown;
+    // Реагируем только на реальные клики (A/B/X/Y/+/-/L/R/ZL/ZR/D-Pad/Stick-press).
+    constexpr uint64_t TRIGGER_MASK =
+        HidNpadButton_A | HidNpadButton_B | HidNpadButton_X | HidNpadButton_Y |
+        HidNpadButton_L | HidNpadButton_R |
+        HidNpadButton_ZL | HidNpadButton_ZR |
+        HidNpadButton_Plus | HidNpadButton_Minus |
+        HidNpadButton_Up | HidNpadButton_Down |
+        HidNpadButton_Left | HidNpadButton_Right |
+        HidNpadButton_StickL | HidNpadButton_StickR;
+
+    const uint64_t effectiveDown = keysDown & ~STICK_DIR_MASK & TRIGGER_MASK;
+    if (effectiveDown == 0) return;
 
     static ryz::led::Mode s_cachedMode = ryz::led::Mode::Off;
     static uint8_t       s_cachedBright = 80;
     static uint64_t      s_lastModeReadTick = 0;
     const uint64_t nowTick = armGetSystemTick();
 
-    // Перечитываем режим из конфига раз в 500ms (раньше было 1с -- юзер
-    // тыкал toggle в UI и LED не реагировал до целой секунды).
     if (nowTick - s_lastModeReadTick > armNsToTicks(500'000'000ULL)) {
         const auto s = ryz::led::load();
         s_cachedMode   = s.mode;
@@ -912,20 +936,16 @@ static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/)
     }
     if (s_cachedMode != ryz::led::Mode::OnPress) return;
 
-    // Троттлинг: не чаще ~12 раз в секунду (раньше было 6 -- пользователь
-    // мог быстро тыкать кнопки и половина нажатий "терялась" визуально).
+    // Троттлинг: не чаще 5 раз в секунду (200ms). PULSE_NS = 200ms, чтобы
+    // соседние импульсы не накладывались и не давали "постоянное" свечение.
     static uint64_t s_lastPulseTick = 0;
-    if (nowTick - s_lastPulseTick < armNsToTicks(80'000'000ULL)) return;
+    if (nowTick - s_lastPulseTick < armNsToTicks(200'000'000ULL)) return;
     s_lastPulseTick = nowTick;
 
     if (!ensureHidsysReady()) return;
 
-    // Импульс 400ms -- достаточно чтобы глаз успел зафиксировать "моргание".
-    // Раньше было 180ms, что глаз воспринимал как очень тусклое мерцание.
-    // intensity берём из настройки яркости пользователя (0..100% -> 0..15)
-    // вместо фиксированного 0xF, чтобы тёмные комнаты не слепило.
     const u8 intensity = static_cast<u8>(std::min<int>(15, (s_cachedBright * 15 + 50) / 100));
-    constexpr u64 PULSE_NS = 400ULL * 1000ULL * 1000ULL; // 400ms
+    constexpr u64 PULSE_NS = 200ULL * 1000ULL * 1000ULL; // 200ms
     const auto p = makeSolidHomeLedPattern(intensity);
     setHomeLedPatternForAllControllers(p, PULSE_NS);
 }
@@ -19256,6 +19276,20 @@ public:
         {
             const auto ledS = ryz::led::load();
             applyRyzhaLedFromSettings(ledS);
+        }
+
+        // Pre-warm Audio engine, чтобы первый звук не тормозил на 200-400ms
+        // из-за lazy audoutInitialize + WAV-load в момент первого playSound.
+        // Если sound_effects = false в конфиге -- не дёргаем, Audio::initialize
+        // не запустит audout если не нужен.
+        if (useSoundEffects) {
+            // Audio::initialize() идемпотентен. Запускает audoutStartAudioOut
+            // и загружает все 9 WAV в кеш. После этого playSound() = pure
+            // memcpy в DMA buffer, никакого I/O.
+            ult::Audio::initialize();
+            // Запросить reload кеша из текущего .loaded_sounds/ -- если
+            // пользователь поменял sound pack между сессиями.
+            reloadSoundCacheNow.store(true, std::memory_order_release);
         }
 
     }

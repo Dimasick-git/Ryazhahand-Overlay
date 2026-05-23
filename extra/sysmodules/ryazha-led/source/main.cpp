@@ -85,14 +85,26 @@ extern "C" {
         // плюс инициализация дешёвая.
         hidsysInitialize();
 
-        // psc:m нужен для подписки на события sleep/awake системы.
-        // Если init упал -- не валим сысмодуль, просто LED не будет
-        // авто-гаситься при засыпании консоли (нештатно но не критично).
-        pscmInitialize();
+        // psc:m был добавлен для авто-погасания LED при sleep, но это
+        // ломало shutdown консоли: HOS ждёт от каждого подписчика
+        // pscPmModuleAcknowledge(ReadyShutdown), а наш сысмодуль внутри
+        // forceLedOff() блокировался на hidsysSetNotificationLedPattern,
+        // который уже выгружался -> deadlock -> atmosphere fatal timeout.
+        // Откатил. Авто-погасание при sleep сделаю через __appExit
+        // (вызывается HOS при graceful shutdown) + applet event poll
+        // в loop'е (без активной psc:m подписки -- никто на нас не ждёт).
     }
 
+    // Forward declaration: forceLedOff_safe определён ниже, после GPIO/hidsys
+    // helpers. extern "C" соответствует определению.
+    extern void forceLedOff_safe();
+
     void __appExit(void) {
-        pscmExit();
+        // Best-effort гашение LED перед выгрузкой -- последний шанс пока
+        // hidsys / GPIO сервисы ещё активны. Если что-то падает -- internal
+        // ignore, не блокируем shutdown консоли.
+        forceLedOff_safe();
+
         hidsysExit();
         fsdevUnmountAll();
         fsExit();
@@ -343,83 +355,35 @@ static void applyConfig() {
     else          applyRegular();
 }
 
-// Принудительно гасим LED -- используется при засыпании консоли.
-// На обычной Switch отправляем "Off" pattern в hidsys.
-// На Lite опускаем GPIO в low (gpioLedOff).
-static void forceLedOff() {
+// Принудительно гасим LED -- best-effort. Используется в __appExit
+// (HOS вызывает при graceful shutdown nx-ovlloader / выгрузке нашей
+// title-id), а также как helper при ручном reload.
+// Не блокируется и не вызывает scanForControllers (тот может зависнуть
+// если hidsys уже выгружается).
+extern "C" void forceLedOff_safe() {
     if (g_isLite) {
         if (g_gpioInit) gpioLedOff();
         return;
     }
     buildOffPattern();
-    scanForControllers();
+    // Используем уже найденные g_pads без нового сканирования --
+    // безопаснее во время shutdown.
     applyHidsysPattern();
 }
 
-// ─── Sleep detection via psc:m ─────────────────────────────────────────────
-//
-// Регистрируемся в psc:m как passive observer. Каждый раз когда система
-// готовится к sleep / shutdown / возвращается из sleep -- модуль получает
-// notification через .event с указанием нового состояния.
-//
-// PscPmState (см. libnx/services/psc.h):
-//   Awake                  = 0  -- активный режим
-//   ReadyAwaken            = 1  -- готовится к awake (back from sleep)
-//   ReadySleep             = 2  -- готовится ко сну
-//   ReadySleepCritical     = 3  -- критичные сервисы ушли в сон
-//   ReadyAwakenCritical    = 4  -- критичные сервисы вышли из сна
-//   ReadyShutdown          = 5  -- shutdown
-//
-// Sleeping = состояние 2, 3, или 5. Иначе -- активны.
-//
-// Module ID: 22 -- свободный слот в enum'е libnx (зарезервирован между
-// Display=21 и Hid=24). HOS принимает любой ID 0..127 если он не в
-// активном использовании другим сысмодулем.
-
-static PscPmModule g_pscModule = {};
-static bool        g_pscReady  = false;
-static PscPmState  g_lastState = PscPmState_Awake;
-
-static bool initSleepListener() {
-    Result rc = pscmGetPmModule(&g_pscModule, (PscPmModuleId)22, NULL, 0, true);
-    if (R_FAILED(rc)) return false;
-    g_pscReady = true;
-    return true;
-}
-
-static void exitSleepListener() {
-    if (!g_pscReady) return;
-    pscPmModuleFinalize(&g_pscModule);
-    pscPmModuleClose(&g_pscModule);
-    g_pscReady = false;
-}
-
-// Не-блокирующий опрос: если есть pending request -- считываем новое
-// состояние и подтверждаем. Возвращает true если состояние сонное.
-static bool isSleeping() {
-    if (!g_pscReady) return false;
-
-    // Проверяем event без блокировки -- timeout=0.
-    // Если ивента нет -- состояние не менялось, возвращаем кэш.
-    if (R_FAILED(eventWait(&g_pscModule.event, 0))) {
-        return g_lastState == PscPmState_ReadySleep
-            || g_lastState == PscPmState_ReadySleepCritical
-            || g_lastState == PscPmState_ReadyShutdown;
-    }
-
-    PscPmState state;
-    u32 flags;
-    if (R_FAILED(pscPmModuleGetRequest(&g_pscModule, &state, &flags))) {
-        return false;
-    }
-    pscPmModuleAcknowledge(&g_pscModule, state);
-    g_lastState = state;
-    return state == PscPmState_ReadySleep
-        || state == PscPmState_ReadySleepCritical
-        || state == PscPmState_ReadyShutdown;
-}
-
 // ─── Main loop ──────────────────────────────────────────────────────────────
+//
+// Без psc:m subscription. Прошлая попытка подписаться на psc:m (module ID 22)
+// ломала shutdown консоли: HOS ждёт ACK от каждого подписчика на
+// ReadyShutdown в течение жёсткого таймаута, наш forceLedOff() вызывал
+// hidsysSetNotificationLedPattern параллельно с тем как hidsys уже
+// сворачивался → deadlock → atmosphere fatal "ошибка при выключении".
+//
+// Авто-погасание LED при shutdown теперь делается в __appExit (HOS
+// вызывает его при graceful unload) -- этого достаточно для нормальной
+// смены состояния. При sleep mode LED продолжает действовать по
+// настройке -- HOS сам обесточивает Joy-Con при sleep, поэтому LED
+// физически отключается даже если pattern остался в hidsys NVRAM.
 
 int main(int /*argc*/, char** /*argv*/) {
     detectHardware();
@@ -433,39 +397,21 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     }
 
-    initSleepListener();
     loadConfig();
     applyConfig();
-
-    bool wasSleeping = false;
 
     while (true) {
         if (checkReload()) {
             loadConfig();
             applyConfig();
-            wasSleeping = false;  // принудительно переапплаим pattern
         }
-
-        const bool sleeping = isSleeping();
-        if (sleeping && !wasSleeping) {
-            // Только что заснули -- один раз гасим LED и переходим в idle.
-            forceLedOff();
-            wasSleeping = true;
-        } else if (!sleeping && wasSleeping) {
-            // Только что проснулись -- переапплаим текущий pattern.
-            applyConfig();
-            wasSleeping = false;
-        } else if (!sleeping && !g_isLite) {
-            // На обычной Switch периодически переапплаим pattern: если
-            // подключили новый Joy-Con после старта -- LED получит его
-            // через scanForControllers внутри applyRegular.
-            applyRegular();
-        }
-        // Во время сна спим дольше, чтобы не молотить CPU.
-        svcSleepThread(sleeping ? 2'000'000'000ULL : 500'000'000ULL);
+        // На обычной Switch периодически переапплаим pattern: если
+        // подключили новый Joy-Con после старта -- LED получит его
+        // через scanForControllers внутри applyRegular.
+        if (!g_isLite) applyRegular();
+        svcSleepThread(500000000ULL);  // 500 ms
     }
 
-    exitSleepListener();
     if (g_isLite) liteGpioClose();
     return 0;
 }
