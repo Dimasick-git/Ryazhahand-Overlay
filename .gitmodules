@@ -1,3 +1,6 @@
 [submodule "lib/libryazhahand"]
 	path = lib/libryazhahand
 	url = https://github.com/Dimanchikgshehsbshene/libryazhahand.git
+[submodule "vendor/ultrahand-upstream"]
+	path = vendor/ultrahand-upstream
+	url = https://github.com/ppkantorski/Ultrahand-Overlay

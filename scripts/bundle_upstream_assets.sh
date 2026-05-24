@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+#
+# Copy upstream Ultrahand-Overlay assets + nx-ovlloader release into our out/
+# so that release zip = sd-card-ready (как у ppkantorski sdout.zip).
+#
+# Что копируется (из vendor/ultrahand-upstream/, submodule пинят на v2.4.2):
+#   sounds/*.wav                     -> config/ryazhahand/sounds/  (default pack)
+#   .sounds/default.zip              -> config/ryazhahand/.sounds/default.zip
+#   themes/*.ini                     -> config/ryazhahand/themes/
+#   payloads/ultrahand_updater.bin   -> config/ryazhahand/payloads/
+#   common/audio_mastervolume/*.ips  -> atmosphere/exefs_patches/audio_mastervolume/
+#
+# НЕ копируем upstream-овский wallpapers/atmosphere.rgba -- наша система
+# использует PNG (wallpaper.png), libpng декодирует на лету.
+# Юзер должен класть свои *.png в /config/ryazhahand/wallpapers/.
+#
+# Что качается из github releases (online-only step):
+#   nx-ovlloader.zip (latest)       -> atmosphere/contents/420000000007E51A/ + E51B/
+#                                       + switch/Ultrahand-Reload/Ultrahand-Reload.nro
+#
+# UPSTREAM_SKIP_FETCH=1 пропускает online step (для offline CI / локальной
+# проверки сборки). UPSTREAM_SKIP_ASSETS=1 пропускает всё (для быстрого
+# debug-make без 4 МБ копий).
+
+set -e
+
+OUT="${1:-out}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UPSTREAM="$ROOT/vendor/ultrahand-upstream"
+
+if [ "${UPSTREAM_SKIP_ASSETS:-0}" = "1" ]; then
+    echo "[bundle] UPSTREAM_SKIP_ASSETS=1 -- skipping all bundle steps"
+    exit 0
+fi
+
+if [ ! -d "$UPSTREAM/wallpapers" ]; then
+    echo "[bundle] WARN: vendor/ultrahand-upstream/ не инициализирован."
+    echo "[bundle]       Запусти: git submodule update --init --recursive"
+    echo "[bundle]       Пропускаю bundle-фазу (out/ останется минимальной)."
+    exit 0
+fi
+
+mkdir -p "$OUT/config/ryazhahand/wallpapers"
+mkdir -p "$OUT/config/ryazhahand/sounds"
+mkdir -p "$OUT/config/ryazhahand/.sounds"
+mkdir -p "$OUT/config/ryazhahand/themes"
+mkdir -p "$OUT/config/ryazhahand/payloads"
+mkdir -p "$OUT/atmosphere/exefs_patches/audio_mastervolume"
+
+# Wallpaper: НЕ копируем upstream'овскую atmosphere.rgba.
+# У нас система PNG (libpng декодирует /config/ryazhahand/wallpaper.png
+# в RGBA4444 для tesla-рендера на лету). Юзер кладёт свои *.png в
+# /config/ryazhahand/wallpapers/ и выбирает через UI.
+
+# Default sound pack -- кладём и распакованные WAV'ы (для прямой работы Audio),
+# и zip (для системы sound-pack выбора).
+for f in "$UPSTREAM/sounds"/*.wav; do
+    [ -f "$f" ] || continue
+    cp "$f" "$OUT/config/ryazhahand/sounds/$(basename "$f")"
+done
+if [ -f "$UPSTREAM/.sounds/default.zip" ]; then
+    cp "$UPSTREAM/.sounds/default.zip" "$OUT/config/ryazhahand/.sounds/default.zip"
+    echo "[bundle] + .sounds/default.zip"
+fi
+
+# Themes.
+for f in "$UPSTREAM/themes"/*.ini; do
+    [ -f "$f" ] || continue
+    cp "$f" "$OUT/config/ryazhahand/themes/$(basename "$f")"
+done
+echo "[bundle] + themes/*.ini (упаковано: $(ls "$UPSTREAM/themes"/*.ini 2>/dev/null | wc -l))"
+
+# Updater payload.
+if [ -f "$UPSTREAM/payloads/ultrahand_updater.bin" ]; then
+    cp "$UPSTREAM/payloads/ultrahand_updater.bin" \
+       "$OUT/config/ryazhahand/payloads/ultrahand_updater.bin"
+    echo "[bundle] + payloads/ultrahand_updater.bin"
+fi
+
+# IPS patches для master volume (4 файла, по одному на каждую версию HOS).
+for f in "$UPSTREAM/common/audio_mastervolume"/*.ips; do
+    [ -f "$f" ] || continue
+    cp "$f" "$OUT/atmosphere/exefs_patches/audio_mastervolume/$(basename "$f")"
+done
+echo "[bundle] + audio_mastervolume IPS-патчи: $(ls "$UPSTREAM/common/audio_mastervolume"/*.ips 2>/dev/null | wc -l)"
+
+# nx-ovlloader v2.0.2 -- качаем latest release-архив и распаковываем.
+# UPSTREAM_SKIP_FETCH=1 пропускает (для offline / no-internet CI).
+if [ "${UPSTREAM_SKIP_FETCH:-0}" != "1" ]; then
+    NXOVL_TMP="$(mktemp -d)"
+    NXOVL_URL="https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
+    if command -v curl >/dev/null && curl -sSL --fail "$NXOVL_URL" -o "$NXOVL_TMP/nxovl.zip"; then
+        (cd "$NXOVL_TMP" && unzip -q nxovl.zip)
+        # Копируем atmosphere/contents/420000000007E51A + E51B + switch/Ultrahand-Reload
+        if [ -d "$NXOVL_TMP/atmosphere/contents" ]; then
+            mkdir -p "$OUT/atmosphere/contents"
+            cp -r "$NXOVL_TMP/atmosphere/contents"/420000000007E51A "$OUT/atmosphere/contents/" 2>/dev/null || true
+            cp -r "$NXOVL_TMP/atmosphere/contents"/420000000007E51B "$OUT/atmosphere/contents/" 2>/dev/null || true
+        fi
+        if [ -d "$NXOVL_TMP/switch/Ultrahand-Reload" ]; then
+            mkdir -p "$OUT/switch/Ultrahand-Reload"
+            cp -r "$NXOVL_TMP/switch/Ultrahand-Reload"/. "$OUT/switch/Ultrahand-Reload/"
+        fi
+        echo "[bundle] + nx-ovlloader v$(unzip -p "$NXOVL_TMP/nxovl.zip" '*/RELEASE*' 2>/dev/null | head -1 || echo 'latest')"
+    else
+        echo "[bundle] WARN: не удалось скачать nx-ovlloader (offline?). Пропуск."
+    fi
+    rm -rf "$NXOVL_TMP"
+else
+    echo "[bundle] UPSTREAM_SKIP_FETCH=1 -- nx-ovlloader не качается"
+fi
+
+echo "[bundle] done -> $OUT"

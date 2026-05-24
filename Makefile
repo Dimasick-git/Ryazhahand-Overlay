@@ -273,6 +273,11 @@ $(BUILD):
 	@# два отдельных sysmodule'а (0895 и FED) -- теперь оба слиты в
 	@# 0100000000000ED1. LED_SKIP_FETCH=1 пропускает шаг для offline.
 	@bash $(CURDIR)/scripts/build_ryazha_led.sh out/ || true
+	@# Bundle upstream Ultrahand assets (если submodule инициализирован).
+	@# Юзер получает sd-ready zip как у ppkantorski: wallpaper, sounds,
+	@# themes, payload, IPS-патчи master volume. Submodule -- snapshot
+	@# на v2.4.2 в vendor/ultrahand-upstream/.
+	@bash $(CURDIR)/scripts/bundle_upstream_assets.sh out/ || true
 
 #---------------------------------------------------------------------------------
 clean:

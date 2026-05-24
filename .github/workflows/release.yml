@@ -59,25 +59,41 @@ jobs:
           export DEVKITPRO=/opt/devkitpro
           make -j$(nproc)
 
-      - name: Собрать релизный архив
+      - name: Собрать релизные архивы
         id: archive
         run: |
           TAG="${{ steps.tag.outputs.tag }}"
           mkdir -p release
-          # Главный .ovl: ровно ovlmenu.ovl без префикса -- так его
-          # ожидает Tesla-loader / Ultrahand-Overlay экосистема в
-          # /switch/.overlays/. Версия зашивается в zip name ниже.
+
+          # 1) Главный .ovl: ровно ovlmenu.ovl без префикса -- так его
+          #    ожидает Tesla-loader. Версия в zip name ниже.
           cp ovlmenu.ovl "release/ovlmenu.ovl"
-          # Полный zip со структурой SD-карты. out/ уже собран Makefile-ом
-          # с правильным layout:
-          #   switch/.overlays/ovlmenu.ovl
-          #   atmosphere/contents/0100000000000895/ (sys-notif-LED)
-          #   atmosphere/contents/0100000000000FED/ (liteswitch)
-          #   config/ryazhahand/lang/*.json
-          # Распаковка в корень SD-карты ставит сразу всё.
-          if [ -d out ]; then
-            (cd out && zip -r "../release/Ryzhand-Overlay-${TAG}.zip" .)
+
+          # 2) lang.zip -- отдельный архив только с переводами
+          #    (минимальное обновление для юзеров, которые уже всё имеют).
+          #    Структура такая же как у upstream: config/ryazhahand/lang/*.json.
+          if [ -d out/config/ryazhahand/lang ]; then
+            (cd out && zip -r "../release/lang.zip" config/ryazhahand/lang)
           fi
+
+          # 3) sdout.zip -- полный SD-card-ready bundle. Структура out/:
+          #      switch/.overlays/ovlmenu.ovl
+          #      switch/Ultrahand-Reload/Ultrahand-Reload.nro       (от nx-ovlloader)
+          #      atmosphere/contents/0100000000000ED1/              (Ryazha-LED sysmodule)
+          #      atmosphere/contents/420000000007E51A + E51B/       (nx-ovlloader v2.0.2)
+          #      atmosphere/exefs_patches/audio_mastervolume/*.ips  (master vol патчи)
+          #      config/ryazhahand/lang/*.json
+          #      config/ryazhahand/sounds/*.wav
+          #      config/ryazhahand/.sounds/default.zip
+          #      config/ryazhahand/themes/*.ini
+          #      config/ryazhahand/payloads/ultrahand_updater.bin
+          #    Юзер распаковывает в корень SD-карты -- работает из коробки.
+          if [ -d out ]; then
+            (cd out && zip -r "../release/sdout.zip" .)
+            # Версионный alias для бэк-совместимости со старыми ссылками.
+            cp "release/sdout.zip" "release/Ryzhand-Overlay-${TAG}.zip"
+          fi
+
           ls -la release/
 
       - name: Получить changelog
@@ -110,7 +126,9 @@ jobs:
           name: "Ryzhand Overlay ${{ steps.tag.outputs.tag }}"
           body: ${{ steps.changelog.outputs.notes }}
           files: |
-            release/*.ovl
-            release/*.zip
+            release/ovlmenu.ovl
+            release/lang.zip
+            release/sdout.zip
+            release/Ryzhand-Overlay-*.zip
           draft: false
           prerelease: false
