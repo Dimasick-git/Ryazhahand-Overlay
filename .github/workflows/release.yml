@@ -78,7 +78,7 @@ jobs:
 
           # 3) sdout.zip -- полный SD-card-ready bundle. Структура out/:
           #      switch/.overlays/ovlmenu.ovl
-          #      switch/Ultrahand-Reload/Ultrahand-Reload.nro       (от nx-ovlloader)
+          #      switch/Ultrahand-Reload/Ultrahand-Reload.nro       (helper из nx-ovlloader, имя сохраняем для совместимости)
           #      atmosphere/contents/0100000000000ED1/              (Ryazha-LED sysmodule)
           #      atmosphere/contents/420000000007E51A + E51B/       (nx-ovlloader v2.0.2)
           #      atmosphere/exefs_patches/audio_mastervolume/*.ips  (master vol патчи)

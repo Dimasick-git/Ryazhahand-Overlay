@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p artifacts
           # Сохраняем имя ovlmenu.ovl как есть -- так его ожидает Tesla-loader
-          # и Ultrahand-Overlay экосистема. out/ уже содержит правильную
+          # и Tesla overlay экосистема. out/ уже содержит правильную
           # SD-структуру (switch/.overlays/ovlmenu.ovl + atmosphere/contents/
           # 0100000000000895 + 0100000000000FED + config/ryazhahand/lang/).
           if [ -f ovlmenu.ovl ]; then cp ovlmenu.ovl artifacts/ovlmenu.ovl; fi
