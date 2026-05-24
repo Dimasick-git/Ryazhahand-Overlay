@@ -4,3 +4,6 @@
 [submodule "vendor/ultrahand-upstream"]
 	path = vendor/ultrahand-upstream
 	url = https://github.com/ppkantorski/Ultrahand-Overlay
+[submodule "vendor/nx-ovlloader"]
+	path = vendor/nx-ovlloader
+	url = https://github.com/Dimanchikgshehsbshene/nx-ovlloader.git

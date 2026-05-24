@@ -84,30 +84,64 @@ for f in "$UPSTREAM/common/audio_mastervolume"/*.ips; do
 done
 echo "[bundle] + audio_mastervolume IPS-патчи: $(ls "$UPSTREAM/common/audio_mastervolume"/*.ips 2>/dev/null | wc -l)"
 
-# nx-ovlloader v2.0.2 -- качаем latest release-архив и распаковываем.
-# UPSTREAM_SKIP_FETCH=1 пропускает (для offline / no-internet CI).
-if [ "${UPSTREAM_SKIP_FETCH:-0}" != "1" ]; then
+# nx-ovlloader -- собирается из нашего submodule vendor/nx-ovlloader/
+# (форк ppkantorski/nx-ovlloader с auto-sync). Раньше качали release
+# zip из ppkantorski/nx-ovlloader/releases/latest напрямую -- теперь
+# контролируем версию через submodule pin.
+NXOVL="$ROOT/vendor/nx-ovlloader"
+if [ "${UPSTREAM_SKIP_FETCH:-0}" = "1" ]; then
+    echo "[bundle] UPSTREAM_SKIP_FETCH=1 -- nx-ovlloader не собирается"
+elif [ -d "$NXOVL/source" ]; then
+    echo "[bundle] building nx-ovlloader from vendor/nx-ovlloader..."
+    NXOVL_BUILD="$(mktemp -d)"
+    # Копируем submodule в temp чтобы make не пачкал submodule worktree
+    # (внутри submodule .git -- gitlink файл, его трогать не нужно).
+    cp -r "$NXOVL/." "$NXOVL_BUILD/"
+    # nx-ovlreloader как nested submodule. Если submodule не клонирован
+    # рекурсивно -- скачиваем как fallback.
+    if [ ! -f "$NXOVL_BUILD/external/nx-ovlreloader/Makefile" ]; then
+        echo "[bundle]   external/nx-ovlreloader пуст -- инициализирую"
+        (cd "$NXOVL_BUILD" && git submodule update --init --recursive 2>/dev/null) || true
+    fi
+    if [ -f "$NXOVL_BUILD/Makefile" ]; then
+        (cd "$NXOVL_BUILD" && make 2>&1 | tail -5) || echo "[bundle] WARN nx-ovlloader build failed"
+        # nx-ovlloader make кладёт артефакты в out/atmosphere/... формате,
+        # либо в корень. Проверим оба.
+        if [ -d "$NXOVL_BUILD/out/atmosphere" ]; then
+            cp -r "$NXOVL_BUILD/out/atmosphere"/. "$OUT/atmosphere/"
+        fi
+        if [ -d "$NXOVL_BUILD/out/switch" ]; then
+            mkdir -p "$OUT/switch"
+            cp -r "$NXOVL_BUILD/out/switch"/. "$OUT/switch/"
+        fi
+        echo "[bundle] + nx-ovlloader (built from submodule)"
+    else
+        echo "[bundle] WARN: vendor/nx-ovlloader Makefile отсутствует"
+    fi
+    rm -rf "$NXOVL_BUILD"
+else
+    # Fallback: submodule не инициализирован -- качаем upstream release zip.
+    # Происходит когда юзер клонировал без --recursive.
+    echo "[bundle] vendor/nx-ovlloader пуст -- fallback на upstream release"
     NXOVL_TMP="$(mktemp -d)"
-    NXOVL_URL="https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
-    if command -v curl >/dev/null && curl -sSL --fail "$NXOVL_URL" -o "$NXOVL_TMP/nxovl.zip"; then
+    NXOVL_URL="https://github.com/Dimanchikgshehsbshene/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
+    NXOVL_FALLBACK="https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
+    if command -v curl >/dev/null && (curl -sSL --fail "$NXOVL_URL" -o "$NXOVL_TMP/nxovl.zip" || curl -sSL --fail "$NXOVL_FALLBACK" -o "$NXOVL_TMP/nxovl.zip"); then
         (cd "$NXOVL_TMP" && unzip -q nxovl.zip)
-        # Копируем atmosphere/contents/420000000007E51A + E51B + switch/Ultrahand-Reload
         if [ -d "$NXOVL_TMP/atmosphere/contents" ]; then
             mkdir -p "$OUT/atmosphere/contents"
             cp -r "$NXOVL_TMP/atmosphere/contents"/420000000007E51A "$OUT/atmosphere/contents/" 2>/dev/null || true
             cp -r "$NXOVL_TMP/atmosphere/contents"/420000000007E51B "$OUT/atmosphere/contents/" 2>/dev/null || true
         fi
-        if [ -d "$NXOVL_TMP/switch/Ultrahand-Reload" ]; then
-            mkdir -p "$OUT/switch/Ultrahand-Reload"
-            cp -r "$NXOVL_TMP/switch/Ultrahand-Reload"/. "$OUT/switch/Ultrahand-Reload/"
+        if [ -d "$NXOVL_TMP/switch" ]; then
+            mkdir -p "$OUT/switch"
+            cp -r "$NXOVL_TMP/switch"/. "$OUT/switch/"
         fi
-        echo "[bundle] + nx-ovlloader v$(unzip -p "$NXOVL_TMP/nxovl.zip" '*/RELEASE*' 2>/dev/null | head -1 || echo 'latest')"
+        echo "[bundle] + nx-ovlloader (via release zip fallback)"
     else
-        echo "[bundle] WARN: не удалось скачать nx-ovlloader (offline?). Пропуск."
+        echo "[bundle] WARN: не удалось скачать nx-ovlloader fallback."
     fi
     rm -rf "$NXOVL_TMP"
-else
-    echo "[bundle] UPSTREAM_SKIP_FETCH=1 -- nx-ovlloader не качается"
 fi
 
 echo "[bundle] done -> $OUT"
