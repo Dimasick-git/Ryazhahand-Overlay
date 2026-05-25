@@ -5,7 +5,7 @@
 #   Сборка homebrew-оверлея Ryzhand для Nintendo Switch на основе Tesla/libnx.
 #   Подробности и инструкции — см. README.md.
 #
-#   GitHub: https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay
+#   GitHub: https://github.com/Dimasick-git/Ryazhahand-Overlay
 #
 # Лицензия GPLv2
 # Copyright (c) 2023-2026 Dimasick-git

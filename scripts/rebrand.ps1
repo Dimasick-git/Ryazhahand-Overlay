@@ -35,9 +35,9 @@ $OLD_LOWER = 'ult' + 'rahand'
 $NEW_LOWER = 'ryazhahand'
 
 $rules = @(
- @{ from = "github.com/$OLD_AUTHOR/$OLD_OVERLAY"; to = "github.com/Dimanchikgshehsbshene/$NEW_OVERLAY" }
- @{ from = "github.com/$OLD_AUTHOR/$OLD_LIB"; to = "github.com/Dimanchikgshehsbshene/$NEW_LIB" }
- @{ from = "github.com/$OLD_AUTHOR"; to = 'github.com/Dimanchikgshehsbshene' }
+ @{ from = "github.com/$OLD_AUTHOR/$OLD_OVERLAY"; to = "github.com/Dimasick-git/$NEW_OVERLAY" }
+ @{ from = "github.com/$OLD_AUTHOR/$OLD_LIB"; to = "github.com/Dimasick-git/$NEW_LIB" }
+ @{ from = "github.com/$OLD_AUTHOR"; to = 'github.com/Dimasick-git' }
  @{ from = $OLD_AUTHOR; to = $NEW_AUTHOR }
  @{ from = $OLD_OVERLAY; to = $NEW_OVERLAY }
  @{ from = ($OLD_OVERLAY.ToUpper()); to = ($NEW_OVERLAY.ToUpper()) }

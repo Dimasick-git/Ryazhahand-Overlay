@@ -1,14 +1,14 @@
 # Интеграция с экосистемой Ryazha
 
-Ryzhand Overlay — часть семейства проектов одного автора. Все они построены на общей библиотеке [libryazhahand](https://github.com/Dimanchikgshehsbshene/libryazhahand) (форк libultrahand/libtesla).
+Ryzhand Overlay — часть семейства проектов одного автора. Все они построены на общей библиотеке [libryazhahand](https://github.com/Dimasick-git/libryazhahand) (форк libultrahand/libtesla).
 
 ## Связанные оверлеи и модули
 
 | Проект | Репозиторий | Роль |
 |--------|-------------|------|
-| **Ryzhand Overlay** | `Dimanchikgshehsbshene/Ryazhahand-Overlay` | Корневой оверлей, launcher для остальных. |
-| **libryazhahand** | `Dimanchikgshehsbshene/libryazhahand` | Общая библиотека UI / утилит. |
-| **RCU** | `Dimanchikgshehsbshene/RCU` | Разгон/мониторинг Tegra X1+, оверлей `ryazha-clk`. |
+| **Ryzhand Overlay** | `Dimasick-git/Ryazhahand-Overlay` | Корневой оверлей, launcher для остальных. |
+| **libryazhahand** | `Dimasick-git/libryazhahand` | Общая библиотека UI / утилит. |
+| **RCU** | `Dimasick-git/RCU` | Разгон/мониторинг Tegra X1+, оверлей `ryazha-clk`. |
 | **RyazhaTune** | `Dimasick-git/RyazhaTune` | Фоновый аудио-плеер. |
 | **Ryazha-Status-Monitor** | `Dimasick-git/Ryazha-Status-Monitor` | Мониторинг температуры/FPS. Источник LED-модуля для Switch Lite. |
 

@@ -124,7 +124,7 @@ else
     # Происходит когда юзер клонировал без --recursive.
     echo "[bundle] vendor/nx-ovlloader пуст -- fallback на upstream release"
     NXOVL_TMP="$(mktemp -d)"
-    NXOVL_URL="https://github.com/Dimanchikgshehsbshene/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
+    NXOVL_URL="https://github.com/Dimasick-git/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
     NXOVL_FALLBACK="https://github.com/ppkantorski/nx-ovlloader/releases/latest/download/nx-ovlloader.zip"
     if command -v curl >/dev/null && (curl -sSL --fail "$NXOVL_URL" -o "$NXOVL_TMP/nxovl.zip" || curl -sSL --fail "$NXOVL_FALLBACK" -o "$NXOVL_TMP/nxovl.zip"); then
         (cd "$NXOVL_TMP" && unzip -q nxovl.zip)

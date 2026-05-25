@@ -8,7 +8,7 @@ Description:
     leftover folders from the extraction process.
 
     For the latest updates and contributions, visit the project's GitHub repository.
-    (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay)
+    (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
 
     Note: Please be aware that this notice cannot be altered or removed. It is a part
     of the project's documentation and must remain intact.

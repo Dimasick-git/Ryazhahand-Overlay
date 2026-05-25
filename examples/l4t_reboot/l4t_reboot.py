@@ -16,7 +16,7 @@ Description:
     information on how to use and configure this script within the Ryazhahand-Overlay.
 
     For the latest updates and contributions, visit the project's GitHub repository.
-    (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay)
+    (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
 
 Copyright (c) 2023 Dimasick-git
 All rights reserved.

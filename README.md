@@ -6,7 +6,7 @@
 
 ## Что это
 
-Tesla-меню для Switch — гибкий интерпретатор `.ini`-пакетов и host для других оверлеев (RCU, статус-мониторов и т.д.). Форк [Ultrahand-Overlay](https://github.com/ppkantorski/Ultrahand-Overlay) с заменой libtesla на собственный форк [libryazhahand](https://github.com/Dimanchikgshehsbshene/libryazhahand).
+Tesla-меню для Switch — гибкий интерпретатор `.ini`-пакетов и host для других оверлеев (RCU, статус-мониторов и т.д.). Форк [Ultrahand-Overlay](https://github.com/ppkantorski/Ultrahand-Overlay) с заменой libtesla на собственный форк [libryazhahand](https://github.com/Dimasick-git/libryazhahand).
 
 ## Что умеет
 
@@ -23,7 +23,7 @@ Tesla-меню для Switch — гибкий интерпретатор `.ini`-
 ## Установка
 
 1. Atmosphere CFW.
-2. `nx-ovlloader` (https://github.com/Dimanchikgshehsbshene/nx-ovlloader или совместимый).
+2. `nx-ovlloader` (https://github.com/Dimasick-git/nx-ovlloader или совместимый).
 3. Скачать релиз и распаковать `sdout.zip` в корень SD. В архиве:
    - `switch/.overlays/ovlmenu.ovl` — главный overlay.
    - `config/ryazhahand/` — конфиг + языки + дефолтные ассеты.
@@ -54,7 +54,7 @@ echo Hello, world!
 ## Сборка из исходников
 
 ```sh
-git clone --recurse-submodules https://github.com/Dimanchikgshehsbshene/Ryazhahand-Overlay.git
+git clone --recurse-submodules https://github.com/Dimasick-git/Ryazhahand-Overlay.git
 cd Ryazhahand-Overlay
 export DEVKITPRO=/opt/devkitpro
 make

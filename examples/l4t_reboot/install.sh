@@ -16,7 +16,7 @@
 # information on how to use and configure this script within the Ryzhand-Overlay.
 #
 # For the latest updates and contributions, visit the project's GitHub repository.
-# (GitHub Repository: https://github.com/Dimanchikgshehsbshene/Ryzhand-Overlay)
+# (GitHub Repository: https://github.com/Dimasick-git/Ryzhand-Overlay)
 #
 # Copyright (c) 2023 Dimasick-git
 # All rights reserved.
