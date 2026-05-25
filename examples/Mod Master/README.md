@@ -33,4 +33,4 @@ Note: Make sure you have organized the mods properly within the subdirectories a
 
 ## Additional Information
 
-For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimanchikgshehsbshene/Ryzhand-Overlay).
+For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/Ryazhahand-Overlay).

@@ -6,7 +6,7 @@ The "Cool Curves" package is a part of the Ryzhand Overlay project, which provid
 
 To configure the temperature-related settings yourself, follow these steps:
 
-1. Make sure you have the necessary tools and files for the Ryzhand-Overlay project.
+1. Make sure you have the necessary tools and files for the Ryazhahand-Overlay project.
 2. Locate the `package.ini` file in the `examples/Cool Curves` directory.
 3. Open the `package.ini` file in a text editor.
 

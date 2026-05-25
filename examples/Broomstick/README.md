@@ -24,4 +24,4 @@ Note: Offloading overlays can help improve performance and free up system resour
 
 ## Additional Information
 
-For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/Ryzhand-Overlay).
+For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/Ryazhahand-Overlay).
