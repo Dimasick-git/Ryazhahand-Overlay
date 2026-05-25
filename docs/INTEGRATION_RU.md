@@ -49,7 +49,12 @@ include ${TOPDIR}/lib/libryazhahand/ryazhahand.mk
 - Один стиль UI: одинаковые header'ы, list items, цвета.
 - Одно место для багфиксов и upstream-синков с `ppkantorski/libultrahand`.
 
-В Ryzhand Overlay v2.3.0 библиотека пока **vendored** (лежит в репо как обычные файлы). В v2.4.0 будет вынесена в git submodule.
+libryazhahand подключён как git submodule в `lib/libryazhahand/`. Обновление — стандартное:
+
+```sh
+git submodule update --remote lib/libryazhahand
+git commit -am "deps: bump libryazhahand"
+```
 
 ## Запуск других оверлеев из Ryzhand
 
@@ -59,29 +64,13 @@ Ryzhand работает как ovlloader-launcher: на главном экра
 
 ## Sysmodule-сторона LED
 
-Управление LED в Ryzhand v2.3.0 разбито на две части:
+LED-стек теперь объединён в один sysmodule `ryazha-led` (title `0100000000000ED1`), который ставится из `extra/sysmodules/ryazha-led/` вместе с оверлеем:
 
-- **Оверлейная сторона** — `source/led/led_control.{hpp,cpp}` — записывает настройки в `/config/ryazhahand/led.ini` и сигнальные файлы `led.reload` / `led.pulse`.
-- **Sysmodule-сторона** — отдельный фоновый процесс (`sys-notif-LED`, `liteswitch-led` или аналог), который читает эти файлы и непосредственно дёргает `hidsysSetNotificationLedPattern` / Joy-Con HID. Устанавливается независимо.
+- **Оверлейная сторона** — `source/led/led_control.{hpp,cpp}` — записывает настройки в `/config/ryazhahand/led.ini` и сигнальный файл `led.reload`.
+- **Sysmodule-сторона** — `ryazha-led.nsp` слушает touch на `led.reload`, перечитывает INI и автодетектом дёргает либо `hidsysSetNotificationLedPattern` (Joy-Con / OLED), либо GPIO PWM HOME (Switch Lite).
 
-Без sysmodule оверлей запишет настройки, но физически LED не зажжётся.
-
-## Обновление подмодуля libryazhahand
-
-В будущем (v2.4.0+), когда `lib/libryazhahand` станет подмодулем:
-
-```bash
-cd lib/libryazhahand
-git fetch origin
-git checkout main
-git pull
-cd ../..
-git add lib/libryazhahand
-git commit -m "deps: обновить libryazhahand до <SHA>"
-```
-
-В RCU и RyazhaTune аналогично.
+Раньше использовались два отдельных модуля (`sys-notif-LED`, `liteswitch-led`) — сейчас единый.
 
 ## Синхронизация с ppkantorski/libultrahand
 
-Скрипт `scripts/sync_from_upstream.py` в репо `libryazhahand` пуллит коммиты с upstream и применяет к нашему дереву с inline-ребрендингом (`Ultrahand` → `Ryzhand` в визуальных строках, namespace `tsl::` не трогается). Запускается вручную или по cron.
+В `libryazhahand` есть скрипт `scripts/sync_from_upstream.py` который пуллит коммиты с upstream'а и применяет к нашему дереву с inline-ребрендингом (`Ultrahand` → `Ryzhand` в визуальных строках, namespace `tsl::` не трогается). Запуск только вручную после code-review (cron убран, чтобы не ломал нашу subdir-структуру).

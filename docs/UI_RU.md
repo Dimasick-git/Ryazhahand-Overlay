@@ -20,25 +20,25 @@
 ## Настройки
 
 - **Внешний вид** — выравнивание текста, переход-эффекты, баннер.
-- **Сканер обновлений** *(по умолчанию выкл)* — включает фоновую проверку GitHub-релизов смежных оверлеев. См. предупреждение в [`CHANGELOG_RU.md`](CHANGELOG_RU.md).
+- **Сканер обновлений** *(по умолчанию выкл)* — включает фоновую проверку GitHub-релизов смежных оверлеев. Расход трафика: \~50 КБ при каждом запуске.
 - **Язык** — Русский / English.
 - **Логирование** — для отладки.
 
 ## Управление подсветкой
 
-В v2.3.0 модуль установлен но UI ещё не подключён — настройки правятся вручную в `/config/ryazhahand/led.ini`:
+UI «Свечение LED» в главном меню. Настройки кешируются в `/config/ryazhahand/led.ini` (записывается при выходе из UI):
 
 ```ini
-mode=onpress ; off | solid | pulse | fade | onpress
-target=auto ; auto | home | joyconL | joyconR | lite_all
-brightness=80 ; 0..100
+mode=onpress       ; off | solid | pulse | fade | onpress
+target=auto        ; auto | home | joyconL | joyconR | lite_all
+brightness=80      ; 0..100
 pulse_interval=500 ; миллисекунд между импульсами
 color_r=255
 color_g=128
 color_b=64
 ```
 
-Для физического применения нужен фоновый sysmodule, читающий этот файл — `sys-notif-LED` или `liteswitch-led`.
+Физическим применением занимается sysmodule `ryazha-led` (title `0100000000000ED1`), который ставится из `extra/sysmodules/` вместе с оверлеем. Автодетект железа — Switch Lite получает HOME LED через `liteswitch-led` ветку, Joy-Con / OLED — через `sys-notif-LED` ветку.
 
 ## Пакеты
 
