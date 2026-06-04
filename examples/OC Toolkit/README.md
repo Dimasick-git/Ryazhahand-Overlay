@@ -89,3 +89,6 @@ For more details on the Ryzhand Overlay project and its features, please refer t
 For additional help with OC Suite kip values, you can visit [this link](https://github.com/hanai3Bi/Switch-OC-Suite/blob/master/Source/Atmosphere/stratosphere/loader/source/oc/customize.cpp). This resource provides helpful information specifically for OC Suite kip values.
 
 This package is compatible with v1.3.6 or later versions.
+
+---
+Автор (Ryzha-адаптация): Dimasick-git

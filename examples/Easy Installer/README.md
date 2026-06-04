@@ -28,3 +28,6 @@ To use Easy Installer:
 ## Additional Information
 
 For more details on the Easy Installer and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/Ryazhahand-Overlay).
+
+---
+Автор (Ryzha-адаптация): Dimasick-git

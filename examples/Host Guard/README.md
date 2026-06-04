@@ -34,3 +34,6 @@ Note: Please refer to the documentation provided in the repository for more deta
 ## Additional Information
 
 For more details on the Ryzhand Overlay project and its features, please refer to the [official GitHub repository](https://github.com/Dimasick-git/Ryazhahand-Overlay).
+
+---
+Автор (Ryzha-адаптация): Dimasick-git

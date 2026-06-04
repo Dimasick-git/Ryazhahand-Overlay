@@ -51,3 +51,6 @@ The `package.ini` file contains temperature settings for different temperature r
 ## Acknowledgments
 
 Special thanks to B3711.
+
+---
+Автор (Ryzha-адаптация): Dimasick-git

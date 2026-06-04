@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020 Atmosphère-NX
+ * Modifications (c) 2023-2026 Dimasick-git (Ryazhahand-Overlay)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
