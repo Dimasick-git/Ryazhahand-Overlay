@@ -10,7 +10,7 @@
 - **Host Guard** — блокировка телеметрии Nintendo через правку `/atmosphere/hosts`.
 - **Memory Config** — конфигурация RAM-таймингов через KIP-патч (взаимодействует с RCU).
 - **Mod Master** — установка IPS / pchtxt модов в `/atmosphere/exefs_patches/`.
-- **OC Toolkit** — управление разгоном (тонкая интеграция с RCU IPC).
+- **OC Toolkit** — управление разгоном (тонкая интеграция с RCU IPC). _Устарел (mariko only); рекомендуется EOS._
 - **l4t_reboot** — перезагрузка в Linux4Tegra через chainload boot config.
 
 У большинства внутри есть собственный `README.md` с подробностями.
