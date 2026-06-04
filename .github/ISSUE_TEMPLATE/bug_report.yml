@@ -1,5 +1,5 @@
 # Author: Dimasick-git
-﻿name: "🐛 Bug Report"
+name: "🐛 Bug Report"
 description: "Report a crash, compatibility issue, or malfunction in Ryzhand Overlay"
 title: "[Bug]: "
 labels: ["bug", "needs-triage"]
