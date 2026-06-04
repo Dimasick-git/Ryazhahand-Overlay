@@ -20,7 +20,9 @@ jobs:
     name: Релиз ${{ github.ref_name }}
     runs-on: ubuntu-latest
     container:
-      image: devkitpro/devkita64:latest
+      # Пинимся на тот же образ, что и build.yml -- он проверенно собирает
+      # проект. :latest мог подтянуть другой тулчейн и сломать релиз.
+      image: devkitpro/devkita64:20251231
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,20 +47,36 @@ jobs:
           apt-get update -qq
           apt-get install -y -qq zip
 
-      - name: Установить switch-* зависимости
+      # best-effort, как в build.yml: pkg.devkitpro.org может отдать 403
+      # (rate-limit), но образ уже несёт нужные portlibs -- не валим релиз.
+      - name: Дотянуть switch-* зависимости (best-effort)
+        continue-on-error: true
+        shell: bash
         run: |
-          set -e
-          (yes | sudo -E dkp-pacman -Syu --noconfirm) || \
-            (yes | dkp-pacman -Syu --noconfirm)
+          (yes | sudo -E dkp-pacman -Syu --noconfirm) \
+            || (yes | dkp-pacman -Syu --noconfirm) \
+            || echo "::warning::pacman -Syu failed; will rely on image contents"
           dkp-pacman -S --needed --noconfirm \
             switch-curl switch-zlib switch-libpng \
             switch-mbedtls switch-bzip2 switch-libjpeg-turbo \
-            switch-pkg-config switch-glm switch-libjson-c || true
+            switch-pkg-config switch-glm switch-libjson-c \
+            || echo "::warning::pacman -S failed; using whatever's in the image"
 
       - name: Сборка
+        shell: bash
         run: |
           export DEVKITPRO=/opt/devkitpro
-          make -j$(nproc)
+          set -o pipefail
+          make -j$(nproc) 2>&1 | tee build.log
+
+      - name: Хвост лога при ошибке
+        if: failure()
+        shell: bash
+        run: |
+          echo "============== last 200 lines of build.log =============="
+          tail -n 200 build.log || true
+          echo "============== grep error markers ======================="
+          grep -nE 'error:|undefined reference|fatal error|multiple definition' build.log | tail -n 50 || true
 
       - name: Собрать релизные архивы
         id: archive
