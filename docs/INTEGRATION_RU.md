@@ -74,3 +74,6 @@ LED-стек теперь объединён в один sysmodule `ryazha-led` 
 ## Синхронизация с ppkantorski/libultrahand
 
 В `libryazhahand` есть скрипт `scripts/sync_from_upstream.py` который пуллит коммиты с upstream'а и применяет к нашему дереву с inline-ребрендингом (`Ultrahand` → `Ryzhand` в визуальных строках, namespace `tsl::` не трогается). Запуск только вручную после code-review (cron убран, чтобы не ломал нашу subdir-структуру).
+
+---
+Автор: **Dimasick-git**

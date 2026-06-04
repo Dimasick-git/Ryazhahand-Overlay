@@ -1,3 +1,4 @@
+# Author: Dimasick-git
 name: release
 
 on:
@@ -91,7 +92,7 @@ jobs:
           if [ -d out ]; then
             (cd out && zip -r "../release/sdout.zip" .)
             # Версионный alias для бэк-совместимости со старыми ссылками.
-            cp "release/sdout.zip" "release/Ryzhand-Overlay-${TAG}.zip"
+            cp "release/sdout.zip" "release/Ryazhahand-Overlay-${TAG}.zip"
           fi
 
           ls -la release/
@@ -129,6 +130,6 @@ jobs:
             release/ovlmenu.ovl
             release/lang.zip
             release/sdout.zip
-            release/Ryzhand-Overlay-*.zip
+            release/Ryazhahand-Overlay-*.zip
           draft: false
           prerelease: false

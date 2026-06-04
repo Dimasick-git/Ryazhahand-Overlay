@@ -13,3 +13,6 @@
 ## Sysmodules
 
 См. [`sysmodules/README.md`](sysmodules/README.md). Главный — `ryazha-led` (управление подсветкой Joy-Con / Switch Lite HOME).
+
+---
+Автор: **Dimasick-git**
