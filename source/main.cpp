@@ -30,7 +30,7 @@
 
  *   For the latest updates and contributions, visit the project's GitHub repository.
 
- *   (GitHub Repository: https://github.com/Dimasick-git/Ryzhand-Overlay)
+ *   (GitHub Repository: https://github.com/Dimasick-git/Ryazhahand-Overlay)
 
  * 
 
