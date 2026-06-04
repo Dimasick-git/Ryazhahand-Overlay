@@ -41,7 +41,7 @@ MicroMemTest.nro
 MicroVramTest.nro
 exefs.nsp
 
-# LED source projects (already imported into source/led/)
+# LED source projects (already imported into source/ryazha_led/)
 home-led-project/
 liteswitch-main/
 sys-notif-LED-main/
@@ -64,3 +64,6 @@ tools/
 *.bak
 *.orig
 .upstream-sync.local
+
+# Auto-generated run logs from maintenance scripts (strip_emoji/rebrand)
+scripts/*-report.txt
