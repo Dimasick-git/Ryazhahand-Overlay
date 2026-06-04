@@ -84,7 +84,7 @@ jobs:
           # Сохраняем имя ovlmenu.ovl как есть -- так его ожидает Tesla-loader
           # и Tesla overlay экосистема. out/ уже содержит правильную
           # SD-структуру (switch/.overlays/ovlmenu.ovl + atmosphere/contents/
-          # 0100000000000895 + 0100000000000FED + config/ryazhahand/lang/).
+          # 0100000000000ED1 (единый Ryazha-LED sysmodule) + config/ryazhahand/lang/).
           if [ -f ovlmenu.ovl ]; then cp ovlmenu.ovl artifacts/ovlmenu.ovl; fi
           if [ -d out ]; then cp -r out artifacts/out; fi
           ls -la artifacts/

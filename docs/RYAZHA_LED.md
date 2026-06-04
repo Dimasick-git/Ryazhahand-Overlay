@@ -56,21 +56,23 @@ enum class Target : uint8_t {
     HomeButton = 1,  // только LED кнопки HOME
     JoyConL    = 2,
     JoyConR    = 3,
+    LiteAll    = 4,  // Switch Lite -- единственный сегмент LED
 };
 
 struct Settings {
-    Mode    mode;
-    Target  target;
-    uint8_t intensity;   // 0..255
-    uint8_t r, g, b;     // цвет (если поддерживается железом)
+    Mode     mode            = Mode::Off;
+    Target   target          = Target::Auto;
+    uint8_t  brightness      = 80;    // 0..100 %
+    uint32_t pulseIntervalMs = 500;   // период пульсации, мс
+    uint8_t  colorR = 0xFF, colorG = 0xFF, colorB = 0xFF; // RGB для Joy-Con LED
 };
 
-bool isLite();                      // авто-детект Switch Lite
-bool load(Settings& out);           // прочитать led.ini, false если файла нет
-bool save(const Settings& s);       // записать led.ini + триггер reload
-void touchReloadTrigger();          // только триггер, без записи
-const char* modeName(Mode m);       // локализованное имя для UI
-const char* targetName(Target t);   // локализованное имя для UI
+bool isLiteDetected();                  // авто-детект Switch Lite
+Settings load();                        // прочитать led.ini (defaults если файла нет)
+bool save(const Settings& s);           // записать led.ini + триггер reload
+void onButtonPress(uint64_t keysDown);  // мгновенный импульс OnPress из UI-loop
+const char* modeName(Mode m);           // локализованное имя для UI
+const char* targetName(Target t);       // локализованное имя для UI
 ```
 
 ## INI-формат
@@ -78,18 +80,18 @@ const char* targetName(Target t);   // локализованное имя дл�
 ```ini
 # sdmc:/config/ryazhahand/led.ini  -- пишется Ryazhahand-Overlay,
 # читается sys-notif-LED / liteswitch-led.
-[led]
-mode      = pulse           # off | solid | pulse | fade | onpress
-target    = auto            # auto | home | joyconL | joyconR
-intensity = 180             # 0..255
-color_r   = 255
-color_g   = 64
-color_b   = 0
-updated_at = 2026-05-20T17:32:11Z
+mode           = pulse      # off | solid | pulse | fade | onpress
+target         = auto       # auto | home | joyconL | joyconR | lite_all
+brightness     = 80         # 0..100 (%)
+pulse_interval = 500        # период пульсации, мс
+color_r        = 255
+color_g        = 64
+color_b        = 0
 ```
 
-`updated_at` пишется автоматически в UTC ISO-8601 -- удобно для отладки
-"sysmodule подхватил последние настройки?".
+Файл пишется как плоский `key=value` (без секции `[led]`); строки с `#`
+или `;` в начале считаются комментариями. Неизвестные ключи парсер
+пропускает. `brightness` клампится в диапазон `0..100` при чтении.
 
 ## Интеграция в UI
 
