@@ -16,7 +16,7 @@
 #
 # Что качается из github releases (online-only step):
 #   nx-ovlloader.zip (latest)       -> atmosphere/contents/420000000007E51A/ + E51B/
-#                                       + switch/Ultrahand-Reload/Ultrahand-Reload.nro
+#                                       + switch/Ryazhahand-Reload/Ryazhahand-Reload.nro
 #
 # UPSTREAM_SKIP_FETCH=1 пропускает online step (для offline CI / локальной
 # проверки сборки). UPSTREAM_SKIP_ASSETS=1 пропускает всё (для быстрого
