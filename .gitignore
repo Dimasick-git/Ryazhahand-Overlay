@@ -13,6 +13,10 @@ debug/
 *.nsp
 *.bin.h
 
+# Python caches
+__pycache__/
+*.pyc
+
 # IDE/editor
 .vscode/
 .idea/
