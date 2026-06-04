@@ -99,11 +99,19 @@ def convert_rar_to_zip(directory):
             if file.endswith(".rar"):
                 rar_file = os.path.join(root, file)
                 try:
+                    # Snapshot existing folders BEFORE extraction so we only
+                    # zip+delete what THIS archive produces. Listing all dirs
+                    # afterwards would sweep up pre-existing folders and rmtree
+                    # them -- silent data loss.
+                    before = {name for name in os.listdir(root)
+                              if os.path.isdir(os.path.join(root, name))}
+
                     # Extract the .rar file
                     Archive(rar_file).extractall(root)
-                    
-                    # Get the list of extracted folders
-                    extracted_folders = [name for name in os.listdir(root) if os.path.isdir(os.path.join(root, name))]
+
+                    # Get the list of newly extracted folders
+                    extracted_folders = [name for name in os.listdir(root)
+                                         if os.path.isdir(os.path.join(root, name)) and name not in before]
                     
                     # Process each extracted folder
                     for extracted_folder in extracted_folders:

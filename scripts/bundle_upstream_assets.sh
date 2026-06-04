@@ -22,7 +22,9 @@
 # проверки сборки). UPSTREAM_SKIP_ASSETS=1 пропускает всё (для быстрого
 # debug-make без 4 МБ копий).
 
-set -e
+# -u is intentionally omitted: the script probes optional env toggles
+# (UPSTREAM_SKIP_FETCH / UPSTREAM_SKIP_ASSETS) that are normally unset.
+set -eo pipefail
 
 OUT="${1:-out}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

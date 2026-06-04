@@ -23,7 +23,14 @@ All rights reserved.
 """
 import os, shutil, time
 
-username = os.getlogin()
+# os.getlogin() raises OSError when there is no controlling terminal
+# (autostart/.desktop, SSH, cron). Prefer the environment, fall back to it.
+username = os.environ.get("USER") or os.environ.get("LOGNAME")
+if not username:
+    try:
+        username = os.getlogin()
+    except OSError:
+        username = "root"
 bootloader_path = f"/media/{username}/SWITCH SD1/bootloader/"
 backup_path = bootloader_path+"hekate_ipl.ini.bak"
 config_path = bootloader_path+"hekate_ipl.ini"

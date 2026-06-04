@@ -37,20 +37,29 @@ def generate_and_upload_notify(text, font_size=28):
     with open(local_file, "w") as f:
         json.dump(notify_data, f, indent=4)
 
-    ftp = FTP()
-    ftp.connect(FTP_HOST, FTP_PORT)
-    ftp.login(FTP_USERNAME, FTP_PASSWORD)
+    try:
+        ftp = FTP()
+        try:
+            ftp.connect(FTP_HOST, FTP_PORT)
+            ftp.login(FTP_USERNAME, FTP_PASSWORD)
 
-    remote_dir = REMOTE_PATH
-    if not remote_dir.endswith("/"):
-        remote_dir += "/"
-    ftp.cwd(remote_dir)
+            remote_dir = REMOTE_PATH
+            if not remote_dir.endswith("/"):
+                remote_dir += "/"
+            ftp.cwd(remote_dir)
 
-    with open(local_file, "rb") as f:
-        ftp.storbinary(f"STOR {filename}", f)
-
-    ftp.quit()
-    os.remove(local_file)
+            with open(local_file, "rb") as f:
+                ftp.storbinary(f"STOR {filename}", f)
+        finally:
+            # Always close the control connection, even if upload failed.
+            try:
+                ftp.quit()
+            except Exception:
+                ftp.close()
+    finally:
+        # Never leave the temp .notify file behind on disk.
+        if os.path.exists(local_file):
+            os.remove(local_file)
 
 def clear_screen():
     """
@@ -67,7 +76,7 @@ def clear_screen():
 
 def print_banner():
     banner = """
-  \033[37multra\033[31mhand\033[0m \033[35mnotify\033[0m \033[37m¯\\_(ツ)_/¯ \033[0m
+  \033[37mryzha\033[31mhand\033[0m \033[35mnotify\033[0m \033[37m¯\\_(ツ)_/¯ \033[0m
       \033[93m***\033[0m \033[93m*\033[0m    \033[93m**\033[0m    R    R   
    \033[93m* \033[93m*\033[0m   \033[93m*  **\033[0m       X    X   
   \033[93m* \033[93m*\033[0m         \033[93m*  \033[93m*  \033[93m*0\033[0m    0\033[93m*\033[0m  

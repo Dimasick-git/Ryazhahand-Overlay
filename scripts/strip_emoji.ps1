@@ -5,7 +5,7 @@
 
 [CmdletBinding()]
 param(
- [string]$Root = "C:\Users\Admin\Ryazhahand-Overlay",
+ [string]$Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
  [switch]$DryRun
 )
 

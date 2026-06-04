@@ -22,12 +22,22 @@
 # All rights reserved.
 ################################################################################
 
+set -euo pipefail
+
 # Set the path to your Python script
 script_path="/usr/local/bin/l4t_reboot.py"
 
 # Move the script to the desired location
-mv "$(dirname "$0")/l4t_reboot.py" "$script_path"
+src="$(dirname "$0")/l4t_reboot.py"
+if [ ! -f "$src" ]; then
+    echo "Error: l4t_reboot.py not found next to install.sh ($src)" >&2
+    exit 1
+fi
+mv "$src" "$script_path"
 chmod +x "$script_path"
+
+# Make sure the autostart directory exists before writing into it.
+mkdir -p ~/.config/autostart
 
 # Create the .desktop file
 echo "[Desktop Entry]
