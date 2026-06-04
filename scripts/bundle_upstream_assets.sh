@@ -78,6 +78,16 @@ else
     echo "[bundle] WARN: $THEMES_SRC отсутствует -- темы не упакованы"
 fi
 
+# Дефолтные конфиги для свежей установки (config.ini c current_theme=Amber,
+# дефолтная theme.ini, списки overlays/packages). RELEASE.ini сюда НЕ кладём --
+# версию берёт корневой RELEASE.ini проекта.
+CFG_SRC="$ROOT/config/ryazhahand"
+for name in config.ini theme.ini overlays.ini packages.ini; do
+    [ -f "$CFG_SRC/$name" ] || continue
+    cp "$CFG_SRC/$name" "$OUT/config/ryazhahand/$name"
+done
+echo "[bundle] + default config (config/theme/overlays/packages).ini"
+
 # Updater payload.
 if [ -f "$UPSTREAM/payloads/ultrahand_updater.bin" ]; then
     cp "$UPSTREAM/payloads/ultrahand_updater.bin" \
