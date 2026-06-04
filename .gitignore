@@ -57,12 +57,13 @@ neo_sys-notif-LED-main/
 пример стукруты/
 00FF0000636C6BFF/
 
-# Local ovlloader/payloads/kips/etc (not part of this overlay)
-kips/
-payloads/
-sounds/
-themes/
-tools/
+# Local ovlloader/payloads/kips/etc scratch at repo root (not part of this overlay).
+# Anchored to root so committed assets under config/ryazhahand/ are NOT ignored.
+/kips/
+/payloads/
+/sounds/
+/themes/
+/tools/
 
 # Reorg backups
 *.bak

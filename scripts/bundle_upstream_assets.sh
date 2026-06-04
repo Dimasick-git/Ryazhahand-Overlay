@@ -65,12 +65,18 @@ if [ -f "$UPSTREAM/.sounds/default.zip" ]; then
     echo "[bundle] + .sounds/default.zip"
 fi
 
-# Themes.
-for f in "$UPSTREAM/themes"/*.ini; do
-    [ -f "$f" ] || continue
-    cp "$f" "$OUT/config/ryazhahand/themes/$(basename "$f")"
-done
-echo "[bundle] + themes/*.ini (упаковано: $(ls "$UPSTREAM/themes"/*.ini 2>/dev/null | wc -l))"
+# Themes -- наши Ryazha-темы из config/ryazhahand/themes/ (заменяют
+# upstream'овские ultra-*.ini, их в релиз НЕ кладём).
+THEMES_SRC="$ROOT/config/ryazhahand/themes"
+if [ -d "$THEMES_SRC" ]; then
+    for f in "$THEMES_SRC"/*.ini; do
+        [ -f "$f" ] || continue
+        cp "$f" "$OUT/config/ryazhahand/themes/$(basename "$f")"
+    done
+    echo "[bundle] + themes/*.ini (Ryazha: $(ls "$THEMES_SRC"/*.ini 2>/dev/null | wc -l))"
+else
+    echo "[bundle] WARN: $THEMES_SRC отсутствует -- темы не упакованы"
+fi
 
 # Updater payload.
 if [ -f "$UPSTREAM/payloads/ultrahand_updater.bin" ]; then
