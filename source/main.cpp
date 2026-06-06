@@ -5904,6 +5904,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -8150,6 +8151,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -10566,6 +10568,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -15106,6 +15109,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -15128,6 +15132,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -17921,6 +17926,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
@@ -17945,6 +17951,7 @@ public:
             if (!limitedMemory && useSoundEffects) {
 
                 reloadSoundCacheNow.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ (как в upstream): иначе reload+звук ждут следующего нажатия
 
                 //ult::Audio::initialize();
 
