@@ -16701,6 +16701,15 @@ public:
                             
 
                             {
+                                // Глушим звук "выбора" меню СРАЗУ, ещё до медленного
+                                // disk-I/O ниже: sound-поток (у него guard `if
+                                // (launchingOverlay) break;`) увидит флаг и не сыграет
+                                // Enter текущего меню. Цель проиграет свой Enter на
+                                // показе → ровно ОДИН звук на запуске, а не два.
+                                // Раньше launchingOverlay ставился ПОСЛЕ чтения+записи
+                                // ini, и за это время поток успевал сыграть клик меню
+                                // → накладывался на Enter цели = двойной звук.
+                                ult::launchingOverlay.store(true, std::memory_order_release);
 
                                 auto iniData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
 
