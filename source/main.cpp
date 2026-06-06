@@ -7308,10 +7308,7 @@ public:
 
         
 
-                    triggerRumbleDoubleClick.store(true, std::memory_order_release);
-
-                    triggerMoveSound.store(true, std::memory_order_release);
-                    signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                    triggerMoveFeedback(true);
 
                     runAfter = true;
 
@@ -7831,10 +7828,7 @@ public:
 
             isFromSelectionMenu = (fromMenu == "selection");
 
-            triggerRumbleClick.store(true, std::memory_order_release);
-
-            triggerSettingsSound.store(true, std::memory_order_release);
-            signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+            triggerSettingsFeedback();
 
         }
 
@@ -16794,10 +16788,7 @@ public:
 
                         refreshPage.store(true, std::memory_order_release);
 
-                        triggerRumbleClick.store(true, std::memory_order_release);
-
-                        triggerMoveSound.store(true, std::memory_order_release);
-                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                        triggerMoveFeedback();
 
                         return true;
 
@@ -16833,10 +16824,7 @@ public:
 
                         tsl::changeTo<SettingsMenu>(overlayFileName, OVERLAY_STR, overlayName, overlayVersion, "", !supportsAMS110);
 
-                        triggerRumbleClick.store(true, std::memory_order_release);
-
-                        triggerSettingsSound.store(true, std::memory_order_release);
-                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                        triggerSettingsFeedback();
 
                         return true;
 
@@ -17447,10 +17435,7 @@ public:
 
                         refreshPage.store(true, release);
 
-                        triggerRumbleClick.store(true, std::memory_order_release);
-
-                        triggerMoveSound.store(true, std::memory_order_release);
-                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                        triggerMoveFeedback();
 
                         return true;
 
@@ -17486,10 +17471,7 @@ public:
 
                         tsl::changeTo<SettingsMenu>(packageName, PACKAGE_STR, newPackageName, packageVersion);
 
-                        triggerRumbleClick.store(true, std::memory_order_release);
-
-                        triggerSettingsSound.store(true, std::memory_order_release);
-                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                        triggerSettingsFeedback();
 
                         return true;
 
@@ -18347,10 +18329,7 @@ public:
 
                     tsl::changeTo<RyzhandSettingsMenu>();
 
-                    triggerRumbleClick.store(true, std::memory_order_release);
-
-                    triggerSettingsSound.store(true, std::memory_order_release);
-                    signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                    triggerSettingsFeedback();
 
                     return true;
 
@@ -18492,10 +18471,7 @@ public:
 
                 tsl::changeTo<RyzhandSettingsMenu>();
 
-                triggerRumbleClick.store(true, std::memory_order_release);
-
-                triggerSettingsSound.store(true, std::memory_order_release);
-                signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
+                triggerSettingsFeedback();
 
                 return true;
 
