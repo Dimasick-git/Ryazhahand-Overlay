@@ -139,27 +139,32 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - name: Снести существующий релиз для тега (чистая перезапись ассетов)
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          TAG="${{ steps.tag.outputs.tag }}"
+          # pipefail/-e ВЫКЛ: `grep | head` шлёт SIGPIPE первому grep, и под
+          # дефолтным `bash -eo pipefail` это роняло шаг (хотя rid считался
+          # корректно). Этот шаг не должен валить релиз ни при каких раскладах.
+          set +e +o pipefail
+          api="https://api.github.com/repos/$REPO"
           # Если релиз для этого тега уже существует -- удаляем его (тег
-          # остаётся на месте). Следующий шаг пересоздаст релиз с свежими
-          # файлами. Так повторный запуск на том же теге ПЕРЕЗАПИСЫВАЕТ ассеты,
-          # а не падает на 422 "asset already exists" и не плодит дубликаты.
+          # остаётся). Следующий шаг пересоздаёт релиз со свежими файлами,
+          # поэтому повторный запуск на том же теге ПЕРЕЗАПИСЫВАЕТ ассеты.
           rid=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/$REPO/releases/tags/$TAG" \
-            | grep -o '"id": *[0-9]*' | head -1 | grep -o '[0-9]*')
+                -H "Accept: application/vnd.github+json" \
+                "$api/releases/tags/$TAG" \
+                | grep -o '"id"[[:space:]]*:[[:space:]]*[0-9]*' | head -n1 | tr -dc '0-9')
           if [ -n "$rid" ]; then
             echo "Существующий релиз $rid для $TAG -- удаляю (ассеты пересоздадутся)"
             curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/$REPO/releases/$rid" \
-              -o /dev/null -w "delete release -> %{http_code}\n"
+              "$api/releases/$rid" -o /dev/null -w "delete release -> %{http_code}\n"
           else
             echo "Релиза для $TAG ещё нет -- будет создан новый"
           fi
+          exit 0
 
       - name: Создать GitHub Release
         uses: softprops/action-gh-release@v2
