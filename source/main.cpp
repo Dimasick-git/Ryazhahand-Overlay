@@ -7311,6 +7311,7 @@ public:
                     triggerRumbleDoubleClick.store(true, std::memory_order_release);
 
                     triggerMoveSound.store(true, std::memory_order_release);
+                    signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                     runAfter = true;
 
@@ -7833,6 +7834,7 @@ public:
             triggerRumbleClick.store(true, std::memory_order_release);
 
             triggerSettingsSound.store(true, std::memory_order_release);
+            signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
         }
 
@@ -16795,6 +16797,7 @@ public:
                         triggerRumbleClick.store(true, std::memory_order_release);
 
                         triggerMoveSound.store(true, std::memory_order_release);
+                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                         return true;
 
@@ -16833,6 +16836,7 @@ public:
                         triggerRumbleClick.store(true, std::memory_order_release);
 
                         triggerSettingsSound.store(true, std::memory_order_release);
+                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                         return true;
 
@@ -17446,6 +17450,7 @@ public:
                         triggerRumbleClick.store(true, std::memory_order_release);
 
                         triggerMoveSound.store(true, std::memory_order_release);
+                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                         return true;
 
@@ -17484,6 +17489,7 @@ public:
                         triggerRumbleClick.store(true, std::memory_order_release);
 
                         triggerSettingsSound.store(true, std::memory_order_release);
+                        signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                         return true;
 
@@ -18344,6 +18350,7 @@ public:
                     triggerRumbleClick.store(true, std::memory_order_release);
 
                     triggerSettingsSound.store(true, std::memory_order_release);
+                    signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                     return true;
 
@@ -18488,6 +18495,7 @@ public:
                 triggerRumbleClick.store(true, std::memory_order_release);
 
                 triggerSettingsSound.store(true, std::memory_order_release);
+                signalFeedback();   // разбудить sound-тред СРАЗУ — иначе звук Move/Settings ждёт следующего нажатия
 
                 return true;
 
