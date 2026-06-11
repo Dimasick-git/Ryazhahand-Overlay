@@ -5762,8 +5762,6 @@ public:
 
                 ult::holdDurationMs = currentHoldMs;
 
-                holdDurationMs = currentHoldMs;
-
                 // 0.5, 1.0, 1.5, ... 5.0 секунды -- 10 шагов.
 
                 static std::vector<std::string> holdLabels;
@@ -5809,8 +5807,6 @@ public:
                     const u64 ms = static_cast<u64>((index + 1) * 500);
 
                     ult::holdDurationMs = ms;
-
-                    holdDurationMs = ms;
 
                     setRyzhandConfig("hold_duration", ult::to_string(ms));
 
@@ -15714,9 +15710,7 @@ void initializeSettingsAndDirectories() {
 
         const u64 ms = static_cast<u64>(std::max(500, std::min(ult::stoi(holdStr), 5000)));
 
-        holdDurationMs = ms;
-
-        ult::holdDurationMs = ms; // либа держит свой экземпляр (processHold в tesla.hpp)
+        ult::holdDurationMs = ms; // единственный экземпляр (либа, processHold в tesla.hpp)
 
     }
 
