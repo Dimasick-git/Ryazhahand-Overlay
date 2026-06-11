@@ -11124,62 +11124,6 @@ bool drawCommandsMenu(
 
                                 }
 
-                                if (commandName.compare(0, HOLD_PATTERN_LEN, HOLD_PATTERN) == 0) {
-
-                                    switch (commandName[HOLD_PATTERN_LEN]) {
-
-                                        case 't':
-
-                                            if (commandName.compare(HOLD_PATTERN_LEN, TRUE_STR_LEN, TRUE_STR) == 0) {
-
-                                                isHold = true;
-
-                                            }
-
-                                            break;
-
-                                        case 'f':
-
-                                            if (commandName.compare(HOLD_PATTERN_LEN, FALSE_STR_LEN, FALSE_STR) == 0) {
-
-                                                isHold = false;
-
-                                            }
-
-                                            break;
-
-                                    }
-
-                                    continue;
-
-                                }
-
-                                if (commandName.compare(0, HEADER_INDENT_PATTERN_LEN, HEADER_INDENT_PATTERN) == 0) {
-
-                                    switch (commandName[HEADER_INDENT_PATTERN_LEN]) {
-
-                                        case 't':
-
-                                            if (commandName.compare(HEADER_INDENT_PATTERN_LEN, TRUE_STR_LEN, TRUE_STR) == 0) {
-
-                                                useHeaderIndent = true;
-
-                                            }
-
-                                            break;
-
-                                        case 'f':
-
-                                            if (commandName.compare(HEADER_INDENT_PATTERN_LEN, FALSE_STR_LEN, FALSE_STR) == 0) {
-
-                                                useHeaderIndent = false;
-
-                                            }
-
-                                            break;
-
-                                    }
-
                                 if (commandName.compare(0, HOS_VERSION_PATTERN_LEN, HOS_VERSION_PATTERN) == 0) {
 
                                     commandHOSFirmware = commandName.substr(HOS_VERSION_PATTERN_LEN);
