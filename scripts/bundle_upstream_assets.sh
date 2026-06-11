@@ -3,7 +3,7 @@
 # Copy upstream Ultrahand-Overlay assets + nx-ovlloader release into our out/
 # so that release zip = sd-card-ready (как у ppkantorski sdout.zip).
 #
-# Что копируется (из vendor/ultrahand-upstream/, submodule пинят на v2.4.2):
+# Что копируется (из vendor/ultrahand-upstream/, submodule пинят на v2.4.5):
 #   sounds/*.wav                     -> config/ryazhahand/sounds/  (default pack)
 #   .sounds/default.zip              -> config/ryazhahand/.sounds/default.zip
 #   themes/*.ini                     -> config/ryazhahand/themes/
