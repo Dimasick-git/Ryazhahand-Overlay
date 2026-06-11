@@ -1,0 +1,122 @@
+# Author: Dimasick-git
+#
+# Автосинк сабмодулей каждые 6 часов:
+#   lib/libryazhahand        -> origin/main (сам синкается с апстримом своим
+#                               workflow'ом с 3-way merge кастомов)
+#   vendor/ultrahand-upstream -> последний релизный тег апстрима (ассеты:
+#                               звуки, темы, payloads для sdout.zip)
+#
+# Перед пушем -- ПОЛНАЯ сборка ovlmenu.ovl в том же контейнере, что и build.yml:
+# сломанный бамп не уезжает в main, вместо этого открывается issue.
+name: sync submodules
+
+on:
+  schedule:
+    - cron: '30 */6 * * *'   # +30 мин после синка либы, чтобы забрать свежий main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-submodules
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:20251231
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mark workspace safe
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory '*'
+
+      - name: Bump submodules
+        id: bump
+        shell: bash
+        run: |
+          set -e
+          # 1) libryazhahand -> origin/main
+          git -C lib/libryazhahand fetch origin main --depth 1
+          git -C lib/libryazhahand checkout -q FETCH_HEAD
+          # 2) vendor/ultrahand-upstream -> последний релизный тег
+          git -C vendor/ultrahand-upstream fetch --tags --depth 1 origin 2>/dev/null || \
+            git -C vendor/ultrahand-upstream fetch --tags origin
+          LATEST_TAG=$(git -C vendor/ultrahand-upstream tag --sort=-creatordate | head -1)
+          if [ -n "$LATEST_TAG" ]; then
+            echo "vendor latest tag: $LATEST_TAG"
+            git -C vendor/ultrahand-upstream checkout -q "refs/tags/$LATEST_TAG"
+          fi
+          # есть ли что коммитить?
+          if git diff --quiet -- lib/libryazhahand vendor/ultrahand-upstream; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "Сабмодули уже на актуальных коммитах."
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+            git submodule status | sed 's/^/  /'
+          fi
+
+      - name: Дотянуть switch-* зависимости (best-effort)
+        if: steps.bump.outputs.changed == '1'
+        continue-on-error: true
+        shell: bash
+        run: |
+          (yes | sudo -E dkp-pacman -Syu --noconfirm) \
+            || (yes | dkp-pacman -Syu --noconfirm) \
+            || echo "::warning::pacman -Syu failed; will rely on image contents"
+          dkp-pacman -S --needed --noconfirm \
+            switch-curl switch-zlib switch-libpng \
+            switch-mbedtls switch-bzip2 switch-libjpeg-turbo \
+            switch-pkg-config switch-glm switch-libjson-c \
+            || echo "::warning::pacman -S failed; using whatever's in the image"
+
+      - name: Проверочная сборка с новыми сабмодулями
+        if: steps.bump.outputs.changed == '1'
+        shell: bash
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          set -o pipefail
+          make -j$(nproc) 2>&1 | tee build.log
+
+      - name: Хвост лога при ошибке
+        if: failure()
+        shell: bash
+        run: |
+          tail -n 120 build.log 2>/dev/null || true
+          grep -nE 'error:|undefined reference|fatal error' build.log 2>/dev/null | tail -n 40 || true
+
+      - name: Commit + push
+        if: steps.bump.outputs.changed == '1'
+        shell: bash
+        run: |
+          git config user.name "ryazha-sync[bot]"
+          git config user.email "ryazha-sync[bot]@users.noreply.github.com"
+          LIBSHA=$(git -C lib/libryazhahand rev-parse --short HEAD)
+          VENTAG=$(git -C vendor/ultrahand-upstream describe --tags --exact-match 2>/dev/null || \
+                   git -C vendor/ultrahand-upstream rev-parse --short HEAD)
+          git add lib/libryazhahand vendor/ultrahand-upstream
+          git commit -m "chore(sync): bump libryazhahand ${LIBSHA}, vendor ${VENTAG} (проверено сборкой)"
+          git push origin HEAD:main
+
+      - name: Issue при сломанной сборке
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          EXISTING=$(gh issue list --state open --search "sync submodules: сломан билд" --json number --jq 'length' 2>/dev/null || echo 0)
+          if [ "$EXISTING" = "0" ]; then
+            gh issue create --title "sync submodules: сломан билд после бампа ($(date -u +%F))" --body \
+              "Автобамп сабмодулей не прошёл проверочную сборку — изменения НЕ запушены.
+          Лог: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" || true
+          fi

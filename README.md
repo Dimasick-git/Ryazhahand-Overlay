@@ -1,16 +1,16 @@
 # Ryazhahand-Overlay
 
-**EN:** Tesla overlay menu for Nintendo Switch (Atmosphere CFW). Forks Ultrahand-Overlay (ppkantorski, engine parity with v2.4.5) and replaces the underlying libtesla with libryazhahand. Adds Ryazha LED control, audio sound packs, PNG wallpaper, custom TXT reader. Requires `nx-ovlloader`. HOS 16.0.0+. License: GPL-2.0.
+**EN:** Standalone Tesla overlay menu for Nintendo Switch (Atmosphere CFW), powered by its own [libryazhahand](https://github.com/Dimasick-git/libryazhahand) library. Ships Ryazha LED control, audio sound packs, PNG wallpaper, custom TXT reader. Requires `nx-ovlloader`. HOS 16.0.0+. License: GPL-2.0.
 
 ---
 
 ## Что это
 
-Tesla-меню для Switch — гибкий интерпретатор `.ini`-пакетов и host для других оверлеев (RCU, статус-мониторов и т.д.). Форк [Ultrahand-Overlay](https://github.com/ppkantorski/Ultrahand-Overlay) с заменой libtesla на собственный форк [libryazhahand](https://github.com/Dimasick-git/libryazhahand).
+Самостоятельное Tesla-меню для Switch — гибкий интерпретатор `.ini`-пакетов и host для других оверлеев (RCU, статус-мониторов и т.д.). Работает на собственной библиотеке [libryazhahand](https://github.com/Dimasick-git/libryazhahand).
 
 ## Что умеет
 
-Движок пакетов — паритет с Ultrahand **v2.4.5**:
+Движок пакетов:
 
 - Файловая работа на SD: создание, копирование, перемещение, удаление, .zip-распаковка без выхода в HBL.
 - HTTPS-загрузка файлов прямо из меню; авто-NTP-синхронизация часов перед загрузками.
@@ -18,7 +18,7 @@ Tesla-меню для Switch — гибкий интерпретатор `.ini`-
 - Hex-патчи бинарей по смещению, конвертация IPS / pchtxt.
 - Запуск других `.ovl` оверлеев (RCU, Status Monitor и т.д.) + уведомление, если файл оверлея отсутствует.
 - Управление сисмодулями из пакетов: `module` (start/stop по program ID), `ipc-exec`, `ntp-sync`, `refresh-return`, `refresh combos`.
-- Условные плейсхолдеры `{if_null}` / `{if_==}` / `{if_>}` / `{if_version_>=}` и др., `{crc32(<путь>)}`, `{ovl_version(<путь>)}` (+ alias `{ultrahand_version}` для совместимости с upstream-пакетами).
+- Условные плейсхолдеры `{if_null}` / `{if_==}` / `{if_>}` / `{if_version_>=}` и др., `{crc32(<путь>)}`, `{ovl_version(<путь>)}` (+ совместимый alias для сторонних пакетов).
 - Standalone-условия в пакетах: `path_exists`, `ipc_exists`, `module_exists`, `module_is_active`, `matching_txt_line`, `matching_hex_val`, `matching_ini_val` (все с `!`-отрицанием).
 - Директивы меню: `;visibility_condition=`, `;toggle_state_condition=`, `;hold=true` (удержание A с прогрессом), `;device_state=`, `;hos_version=`, `;ams_version=`, `;ram_size_gb=`.
 
@@ -37,7 +37,7 @@ Ryazha-кастомы:
 - TXT-читалка (UTF-8 word-wrap, смена шрифта, из `/switch/RyazhenkaAI/data/`), конвертация модов.
 - Локализация: 14 языков, дефолт — русский.
 
-> Нумерация релизов своя (2.3.x); соответствие движку upstream указано выше.
+> Текущая линия релизов — 2.3.x.
 
 ## Установка
 
@@ -83,10 +83,10 @@ make
 
 ## Ассеты по умолчанию
 
-`scripts/bundle_upstream_assets.sh` тянет дефолтные звуки, темы, payloads из vendored upstream Ultrahand v2.4.5 (`vendor/ultrahand-upstream/`) и пакует в релизный `sdout.zip`. Локальные правки (PNG обои, LED конфиги) кладутся в `config/ryazhahand/` поверх дефолтов.
+`scripts/bundle_upstream_assets.sh` тянет дефолтные звуки, темы и payloads из vendored-сабмодуля в `vendor/` и пакует в релизный `sdout.zip`. Локальные правки (PNG обои, LED конфиги) кладутся в `config/ryazhahand/` поверх дефолтов. Сабмодули обновляются автоматически каждые 6 часов (workflow `sync_submodules.yml` с проверочной сборкой перед пушем).
 
 ## Лицензия
 
 GPL-2.0. Атрибуции — `common/README.md` (Studious-Pancake и др.).
 
-Авторы: ppkantorski (Ultrahand), Dimasick-git (Ryazha-форк, LED-модуль, аудио, обои, TXT reader).
+Авторы: Dimasick-git (Ryazhahand, LED-модуль, аудио, обои, TXT reader). В основе — открытый код ppkantorski и контрибьюторов (атрибуции — `common/README.md`, `SUB_LICENSE`).
