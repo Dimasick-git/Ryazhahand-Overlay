@@ -150,10 +150,16 @@ namespace Payload {
     void StageUsbPdTeardown() {
         // Force console to handheld mode policy, which triggers USB-PD CC pin teardown.
         // This signals the dock to cut its 5V rail before spsmShutdown fires the PMIC.
+#if __has_include(<switch/services/omm.h>)
         if (R_SUCCEEDED(ommInitialize())) {
             (void)ommSetOperationModePolicy(OmmOperationModePolicy_Handheld);
             ommExit();
         }
+#else
+        // Пинованный libnx в CI ещё без omm-сервиса: мягкая деградация --
+        // пропускаем policy-сигнал доку (поведение как до v2.4.5). При бампе
+        // libnx ветка выше включится автоматически.
+#endif
     }
 
     HekateConfigList LoadHekateConfigList() {

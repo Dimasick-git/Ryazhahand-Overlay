@@ -5498,8 +5498,6 @@ bool applyPlaceholderReplacements(std::vector<std::string>& cmd, const std::stri
 
                 return NULL_STR;
 
-            }
-
             if (listPath.empty() || !isFileOrDirectory(listPath)) return NULL_STR;
 
             return returnOrNull(getEntryFromListFile(listPath, ult::stoi(indexStr)));
