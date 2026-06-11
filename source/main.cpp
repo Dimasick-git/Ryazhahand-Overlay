@@ -2018,7 +2018,7 @@ bool handleRunningInterpreter(uint64_t& keysDown, uint64_t& keysHeld) {
 
 static u64 holdStartTick = 0;
 
-static u64 holdDurationMs = 0;
+// holdDurationMs живёт в ult:: (libryazhahand, processHold). Локальная static убрана: была неоднозначность с ult::holdDurationMs после bump до v2.4.5.
 
 static std::string lastSelectedListItemFooter;
 
@@ -3344,7 +3344,7 @@ private:
 
         }
 
-        initializeTheme();
+        tsl::initializeTheme();
 
         tsl::initializeThemeVars();
 
@@ -4005,18 +4005,6 @@ public:
     ~RyzhandSettingsMenu() {
 
         lastSelectedListItemFooter = "";
-
-        if (dropdownSelection == "softwareUpdateMenu") {
-
-            devImageData.clear();
-
-            devImageData.shrink_to_fit();
-
-            devImageDismissTick = 0;
-
-            devImageDismissing  = false;
-
-        }
 
     }
 
@@ -15770,7 +15758,7 @@ void initializeSettingsAndDirectories() {
 
     defaultLang = sec.at(DEFAULT_LANG_STR);
 
-    if (needsUpdate)
+    if (needsUpdate) {
 
         saveIniFileData(RYZHAND_CONFIG_INI_PATH, iniData);
 
@@ -15822,7 +15810,7 @@ void initializeSettingsAndDirectories() {
 
     // Initialize theme
 
-    initializeTheme();
+    tsl::initializeTheme();
 
     tsl::initializeThemeVars();
 
