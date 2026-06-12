@@ -128,7 +128,14 @@ enum class UpdateScanState {
 
 };
 
-static UpdateScanState g_updateScanState = UpdateScanState::Idle;
+// Состояние сканера читается рендером (UI-поток) и пишется фоновым потоком
+// скана -> atomic. Текстовый результат (g_updateSectionLines/InfoLines)
+// защищён g_updateTextMutex: фон публикует, UI читает в drawTable.
+static std::atomic<UpdateScanState> g_updateScanState{UpdateScanState::Idle};
+
+static std::mutex g_updateTextMutex;
+
+static std::atomic<bool> g_updateScanThreadAlive{false};
 
 static std::vector<std::tuple<std::string, std::string, std::string>> g_updateTargets; // repo, displayName, localVersion
 
@@ -1522,6 +1529,8 @@ static void ensureUpdateInfoVectorsInitialized() {
 
 static void setUpdateInfoText(const std::string& text) {
 
+    std::lock_guard<std::mutex> lk(g_updateTextMutex);   // фон-поток vs UI-рендер
+
     ensureUpdateInfoMinLines(8);
 
     // Render the updates text in the left column (section) so wrapping always produces lines.
@@ -1532,7 +1541,10 @@ static void setUpdateInfoText(const std::string& text) {
 
 }
 
-static void startOverlayUpdateScan() {
+// Тело скана: выполняется В ФОНОВОМ ПОТОКЕ (см. startOverlayUpdateScan).
+// Сокет уже инициализирован на UI-потоке до спавна. Текстовые публикации
+// идут через setUpdateInfoText (берёт g_updateTextMutex).
+static void runUpdateScanBody() {
 
     g_updateTargets.clear();
 
@@ -1546,7 +1558,7 @@ static void startOverlayUpdateScan() {
 
         setUpdateInfoText("Не удалось инициализировать интернет");
 
-        g_updateScanState = UpdateScanState::Done;
+        g_updateScanState.store(UpdateScanState::Done);
 
         return;
 
@@ -1604,13 +1616,13 @@ static void startOverlayUpdateScan() {
 
         setUpdateInfoText("Нет поддерживаемых оверлеев для проверки");
 
-        g_updateScanState = UpdateScanState::Done;
+        g_updateScanState.store(UpdateScanState::Done);
 
         return;
 
     }
 
-    g_updateScanState = UpdateScanState::Downloading;
+    g_updateScanState.store(UpdateScanState::Downloading);
 
     size_t jsonDownloadedCount = 0;
 
@@ -1668,7 +1680,7 @@ static void startOverlayUpdateScan() {
 
         setUpdateInfoText("Не удалось скачать данные GitHub");
 
-        g_updateScanState = UpdateScanState::Done;
+        g_updateScanState.store(UpdateScanState::Done);
 
         return;
 
@@ -1688,7 +1700,7 @@ static void startOverlayUpdateScan() {
 
     setUpdateInfoText(result);
 
-    g_updateScanState = UpdateScanState::Done;
+    g_updateScanState.store(UpdateScanState::Done);
 
     // Освобождаем heap, занятый сканом -- targets и found могут быть
 
@@ -1703,6 +1715,73 @@ static void startOverlayUpdateScan() {
     g_updatesFound.clear();
 
     g_updatesFound.shrink_to_fit();
+
+    g_updateScanThreadAlive.store(false, std::memory_order_release);
+
+}
+
+// libnx-поток скана: 256KB стек (curl + mbedTLS-хендшейк требуют много
+// стека -- дефолтного std::thread может не хватить). Хендл переиспользуется:
+// перед новым запуском дожидаемся и закрываем прошлый.
+static Thread g_updateScanThread{};
+static bool   g_updateScanThreadStarted = false;
+
+static void updateScanThreadEntry(void*) {
+    runUpdateScanBody();
+}
+
+// Запуск скана БЕЗ блокировки UI: сокет поднимается здесь (UI-поток, до
+// спавна -- happens-before для фон-потока), затем тело уходит в libnx-поток.
+// Рендер и кнопка только опрашивают g_updateScanState.
+static void startOverlayUpdateScan() {
+
+    if (g_updateScanState.load() == UpdateScanState::Downloading) return; // уже идёт
+
+    // Прибраться за прошлым запуском (поток уже завершился -- alive=false).
+    if (g_updateScanThreadStarted && !g_updateScanThreadAlive.load(std::memory_order_acquire)) {
+
+        threadWaitForExit(&g_updateScanThread);
+
+        threadClose(&g_updateScanThread);
+
+        g_updateScanThreadStarted = false;
+
+    }
+
+    if (!ensureSocketReady()) {
+
+        setUpdateInfoText("Не удалось инициализировать интернет");
+
+        g_updateScanState.store(UpdateScanState::Done);
+
+        return;
+
+    }
+
+    g_updateScanState.store(UpdateScanState::Downloading);
+
+    setUpdateInfoText("Сканирую обновления...");
+
+    g_updateScanThreadAlive.store(true, std::memory_order_release);
+
+    // 0x40000 = 256KB стек, приоритет 0x2C и core -2 -- как у фон-пуллеров libtesla.
+    Result rc = threadCreate(&g_updateScanThread, updateScanThreadEntry, nullptr, nullptr, 0x40000, 0x2C, -2);
+
+    if (R_SUCCEEDED(rc) && R_SUCCEEDED(threadStart(&g_updateScanThread))) {
+
+        g_updateScanThreadStarted = true;
+
+    } else {
+
+        // Поток не создался -- синхронный fallback, чтобы не зависнуть в "Сканирую".
+
+        if (R_SUCCEEDED(rc)) threadClose(&g_updateScanThread);
+
+        g_updateScanThreadAlive.store(false, std::memory_order_release);
+
+        runUpdateScanBody();
+
+    }
 
 }
 
@@ -1779,12 +1858,17 @@ inline void clearMemory() {
     // не отдаёт capacity обратно malloc'у -- shrink_to_fit отдаёт.
 
     // g_updateSectionLines/g_updateInfoLines НЕ трогаем: это persistent
-
     // UI-state с текстом, который сейчас показывается в "Обновлениях".
+    // g_updateTargets/g_updatesFound трогаем ТОЛЬКО когда фон-поток скана
+    // не активен -- иначе гонка (поток сам их освобождает по завершении).
 
-    g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
+    if (!g_updateScanThreadAlive.load(std::memory_order_acquire)) {
 
-    g_updatesFound.clear();    g_updatesFound.shrink_to_fit();
+        g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
+
+        g_updatesFound.clear();    g_updatesFound.shrink_to_fit();
+
+    }
 
     clearIniMutexCache();
 
@@ -5880,45 +5964,42 @@ public:
 
             createToggleListItem(list, PAGE_SWAP, usePageSwap, "page_swap", false, true);
 
-            // Авто-синхронизация часов по NTP перед загрузками (upstream v2.4.5).
+            addHeader(list, "ОБНОВЛЕНИЯ");
+
+            // Авто-синхронизация часов по NTP перед загрузками -- логически
+            // относится к обновлениям/загрузкам, поэтому в этой секции.
 
             useAutoNTPSync = getBoolValue("auto_ntp_sync", true);
 
             createToggleListItem(list, NTP_SYNC_DOWNLOADS, useAutoNTPSync, "auto_ntp_sync");
 
-            addHeader(list, "ОБНОВЛЕНИЯ");
-
             enableUpdateScanner = getBoolValue("update_scanner", false);
 
             createToggleListItem(list, "Сканер обновлений", enableUpdateScanner, "update_scanner");
 
-            // Явная кнопка "Проверить сейчас". Сама проверка делает синхронные
-
-            // HTTPS-запросы к GitHub и съедает curl-канал; делаем её ручной,
-
-            // чтобы автоматический скан не мешал скачивать пакеты.
+            // Явная кнопка "Проверить сейчас". Скан уходит в ФОНОВЫЙ поток --
+            // UI не зависает; статус ("Сканирую..."/"Готово") обновляется при
+            // следующем открытии экрана/перерисовке по g_updateScanState.
 
             {
 
                 auto* scanNowItem = new tsl::elm::ListItem("Проверить обновления");
 
-                scanNowItem->setValue(g_updateScanState == UpdateScanState::Downloading
+                const auto st = g_updateScanState.load();
 
-                                          ? "Сканирую..." : "");
+                scanNowItem->setValue(st == UpdateScanState::Downloading ? "Сканирую..."
+
+                                      : st == UpdateScanState::Done       ? "Готово" : "");
 
                 scanNowItem->setClickListener([scanNowItem](u64 keys) {
 
                     if (!(keys & HidNpadButton_A)) return false;
 
-                    if (g_updateScanState == UpdateScanState::Downloading) return true;
+                    if (g_updateScanState.load() == UpdateScanState::Downloading) return true; // уже идёт
 
                     scanNowItem->setValue("Сканирую...");
 
-                    g_updateScanState = UpdateScanState::Idle;
-
-                    startOverlayUpdateScan();    // блокирует UI на 10-30с -- это явный выбор юзера
-
-                    scanNowItem->setValue("Готово");
+                    startOverlayUpdateScan();   // не блокирует: спавнит detached-поток
 
                     return true;
 
@@ -14938,7 +15019,7 @@ public:
 
                     // настройки и явно нажать "Проверить обновления".
 
-                    if (g_updateScanState == UpdateScanState::Idle) {
+                    if (g_updateScanState.load() == UpdateScanState::Idle) {
 
                         setUpdateInfoText("Откройте Настройки → Проверить обновления");
 
@@ -14947,38 +15028,41 @@ public:
                 }
 
                 // Ensure the updates block always has visible lines/text.
+                // Лок на весь блок: фон-поток скана может писать в эти же
+                // векторы через setUpdateInfoText, а drawTable их читает.
+                addHeader(list, "ОБНОВЛЕНИЯ");
 
-                ensureUpdateInfoMinLines(8);
+                {
 
-                if (!g_updateSectionLines.empty() && g_updateSectionLines[0].empty()) {
+                    std::lock_guard<std::mutex> lk(g_updateTextMutex);
 
-                    if (!enableUpdateScanner) {
+                    ensureUpdateInfoMinLines(8);
 
-                        g_updateSectionLines[0] = "Сканер обновлений отключен";
+                    if (!g_updateSectionLines.empty() && g_updateSectionLines[0].empty()) {
 
-                    } else if (g_updateScanState == UpdateScanState::Downloading) {
+                        if (!enableUpdateScanner) {
 
-                        g_updateSectionLines[0] = "Нет данных";
+                            g_updateSectionLines[0] = "Сканер обновлений отключен";
 
-                    } else if (g_updateScanState == UpdateScanState::Done) {
+                        } else if (g_updateScanState.load() == UpdateScanState::Downloading) {
 
-                        g_updateSectionLines[0] = "Нет данных";
+                            g_updateSectionLines[0] = "Сканирую...";
 
-                    } else {
+                        } else {
 
-                        g_updateSectionLines[0] = "Нет данных";
+                            g_updateSectionLines[0] = "Нет данных";
+
+                        }
 
                     }
 
+                    std::vector<std::vector<std::string>> dummyTableData;
+
+                    drawTable(list, dummyTableData, g_updateSectionLines, g_updateInfoLines, ult::stoi(USERGUIDE_OFFSET), 20, 9, 4,
+
+                              DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR, false, false, true);
+
                 }
-
-                addHeader(list, "ОБНОВЛЕНИЯ");
-
-                std::vector<std::vector<std::string>> dummyTableData;
-
-                drawTable(list, dummyTableData, g_updateSectionLines, g_updateInfoLines, ult::stoi(USERGUIDE_OFFSET), 20, 9, 4,
-
-                          DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR, false, false, true);
 
                 addGap(list, 12);
 
