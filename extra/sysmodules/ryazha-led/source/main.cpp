@@ -62,6 +62,15 @@ extern "C" {
     void __appInit(void) {
         Result rc;
 
+        // ВАЖНО: smInitialize() обязан идти ПЕРВЫМ. Любой service-init до
+        // него (включая setsysInitialize) падает с InitFail_SM -- из-за
+        // этого setsysGetProductModel() в detectHardware() возвращал
+        // ошибку, g_isLite оставался false, и Switch Lite уходил на
+        // hidsys-путь, у которого на Lite физически нет LED-кольца.
+        // Итог: "свечение на Lite не работает". Порядок исправлен.
+        rc = smInitialize();
+        if (R_FAILED(rc)) diagAbortWithResult(rc);
+
         rc = setsysInitialize();
         if (R_SUCCEEDED(rc)) {
             SetSysFirmwareVersion fw;
@@ -70,9 +79,6 @@ extern "C" {
                 hosversionSet(MAKEHOSVERSION(fw.major, fw.minor, fw.micro));
             // setsys нужен и main() для setsysGetProductModel -- не закрываем
         }
-
-        rc = smInitialize();
-        if (R_FAILED(rc)) diagAbortWithResult(rc);
 
         rc = fsInitialize();
         if (R_FAILED(rc)) diagAbortWithResult(rc);
@@ -318,9 +324,20 @@ static void loadConfig() {
 static bool g_isLite = false;
 
 static void detectHardware() {
+    // Основной путь: setsys product model (Hoag = Switch Lite).
     SetSysProductModel model = SetSysProductModel_Invalid;
-    if (R_SUCCEEDED(setsysGetProductModel(&model))) {
+    if (R_SUCCEEDED(setsysGetProductModel(&model)) && model != SetSysProductModel_Invalid) {
         g_isLite = (model == SetSysProductModel_Hoag);
+        return;
+    }
+    // Fallback: spl HardwareType (2 = Hoag/Lite). Срабатывает, если setsys
+    // по какой-то причине не поднялся -- чтобы Lite никогда больше не
+    // улетал молча на hidsys-путь без LED.
+    if (R_SUCCEEDED(splInitialize())) {
+        u64 hw = 0;
+        if (R_SUCCEEDED(splGetConfig(SplConfigItem_HardwareType, &hw)))
+            g_isLite = (hw == 2 /* Hoag */);
+        splExit();
     }
 }
 
