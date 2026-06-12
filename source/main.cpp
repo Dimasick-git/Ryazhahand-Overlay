@@ -4212,8 +4212,6 @@ public:
 
             addListItem(list, LANGUAGE, defaultLang, "languageMenu");
 
-            addListItem(list, NOTIFICATIONS, DROPDOWN_SYMBOL, "notificationsMenu");
-
             addListItem(list, SYSTEM, DROPDOWN_SYMBOL, "systemMenu");
 
             addListItem(list, TXT_READER, DROPDOWN_SYMBOL, "txtReaderMenu");
@@ -5346,7 +5344,7 @@ public:
 
             createToggleListItem(list, EXTENDED_BACKDROP, extendedWidgetBackdrop, "extended_widget_backdrop", true);
 
-        } else if (dropdownSelection == "notificationsMenu") {
+        } else if (dropdownSelection == "miscMenu") {
 
             // Load INI section once instead of 14 separate file reads
 
