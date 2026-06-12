@@ -128,14 +128,9 @@ enum class UpdateScanState {
 
 };
 
-// Состояние сканера читается рендером (UI-поток) и пишется фоновым потоком
-// скана -> atomic. Текстовый результат (g_updateSectionLines/InfoLines)
-// защищён g_updateTextMutex: фон публикует, UI читает в drawTable.
+// Состояние сканера: atomic (читается рендером, пишется шагами скана на
+// том же UI-потоке -- atomic оставлен для единообразных load/store).
 static std::atomic<UpdateScanState> g_updateScanState{UpdateScanState::Idle};
-
-static std::mutex g_updateTextMutex;
-
-static std::atomic<bool> g_updateScanThreadAlive{false};
 
 static std::vector<std::tuple<std::string, std::string, std::string>> g_updateTargets; // repo, displayName, localVersion
 
@@ -1529,8 +1524,6 @@ static void ensureUpdateInfoVectorsInitialized() {
 
 static void setUpdateInfoText(const std::string& text) {
 
-    std::lock_guard<std::mutex> lk(g_updateTextMutex);   // фон-поток vs UI-рендер
-
     ensureUpdateInfoMinLines(8);
 
     // Render the updates text in the left column (section) so wrapping always produces lines.
@@ -1541,248 +1534,115 @@ static void setUpdateInfoText(const std::string& text) {
 
 }
 
-// Тело скана: выполняется В ФОНОВОМ ПОТОКЕ (см. startOverlayUpdateScan).
-// Сокет уже инициализирован на UI-потоке до спавна. Текстовые публикации
-// идут через setUpdateInfoText (берёт g_updateTextMutex).
-static void runUpdateScanBody() {
+// Кооперативный скан обновлений: БЕЗ фоновых потоков. Раньше тело уходило в
+// libnx-поток с curl -- это роняло Tesla-меню (оверлей не рассчитан на
+// сетевой фон-поток). Теперь всё на главном потоке: setup (без сети) + шаги
+// по ОДНОМУ репозиторию за кадр (tickOverlayUpdateScan из handleInput).
+// UI не зависает на 10-30с -- максимум один download (~0.5с) на кадр, между
+// ними экран перерисовывается и можно выйти.
+static size_t g_updateJsonDownloaded = 0;
+static size_t g_updateTagParsed = 0;
 
+// Собрать список целей (overlay -> repo). Только диск/парсинг, без сети.
+static void updateScanSetup() {
     g_updateTargets.clear();
-
     g_updatesFound.clear();
-
     g_updateTargetIndex = 0;
-
     g_updateAnyDownloadSuccess = false;
-
-    if (!ensureSocketReady()) {
-
-        setUpdateInfoText("Не удалось инициализировать интернет");
-
-        g_updateScanState.store(UpdateScanState::Done);
-
-        return;
-
-    }
+    g_updateJsonDownloaded = 0;
+    g_updateTagParsed = 0;
 
     const auto easyMap = loadEasyInstallerOverlayRepoMap();
-
     const std::vector<std::string> overlayFiles = getFilesListByWildcards(OVERLAY_PATH + "*.ovl");
-
     for (const auto& fullPath : overlayFiles) {
-
         const std::string fileName = getNameFromPath(fullPath);
-
         if (fileName.empty() || fileName.front() == '.') continue;
-
         const auto [res, ovlName, ovlVer, usingLibRyzhand, supportsAMS110] = getOverlayInfo(OVERLAY_PATH + fileName);
-
         if (res != ResultSuccess) continue;
-
         std::string repo;
-
         if (!easyMap.empty()) {
-
             const std::string keyName = normalizeId(ovlName);
-
             auto it = easyMap.find(keyName);
-
             if (it != easyMap.end()) repo = it->second;
-
             if (repo.empty()) {
-
                 const std::string keyFile = normalizeId(fileName);
-
                 it = easyMap.find(keyFile);
-
                 if (it != easyMap.end()) repo = it->second;
-
             }
-
         }
-
         if (repo.empty()) repo = repoFromOverlayFilename(fileName);
-
         if (repo.empty()) continue;
-
         std::string localVersion = (fileName == "ovlmenu.ovl") ? std::string(APP_VERSION) : getFirstLongEntry(ovlVer);
-
         if (cleanVersionLabels) localVersion = cleanVersionLabel(localVersion);
-
         g_updateTargets.emplace_back(repo, ovlName, localVersion);
-
     }
+}
 
-    if (g_updateTargets.empty()) {
-
-        setUpdateInfoText("Нет поддерживаемых оверлеев для проверки");
-
-        g_updateScanState.store(UpdateScanState::Done);
-
-        return;
-
-    }
-
-    g_updateScanState.store(UpdateScanState::Downloading);
-
-    size_t jsonDownloadedCount = 0;
-
-    size_t tagParsedCount = 0;
-
-    for (const auto& [repo, displayName, localVersionRaw] : g_updateTargets) {
-
-        const std::string jsonPath = DOWNLOADS_PATH + "gh_" + repo + ".json";
-
-        const std::string urlLatest = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases/latest";
-
-        const std::string urlList = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases?per_page=1";
-
-        deleteFileOrDirectory(jsonPath);
-
-        bool ok = downloadFile(urlLatest, jsonPath, true);
-
-        if (!ok) {
-
-            deleteFileOrDirectory(jsonPath);
-
-            ok = downloadFile(urlList, jsonPath, true);
-
-        }
-
-        if (!ok) continue;
-
-        if (!isFile(jsonPath)) continue;
-
-        ++jsonDownloadedCount;
-
-        std::string tag = extractLatestTagFromGitHubReleasesJson(jsonPath);
-
-        if (tag.empty()) continue;
-
-        ++tagParsedCount;
-
-        g_updateAnyDownloadSuccess = true;
-
-        const std::string localVersion = normalizeVersionForCompare(localVersionRaw);
-
-        tag = normalizeVersionForCompare(tag);
-
-        if (localVersion.empty() || tag.empty()) continue;
-
-        if (localVersion != tag) {
-
-            g_updatesFound.push_back(displayName + " | " + localVersion + " -> " + tag);
-
-        }
-
-    }
-
-    if (jsonDownloadedCount == 0) {
-
+// Финал: собрать текст результата, освободить буферы, state = Done.
+static void updateScanFinish() {
+    if (g_updateJsonDownloaded == 0) {
         setUpdateInfoText("Не удалось скачать данные GitHub");
-
-        g_updateScanState.store(UpdateScanState::Done);
-
-        return;
-
-    }
-
-    std::string result = buildUpdatesResultText();
-
-    const size_t total = g_updateTargets.size();
-
-    const size_t notChecked = (total > tagParsedCount) ? (total - tagParsedCount) : 0;
-
-    if (notChecked > 0) {
-
-        result += "\nНе проверено: " + std::to_string(notChecked);
-
-    }
-
-    setUpdateInfoText(result);
-
-    g_updateScanState.store(UpdateScanState::Done);
-
-    // Освобождаем heap, занятый сканом -- targets и found могут быть
-
-    // приличного размера (десятки overlay'ев * std::string'и). Текст уже
-
-    // в g_updateSectionLines/g_updateInfoLines, эти буферы не нужны.
-
-    g_updateTargets.clear();
-
-    g_updateTargets.shrink_to_fit();
-
-    g_updatesFound.clear();
-
-    g_updatesFound.shrink_to_fit();
-
-    g_updateScanThreadAlive.store(false, std::memory_order_release);
-
-}
-
-// libnx-поток скана: 256KB стек (curl + mbedTLS-хендшейк требуют много
-// стека -- дефолтного std::thread может не хватить). Хендл переиспользуется:
-// перед новым запуском дожидаемся и закрываем прошлый.
-static Thread g_updateScanThread{};
-static bool   g_updateScanThreadStarted = false;
-
-static void updateScanThreadEntry(void*) {
-    runUpdateScanBody();
-}
-
-// Запуск скана БЕЗ блокировки UI: сокет поднимается здесь (UI-поток, до
-// спавна -- happens-before для фон-потока), затем тело уходит в libnx-поток.
-// Рендер и кнопка только опрашивают g_updateScanState.
-static void startOverlayUpdateScan() {
-
-    if (g_updateScanState.load() == UpdateScanState::Downloading) return; // уже идёт
-
-    // Прибраться за прошлым запуском (поток уже завершился -- alive=false).
-    if (g_updateScanThreadStarted && !g_updateScanThreadAlive.load(std::memory_order_acquire)) {
-
-        threadWaitForExit(&g_updateScanThread);
-
-        threadClose(&g_updateScanThread);
-
-        g_updateScanThreadStarted = false;
-
-    }
-
-    if (!ensureSocketReady()) {
-
-        setUpdateInfoText("Не удалось инициализировать интернет");
-
-        g_updateScanState.store(UpdateScanState::Done);
-
-        return;
-
-    }
-
-    g_updateScanState.store(UpdateScanState::Downloading);
-
-    setUpdateInfoText("Сканирую обновления...");
-
-    g_updateScanThreadAlive.store(true, std::memory_order_release);
-
-    // 0x40000 = 256KB стек, приоритет 0x2C и core -2 -- как у фон-пуллеров libtesla.
-    Result rc = threadCreate(&g_updateScanThread, updateScanThreadEntry, nullptr, nullptr, 0x40000, 0x2C, -2);
-
-    if (R_SUCCEEDED(rc) && R_SUCCEEDED(threadStart(&g_updateScanThread))) {
-
-        g_updateScanThreadStarted = true;
-
     } else {
+        std::string result = buildUpdatesResultText();
+        const size_t total = g_updateTargets.size();
+        const size_t notChecked = (total > g_updateTagParsed) ? (total - g_updateTagParsed) : 0;
+        if (notChecked > 0) result += "\nНе проверено: " + std::to_string(notChecked);
+        setUpdateInfoText(result);
+    }
+    g_updateScanState.store(UpdateScanState::Done);
+    g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
+    g_updatesFound.clear();    g_updatesFound.shrink_to_fit();
+}
 
-        // Поток не создался -- синхронный fallback, чтобы не зависнуть в "Сканирую".
+// Один шаг: ОДИН репозиторий (одна сетевая загрузка). Зовётся каждый кадр.
+static void updateScanStep() {
+    if (g_updateScanState.load() != UpdateScanState::Downloading) return;
+    if (g_updateTargetIndex >= g_updateTargets.size()) { updateScanFinish(); return; }
 
-        if (R_SUCCEEDED(rc)) threadClose(&g_updateScanThread);
+    const auto& [repo, displayName, localVersionRaw] = g_updateTargets[g_updateTargetIndex];
+    const std::string jsonPath  = DOWNLOADS_PATH + "gh_" + repo + ".json";
+    const std::string urlLatest = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases/latest";
+    const std::string urlList   = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases?per_page=1";
 
-        g_updateScanThreadAlive.store(false, std::memory_order_release);
-
-        runUpdateScanBody();
-
+    deleteFileOrDirectory(jsonPath);
+    bool ok = downloadFile(urlLatest, jsonPath, true);
+    if (!ok) { deleteFileOrDirectory(jsonPath); ok = downloadFile(urlList, jsonPath, true); }
+    if (ok && isFile(jsonPath)) {
+        ++g_updateJsonDownloaded;
+        std::string tag = extractLatestTagFromGitHubReleasesJson(jsonPath);
+        if (!tag.empty()) {
+            ++g_updateTagParsed;
+            g_updateAnyDownloadSuccess = true;
+            const std::string localVersion = normalizeVersionForCompare(localVersionRaw);
+            tag = normalizeVersionForCompare(tag);
+            if (!localVersion.empty() && !tag.empty() && localVersion != tag)
+                g_updatesFound.push_back(displayName + " | " + localVersion + " -> " + tag);
+        }
     }
 
+    ++g_updateTargetIndex;
+    setUpdateInfoText("Сканирую... " + std::to_string(g_updateTargetIndex) + "/" +
+                      std::to_string(g_updateTargets.size()));
+    if (g_updateTargetIndex >= g_updateTargets.size()) updateScanFinish();
+}
+
+// Запуск: только setup (без сети) + state = Downloading. Сам скан тикается
+// покадрово из handleInput -- UI остаётся живым.
+static void startOverlayUpdateScan() {
+    if (g_updateScanState.load() == UpdateScanState::Downloading) return; // уже идёт
+    if (!ensureSocketReady()) {
+        setUpdateInfoText("Не удалось инициализировать интернет");
+        g_updateScanState.store(UpdateScanState::Done);
+        return;
+    }
+    updateScanSetup();
+    if (g_updateTargets.empty()) {
+        setUpdateInfoText("Нет поддерживаемых оверлеев для проверки");
+        g_updateScanState.store(UpdateScanState::Done);
+        return;
+    }
+    setUpdateInfoText("Сканирую... 0/" + std::to_string(g_updateTargets.size()));
+    g_updateScanState.store(UpdateScanState::Downloading);
 }
 
 static std::string buildUpdatesResultText() {
@@ -1827,9 +1687,10 @@ static std::string buildUpdatesResultText() {
 
 static void tickOverlayUpdateScan() {
 
-    // Direct mode: scan is performed synchronously in startOverlayUpdateScan().
+    // Покадровый прогресс скана: один репозиторий за вызов. No-op, если
+    // скан не запущен (state != Downloading).
 
-    (void)0;
+    updateScanStep();
 
 }
 
@@ -1859,10 +1720,10 @@ inline void clearMemory() {
 
     // g_updateSectionLines/g_updateInfoLines НЕ трогаем: это persistent
     // UI-state с текстом, который сейчас показывается в "Обновлениях".
-    // g_updateTargets/g_updatesFound трогаем ТОЛЬКО когда фон-поток скана
-    // не активен -- иначе гонка (поток сам их освобождает по завершении).
+    // g_updateTargets/g_updatesFound трогаем ТОЛЬКО когда скан НЕ идёт --
+    // иначе updateScanStep() вылетит за границы массива.
 
-    if (!g_updateScanThreadAlive.load(std::memory_order_acquire)) {
+    if (g_updateScanState.load() != UpdateScanState::Downloading) {
 
         g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
 
@@ -6172,6 +6033,10 @@ public:
     virtual bool handleInput(u64 keysDown, u64 keysHeld, touchPosition touchInput, JoystickPosition leftJoyStick, JoystickPosition rightJoyStick) override {
 
         applyHomeLedPatternForKeys(keysDown, keysHeld);
+
+        // Покадровый прогресс скана обновлений (кнопка "Проверить" -- в этом
+        // меню). No-op, если скан не запущен. Главный поток, без фриза.
+        tickOverlayUpdateScan();
 
         // Handle delete item continuous hold behavior
 
@@ -15031,8 +14896,6 @@ public:
                 addHeader(list, "ОБНОВЛЕНИЯ");
 
                 {
-
-                    std::lock_guard<std::mutex> lk(g_updateTextMutex);
 
                     ensureUpdateInfoMinLines(8);
 
