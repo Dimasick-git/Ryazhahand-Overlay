@@ -266,7 +266,7 @@ static void applyHidsysPattern() {
 
 // ─── Config (наш формат) ────────────────────────────────────────────────────
 
-enum LedMode : u8 { LED_OFF = 0, LED_SOLID = 1, LED_PULSE = 2, LED_FADE = 3 };
+enum LedMode : u8 { LED_OFF = 0, LED_SOLID = 1, LED_PULSE = 2, LED_FADE = 3, LED_ONPRESS = 4 };
 
 struct Settings {
     LedMode mode;
@@ -288,6 +288,7 @@ static LedMode parseMode(const char* v) {
     if (!strcmp(v, "solid"))   return LED_SOLID;
     if (!strcmp(v, "pulse"))   return LED_PULSE;
     if (!strcmp(v, "fade"))    return LED_FADE;
+    if (!strcmp(v, "onpress")) return LED_ONPRESS;
     return LED_OFF;
 }
 
@@ -341,23 +342,92 @@ static void detectHardware() {
     }
 }
 
-static void applyLite() {
-    if (!g_gpioInit) return;
-    switch (g_cfg.mode) {
-        case LED_OFF:   gpioLedOff(); break;
-        case LED_SOLID: gpioLedOn();  break;
-        case LED_PULSE:
-        case LED_FADE: {
-            // Цикл "вкл/выкл" с pulseInterval на полупериод. Прерываемся
-            // на reload-файле, чтобы UI мог поменять режим без перезагрузки.
-            const u64 halfNs = (u64)g_cfg.pulseIntervalMs * 1000000ULL;
-            while (true) {
-                gpioLedOn();
-                svcSleepThread(halfNs);
-                if (checkReload()) return;
-                gpioLedOff();
-                svcSleepThread(halfNs);
-                if (checkReload()) return;
+// ─── Switch Lite: software PWM ───────────────────────────────────────────────
+// GPIO 0x35000065 даёт только вкл/выкл. Чтобы получить ЯРКОСТЬ и плавность,
+// гоним программный PWM: период 4 мс (250 Гц -- мерцание не видно глазу),
+// duty (скважность) = яркость. Один кадр = один период: High на duty%,
+// Low на остаток. Один tight-loop, почти всё время спим -- CPU ~0.
+
+static const u64 LITE_PWM_PERIOD_NS = 4'000'000ULL; // 4 мс
+static const u32 LITE_FRAME_MS      = 4;            // мс на кадр (= период)
+
+static void litePwmFrame(u32 duty /*0..100*/) {
+    if (duty >= 100) { gpioLedOn();  svcSleepThread(LITE_PWM_PERIOD_NS); return; }
+    if (duty == 0)   { gpioLedOff(); svcSleepThread(LITE_PWM_PERIOD_NS); return; }
+    const u64 onNs = LITE_PWM_PERIOD_NS * duty / 100;
+    gpioLedOn();  svcSleepThread(onNs);
+    gpioLedOff(); svcSleepThread(LITE_PWM_PERIOD_NS - onNs);
+}
+
+// OnPress на Lite: оверлей не может трогать GPIO, поэтому ловим аппаратные
+// события кнопок HOME ("тыква") и Capture прямо в сысмодуле через hidsys --
+// это безопасно (никакого hid-shared-mem в фоне) и работает глобально.
+static Event g_homeBtnEvent    = {};
+static Event g_captureBtnEvent = {};
+static bool  g_homeEventReady    = false;
+static bool  g_captureEventReady = false;
+
+static void liteOnpressInit() {
+    if (!g_homeEventReady)
+        g_homeEventReady = R_SUCCEEDED(hidsysAcquireHomeButtonEventHandle(&g_homeBtnEvent, true));
+    if (!g_captureEventReady)
+        g_captureEventReady = R_SUCCEEDED(hidsysAcquireCaptureButtonEventHandle(&g_captureBtnEvent, true));
+}
+
+static bool liteOnpressFired() {
+    bool fired = false;
+    if (g_homeEventReady    && R_SUCCEEDED(eventWait(&g_homeBtnEvent,    0))) fired = true;
+    if (g_captureEventReady && R_SUCCEEDED(eventWait(&g_captureBtnEvent, 0))) fired = true;
+    return fired;
+}
+
+// Единый Lite-loop: никогда не возвращается. Каждый кадр считает целевую
+// яркость по режиму/времени/нажатию и отдаёт её PWM. reload и onpress
+// опрашиваются здесь же.
+static void liteRunLoop() {
+    if (!g_gpioInit) { while (true) svcSleepThread(2'000'000'000ULL); }
+    liteOnpressInit();
+
+    u64  tMs        = 0;     // время в мс (по LITE_FRAME_MS на кадр)
+    u32  sinceCheck = 0;
+    u64  lastPress  = 0;
+    bool havePress  = false;
+
+    while (true) {
+        u32 duty = 0;
+        switch (g_cfg.mode) {
+            case LED_OFF:   duty = 0; break;
+            case LED_SOLID: duty = g_cfg.brightness; break;
+            case LED_PULSE: {
+                const u64 half = g_cfg.pulseIntervalMs ? g_cfg.pulseIntervalMs : 500;
+                duty = ((tMs / half) % 2 == 0) ? g_cfg.brightness : 0;
+                break;
+            }
+            case LED_FADE: {
+                // "Дыхание": треугольник 0->B->0 за 2*pulseInterval.
+                const u64 half   = g_cfg.pulseIntervalMs ? g_cfg.pulseIntervalMs : 500;
+                const u64 period = half * 2;
+                const u64 ph     = tMs % period;
+                const u32 tri    = (ph < half) ? (u32)(ph * 100 / half)
+                                               : (u32)(100 - (ph - half) * 100 / half);
+                duty = (u32)((u64)g_cfg.brightness * tri / 100);
+                break;
+            }
+            case LED_ONPRESS: {
+                if (liteOnpressFired()) { havePress = true; lastPress = tMs; }
+                duty = (havePress && (tMs - lastPress) < 180) ? g_cfg.brightness : 0;
+                break;
+            }
+        }
+
+        litePwmFrame(duty);
+        tMs += LITE_FRAME_MS;
+
+        if (++sinceCheck >= 50) {           // ~200 мс
+            sinceCheck = 0;
+            if (checkReload()) {
+                loadConfig();
+                tMs = 0; havePress = false;
             }
         }
     }
@@ -371,14 +441,18 @@ static void applyRegular() {
         case LED_SOLID:                     buildSolidPattern(intensity4);     break;
         case LED_PULSE:                     buildBlinkPattern(intensity4, 0x4); break;
         case LED_FADE:                      buildBlinkPattern(intensity4, 0x8); break;
+        // OnPress на обычной Switch ведёт оверлей (hidsys per-key, пока меню
+        // открыто) -- сысмодуль держит LED погашенным, чтобы не конфликтовать.
+        case LED_ONPRESS:                   buildOffPattern();                 break;
     }
     scanForControllers();
     applyHidsysPattern();
 }
 
 static void applyConfig() {
-    if (g_isLite) applyLite();
-    else          applyRegular();
+    // Lite идёт в собственный бесконечный PWM-loop (liteRunLoop) из main();
+    // applyConfig для Lite вызывается только до входа в loop -- ничего не делаем.
+    if (!g_isLite) applyRegular();
 }
 
 // forceLedOff_safe удалена -- была попыткой гасить LED при __appExit'е,
@@ -403,6 +477,9 @@ static void applyConfig() {
 int main(int /*argc*/, char** /*argv*/) {
     detectHardware();
 
+    // ── Switch Lite ──: открываем GPIO и уходим в собственный PWM-loop,
+    // который умеет яркость + плавный fade + пульсацию + onpress (HOME/Capture)
+    // и сам обрабатывает hot-reload. Назад не возвращается.
     if (g_isLite) {
         Result rc = liteGpioOpen();
         if (R_FAILED(rc)) {
@@ -410,6 +487,9 @@ int main(int /*argc*/, char** /*argv*/) {
             // просто спим и ждём reload, на случай если железо вернётся.
             while (true) { svcSleepThread(2000000000ULL); }
         }
+        loadConfig();
+        liteRunLoop();   // бесконечный
+        return 0;        // недостижимо
     }
 
     loadConfig();
