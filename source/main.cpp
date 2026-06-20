@@ -1016,6 +1016,16 @@ static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/)
 
     s_lastPulseTick = nowTick;
 
+    // Switch Lite: GPIO принадлежит сысмодулю, оверлей не может мигнуть сам.
+    // Сигналим вспышку touch-файлом led.flash -- сысмодуль (liteRunLoop,
+    // режим onpress) подхватит и мигнёт PWM'ом. Это даёт "вспышка на любую
+    // кнопку, пока открыт оверлей" -- ровно как hidsys-путь на обычной Switch.
+    if (ryz::led::isLiteDetected()) {
+        FILE* ff = fopen("sdmc:/config/ryazhahand/led.flash", "w");
+        if (ff) fclose(ff);
+        return;
+    }
+
     if (!ensureHidsysReady()) return;
 
     const u8 intensity = static_cast<u8>(std::min<int>(15, (s_cachedBright * 15 + 50) / 100));

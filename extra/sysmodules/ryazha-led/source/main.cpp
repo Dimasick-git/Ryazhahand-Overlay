@@ -392,6 +392,7 @@ static void liteRunLoop() {
     u32  sinceCheck = 0;
     u64  lastPress  = 0;
     bool havePress  = false;
+    u64  lastFlashChk = 0;   // когда последний раз проверяли led.flash
 
     while (true) {
         u32 duty = 0;
@@ -414,7 +415,20 @@ static void liteRunLoop() {
                 break;
             }
             case LED_ONPRESS: {
+                // HOME/Capture -- глобально через hidsys-события.
                 if (liteOnpressFired()) { havePress = true; lastPress = tMs; }
+                // Любая кнопка (пока открыт оверлей) -- оверлей трогает
+                // led.flash, мы его подхватываем. Проверяем ~раз в 40мс,
+                // чтобы не дёргать SD каждый кадр.
+                if (tMs - lastFlashChk >= 40) {
+                    lastFlashChk = tMs;
+                    FILE* ff = fopen("sdmc:/config/ryazhahand/led.flash", "r");
+                    if (ff) {
+                        fclose(ff);
+                        remove("sdmc:/config/ryazhahand/led.flash");
+                        havePress = true; lastPress = tMs;
+                    }
+                }
                 duty = (havePress && (tMs - lastPress) < 180) ? g_cfg.brightness : 0;
                 break;
             }
