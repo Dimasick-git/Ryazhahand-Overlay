@@ -84,18 +84,11 @@ jobs:
           TAG="${{ steps.tag.outputs.tag }}"
           mkdir -p release
 
-          # 1) Главный .ovl: ровно ovlmenu.ovl без префикса -- так его
-          #    ожидает Tesla-loader. Версия в zip name ниже.
-          cp ovlmenu.ovl "release/ovlmenu.ovl"
+          # В релиз кладём ТОЛЬКО sdout.zip (полный SD-card-ready bundle).
+          # Отдельные ovlmenu.ovl / lang.zip / версионный дубль убраны по
+          # просьбе -- они только захламляли список ассетов.
 
-          # 2) lang.zip -- отдельный архив только с переводами
-          #    (минимальное обновление для юзеров, которые уже всё имеют).
-          #    Структура такая же как у upstream: config/ryazhahand/lang/*.json.
-          if [ -d out/config/ryazhahand/lang ]; then
-            (cd out && zip -r "../release/lang.zip" config/ryazhahand/lang)
-          fi
-
-          # 3) sdout.zip -- полный SD-card-ready bundle. Структура out/:
+          # sdout.zip -- полный SD-card-ready bundle. Структура out/:
           #      switch/.overlays/ovlmenu.ovl
           #      switch/Ryazhahand-Reload/Ryazhahand-Reload.nro     (reload-хелпер из nx-ovlloader, ребрендинг)
           #      atmosphere/contents/0100000000000ED1/              (Ryazha-LED sysmodule)
@@ -109,8 +102,6 @@ jobs:
           #    Юзер распаковывает в корень SD-карты -- работает из коробки.
           if [ -d out ]; then
             (cd out && zip -r "../release/sdout.zip" .)
-            # Версионный alias для бэк-совместимости со старыми ссылками.
-            cp "release/sdout.zip" "release/Ryazhahand-Overlay-${TAG}.zip"
           fi
 
           ls -la release/
@@ -173,9 +164,6 @@ jobs:
           name: "Ryzhand Overlay ${{ steps.tag.outputs.tag }}"
           body: ${{ steps.changelog.outputs.notes }}
           files: |
-            release/ovlmenu.ovl
-            release/lang.zip
             release/sdout.zip
-            release/Ryazhahand-Overlay-*.zip
           draft: false
           prerelease: false
