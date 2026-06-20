@@ -214,5 +214,9 @@
     "API_TOGGLE": "API 전환",
     "CLICK": "클릭",
     "TAP": "탭",
-    "HOLD_FOR_4S": "4초 길게 누르기"
+    "HOLD_FOR_4S": "4초 길게 누르기",
+    "SWITCH_2_STYLE": "Switch 2 스타일",
+    "DYNAMIC_TABLES": "동적 테이블",
+    "DYNAMIC_BORDER": "동적 테두리",
+    "DYNAMIC_TEMPS": "동적 온도"
 }

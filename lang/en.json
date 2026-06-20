@@ -214,5 +214,9 @@
     "API_TOGGLE": "API Toggle",
     "CLICK": "click",
     "TAP": "tap",
-    "HOLD_FOR_4S": "hold for 4s"
+    "HOLD_FOR_4S": "hold for 4s",
+    "SWITCH_2_STYLE": "Switch 2 Style",
+    "DYNAMIC_TABLES": "Dynamic Tables",
+    "DYNAMIC_BORDER": "Dynamic Border",
+    "DYNAMIC_TEMPS": "Dynamic Temps"
 }

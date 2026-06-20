@@ -2024,7 +2024,7 @@ static bool buildTableDrawerLines(
 
     static constexpr size_t fontSize = 16;
 
-    const size_t xMax = tsl::cfg::FramebufferWidth - 95;
+    const size_t xMax = tsl::cfg::FramebufferWidth - 95 -1;
 
     const std::string indent = "└ ";
 
@@ -2428,7 +2428,7 @@ void drawTable(
 
     size_t startGap                 = 20,
 
-    size_t endGap                   = 9,
+    size_t endGap                   = 9+2,
 
     size_t newlineGap               = 4,
 
@@ -2548,7 +2548,9 @@ void drawTable(
 
             if (useHeaderIndent) {
 
-                renderer->drawRect(x-2, y, 4, 22, renderer->aWithOpacity(tsl::headerSeparatorColor));
+                if (!ult::useSwitch2Style) renderer->drawRect(x-2 +5, y, 4, 22, renderer->aWithOpacity(tsl::headerSeparatorColor));
+
+                else renderer->drawRoundedRectSingleThreaded(x-2 +5, y, 4, 22, 2, renderer->aWithOpacity(tsl::headerSeparatorColor));
 
             }
 
@@ -2562,7 +2564,7 @@ void drawTable(
 
             const size_t count = cacheExpSec.size();
 
-            const s32 baseX = x + 12;
+            const s32 baseX = (useHeaderIndent) ? x+12+5: x + 12 +1;
 
             // ── Viewport culling ──────────────────────────────────────────────
 
@@ -2644,7 +2646,19 @@ void drawTable(
 
                     renderer->drawStringWithColoredSections(cacheExpSec[i], false, tsl::s_dividerSpecialChars, baseX, yPos, 16, secColor, dividerColor);
 
-                    renderer->drawStringWithColoredSections(cacheExpInfo[i], false, tsl::s_dividerSpecialChars, x + cacheXOff[i], yPos, 16, infoColor, dividerColor);
+                    // When useHeaderIndent, right-align the info value to the same
+
+                    // anchor as CategoryHeader::draw (getX()+2+getWidth()-valueWidth-5).
+
+                    // Lambda x=getX()+4, w=getWidth()+4, so that anchor is x+w-valueWidth-11.
+
+                    const s32 infoX = useHeaderIndent
+
+                        ? (x + w - renderer->getTextDimensions(cacheExpInfo[i], false, 16).first - 11)
+
+                        : (x + cacheXOff[i]);
+
+                    renderer->drawStringWithColoredSections(cacheExpInfo[i], false, tsl::s_dividerSpecialChars, infoX, yPos, 16, infoColor, dividerColor);
 
                 }
 
@@ -2662,9 +2676,21 @@ void drawTable(
 
                     renderer->drawStringWithColoredSections(cacheExpSec[i], false, tsl::s_dividerSpecialChars, baseX, yPos, 16, secColor, dividerColor);
 
+                    // When useHeaderIndent, right-align the info value to the same
+
+                    // anchor as CategoryHeader::draw (getX()+2+getWidth()-valueWidth-5).
+
+                    // Lambda x=getX()+4, w=getWidth()+4, so that anchor is x+w-valueWidth-11.
+
+                    const s32 infoX = useHeaderIndent
+
+                        ? (x + w - renderer->getTextDimensions(cacheExpInfo[i], false, 16).first - 11)
+
+                        : (x + cacheXOff[i]);
+
                     renderer->drawStringWithHighlight(
 
-                        cacheExpInfo[i], false, x + cacheXOff[i], yPos, 16,
+                        cacheExpInfo[i], false, infoX, yPos, 16,
 
                         infoColor, hiliteColor
 
@@ -2700,7 +2726,7 @@ void addTable(
 
     const size_t&                          tableStartGap               = 20,
 
-    const size_t&                          tableEndGap                 = 9,
+    const size_t&                          tableEndGap                 = 9+2,
 
     const size_t&                          tableSpacing                = 0,
 
@@ -2788,7 +2814,7 @@ void addHelpInfo(tsl::elm::List* list) {
 
         static_cast<size_t>(tsl::cfg::FramebufferWidth) - 90 - maxInfoWidth,
 
-        20, 9, 4);
+        20, 9+2, 4);
 
 }
 
@@ -2898,7 +2924,7 @@ void addPackageInfo(tsl::elm::List* list, auto& packageHeader, std::string type 
 
     std::vector<std::vector<std::string>> dummyTableData;
 
-    drawTable(list, dummyTableData, sectionLines, infoLines, xOffset, 20, 9, 3, DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR, false, false, true);
+    drawTable(list, dummyTableData, sectionLines, infoLines, xOffset, 20, 9+2, 3, DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR, false, false, true);
 
 }
 
@@ -3396,11 +3422,61 @@ void applyReplaceIniPlaceholder(std::string& arg, const std::string& commandName
 
     while ((startPos = arg.find(searchString, lastPos)) != std::string::npos) {
 
-        endPos = arg.find(")}", startPos);
+        // Depth-aware scan for the matching ")}" so that nested {ini_file(...)}
+
+        // placeholders inside the argument list do not fool us into stopping early.
+
+        // e.g. {ini_file({ini_file(0)},{ini_file(软件版本,{ini_file(0)})})}
+
+        //                                                             ^
+
+        //       naive find(")}", startPos) would stop here (depth 2), not at the
+
+        //       real closing ")}" of the outermost placeholder.
+
+        {
+
+            int depth = 1;
+
+            size_t scan = startPos + searchStringLen;
+
+            endPos = std::string::npos;
+
+            while (scan + 1 < arg.size()) {
+
+                if (arg.compare(scan, searchStringLen, searchString) == 0) {
+
+                    // Nested opener of the same type — go deeper
+
+                    ++depth;
+
+                    scan += searchStringLen;
+
+                } else if (arg[scan] == ')' && arg[scan + 1] == '}') {
+
+                    if (--depth == 0) {
+
+                        endPos = scan;
+
+                        break;
+
+                    }
+
+                    scan += 2;
+
+                } else {
+
+                    ++scan;
+
+                }
+
+            }
+
+        }
 
         if (endPos == std::string::npos || endPos <= startPos) {
 
-            // Invalid placeholder, append text up to this point and continue searching
+            // Invalid/unmatched placeholder — skip past the opener and continue
 
             result.append(arg, lastPos, startPos + searchStringLen - lastPos);
 
@@ -3420,7 +3496,59 @@ void applyReplaceIniPlaceholder(std::string& arg, const std::string& commandName
 
         trim(placeholderContent);
 
-        commaPos = placeholderContent.find(',');
+        // If placeholderContent still contains unresolved inner placeholders, skip
+
+        // the entire outer placeholder and leave it intact for a later resolution pass.
+
+        // Without this guard, the comma-split and integer-check below would operate on
+
+        // literal placeholder text (e.g. "{ini_file(0)}") instead of resolved values,
+
+        // producing null instead of deferring correctly.
+
+        if (placeholderContent.find('{') != std::string::npos) {
+
+            result.append(searchString);  // re-emit the opener
+
+            result.append(placeholderContent);
+
+            result.append(")}");          // re-emit the closer
+
+            lastPos = endPos + 2;
+
+            continue;
+
+        }
+
+        // Find the top-level comma (depth-aware: skip commas inside nested placeholders).
+
+        // A plain find(',') would mis-split on e.g. "sec,{ini_file(a,b)}" — finding the
+
+        // comma inside the inner placeholder first and producing a broken iniSection.
+
+        // The unresolved-inner guard above now prevents us from ever reaching here with
+
+        // '{' still present, but the depth-aware scan is kept as a correct-by-construction
+
+        // safeguard for any future call paths that may bypass the guard.
+
+        commaPos = std::string::npos;
+
+        {
+
+            int d = 0;
+
+            for (size_t i = 0; i < placeholderContent.size(); ++i) {
+
+                if (placeholderContent[i] == '{') { ++d; continue; }
+
+                if (placeholderContent[i] == '}') { --d; continue; }
+
+                if (d == 0 && placeholderContent[i] == ',') { commaPos = i; break; }
+
+            }
+
+        }
 
         if (commaPos != std::string::npos) {
 
@@ -3442,7 +3570,7 @@ void applyReplaceIniPlaceholder(std::string& arg, const std::string& commandName
 
         } else {
 
-            // Check if the content is an integer
+            // Check if the content is an integer (section index lookup)
 
             if (std::all_of(placeholderContent.begin(), placeholderContent.end(), ::isdigit)) {
 
@@ -3478,7 +3606,21 @@ void applyReplaceIniPlaceholder(std::string& arg, const std::string& commandName
 
             } else {
 
-                replacement = NULL_STR;
+                // Content is non-numeric and has no comma — not a valid ini_file argument.
+
+                // Leave the whole placeholder intact rather than collapsing it to null,
+
+                // so a later resolution pass can still act on it if the content resolves.
+
+                result.append(searchString);
+
+                result.append(placeholderContent);
+
+                result.append(")}");
+
+                lastPos = endPos + 2;
+
+                continue;
 
             }
 
@@ -3884,6 +4026,22 @@ std::vector<std::vector<std::string>> getSourceReplacement(const std::vector<std
 
                     preprocessPath(jsonPath, packagePath);
 
+                } else if (commandName == "json" || commandName == "json_source") {
+
+                    // Raw capture only — content resolved sequentially by interpretAndExecuteCommands
+
+                    jsonString = cmd[1];
+
+                    removeQuotes(jsonString);
+
+                } else if (commandName == "list" || commandName == "list_source") {
+
+                    // Raw capture only — content resolved sequentially by interpretAndExecuteCommands
+
+                    listString = cmd[1];
+
+                    removeQuotes(listString);
+
                 }
 
             }
@@ -3899,10 +4057,6 @@ std::vector<std::vector<std::string>> getSourceReplacement(const std::vector<std
             // {ini_file(...)} reads in the same section. Resolving them here upfront would bake
 
             // in stale values read before any commands in the section have executed.
-
-            // json/list dict values are captured from modifiedCmd[1] after this loop,
-
-            // so their placeholders are resolved here too — no special-casing needed.
 
             for (const auto& arg : cmd) {
 
@@ -3921,20 +4075,6 @@ std::vector<std::vector<std::string>> getSourceReplacement(const std::vector<std
                 replaceAllPlaceholders(modifiedArg, "{folder_name}", path);
 
                 replaceAllPlaceholders(modifiedArg, "{index}", indexStr);
-
-                // Resolve all other placeholders ({if_*}, {math}, {crc32}, general, etc.).
-
-                // Wraps modifiedArg in a single-element vector to reuse the full pipeline.
-
-                {
-
-                    std::vector<std::string> tmp = { modifiedArg };
-
-                    applyPlaceholderReplacements(tmp, hexFilePath, iniFilePath, listString, listPath, jsonString, jsonPath, packagePath);
-
-                    modifiedArg = std::move(tmp[0]);
-
-                }
 
                 // {list_source(...)} block — uses *_source path (index into current selection list)
 
@@ -4056,25 +4196,23 @@ std::vector<std::vector<std::string>> getSourceReplacement(const std::vector<std
 
             }
 
-            // After the arg loop has resolved source placeholders, capture json/list values
+            // Capture json/list inline values so subsequent *_source placeholders can use them
 
-            // and apply full placeholder resolution (all types, including {ini_file(...)},
+            // for source-path composition (e.g. json_file_source './{json(key)}/').
 
-            // {hex_file(...)}, {if_*}, {crc32}, {math}, etc.) so any placeholder is valid
+            // NOTE: Do NOT resolve {ini_file(...)}, {json(...)}, etc. here.
 
-            // inside a json/list dictionary value without special-casing.
+            // interpretAndExecuteCommands resolves all regular command args sequentially at
+
+            // execution time, so writes from prior commands (download, set-ini-val, etc.) are
+
+            // visible to subsequent {ini_file(...)}/{json(...)} reads in the same script.
 
             if ((commandName == "json" || commandName == "json_source") && modifiedCmd.size() >= 2) {
 
                 jsonString = modifiedCmd[1];
 
                 removeQuotes(jsonString);
-
-                std::vector<std::string> tmp = { jsonString };
-
-                applyPlaceholderReplacements(tmp, hexFilePath, iniFilePath, listString, listPath, jsonString, jsonPath, packagePath);
-
-                jsonString = std::move(tmp[0]);
 
             }
 
@@ -4083,12 +4221,6 @@ std::vector<std::vector<std::string>> getSourceReplacement(const std::vector<std
                 listString = modifiedCmd[1];
 
                 removeQuotes(listString);
-
-                std::vector<std::string> tmp = { listString };
-
-                applyPlaceholderReplacements(tmp, hexFilePath, iniFilePath, listString, listPath, jsonString, jsonPath, packagePath);
-
-                listString = std::move(tmp[0]);
 
             }
 
@@ -10079,5 +10211,3 @@ void executeInterpreterCommands(std::vector<std::vector<std::string>>&& commands
     threadStart(&interpreterThread);
 
 }
-
-

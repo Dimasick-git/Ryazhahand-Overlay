@@ -214,5 +214,9 @@
     "API_TOGGLE": "切換 API",
     "CLICK": "點擊",
     "TAP": "輕觸",
-    "HOLD_FOR_4S": "長按 4 秒"
+    "HOLD_FOR_4S": "長按 4 秒",
+    "SWITCH_2_STYLE": "Switch 2 樣式",
+    "DYNAMIC_TABLES": "動態表格",
+    "DYNAMIC_BORDER": "動態邊框",
+    "DYNAMIC_TEMPS": "動態溫度"
 }

@@ -214,5 +214,9 @@
     "API_TOGGLE": "Attiva/Disattiva API",
     "CLICK": "clic",
     "TAP": "tocco",
-    "HOLD_FOR_4S": "mantieni 4s"
+    "HOLD_FOR_4S": "mantieni 4s",
+    "SWITCH_2_STYLE": "Stile Switch 2",
+    "DYNAMIC_TABLES": "Tabelle dinamiche",
+    "DYNAMIC_BORDER": "Bordo dinamico",
+    "DYNAMIC_TEMPS": "Temp. dinamiche"
 }

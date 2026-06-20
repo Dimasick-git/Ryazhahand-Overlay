@@ -129,7 +129,9 @@ enum class UpdateScanState {
 };
 
 // Состояние сканера: atomic (читается рендером, пишется шагами скана на
+
 // том же UI-потоке -- atomic оставлен для единообразных load/store).
+
 static std::atomic<UpdateScanState> g_updateScanState{UpdateScanState::Idle};
 
 static std::vector<std::tuple<std::string, std::string, std::string>> g_updateTargets; // repo, displayName, localVersion
@@ -1017,13 +1019,21 @@ static void applyHomeLedPatternForKeys(uint64_t keysDown, uint64_t /*keysHeld*/)
     s_lastPulseTick = nowTick;
 
     // Switch Lite: GPIO принадлежит сысмодулю, оверлей не может мигнуть сам.
+
     // Сигналим вспышку touch-файлом led.flash -- сысмодуль (liteRunLoop,
+
     // режим onpress) подхватит и мигнёт PWM'ом. Это даёт "вспышка на любую
+
     // кнопку, пока открыт оверлей" -- ровно как hidsys-путь на обычной Switch.
+
     if (ryz::led::isLiteDetected()) {
+
         FILE* ff = fopen("sdmc:/config/ryazhahand/led.flash", "w");
+
         if (ff) fclose(ff);
+
         return;
+
     }
 
     if (!ensureHidsysReady()) return;
@@ -1545,114 +1555,207 @@ static void setUpdateInfoText(const std::string& text) {
 }
 
 // Кооперативный скан обновлений: БЕЗ фоновых потоков. Раньше тело уходило в
+
 // libnx-поток с curl -- это роняло Tesla-меню (оверлей не рассчитан на
+
 // сетевой фон-поток). Теперь всё на главном потоке: setup (без сети) + шаги
+
 // по ОДНОМУ репозиторию за кадр (tickOverlayUpdateScan из handleInput).
+
 // UI не зависает на 10-30с -- максимум один download (~0.5с) на кадр, между
+
 // ними экран перерисовывается и можно выйти.
+
 static size_t g_updateJsonDownloaded = 0;
+
 static size_t g_updateTagParsed = 0;
 
 // Собрать список целей (overlay -> repo). Только диск/парсинг, без сети.
+
 static void updateScanSetup() {
+
     g_updateTargets.clear();
+
     g_updatesFound.clear();
+
     g_updateTargetIndex = 0;
+
     g_updateAnyDownloadSuccess = false;
+
     g_updateJsonDownloaded = 0;
+
     g_updateTagParsed = 0;
 
     const auto easyMap = loadEasyInstallerOverlayRepoMap();
+
     const std::vector<std::string> overlayFiles = getFilesListByWildcards(OVERLAY_PATH + "*.ovl");
+
     for (const auto& fullPath : overlayFiles) {
+
         const std::string fileName = getNameFromPath(fullPath);
+
         if (fileName.empty() || fileName.front() == '.') continue;
+
         const auto [res, ovlName, ovlVer, usingLibRyzhand, supportsAMS110] = getOverlayInfo(OVERLAY_PATH + fileName);
+
         if (res != ResultSuccess) continue;
+
         std::string repo;
+
         if (!easyMap.empty()) {
+
             const std::string keyName = normalizeId(ovlName);
+
             auto it = easyMap.find(keyName);
+
             if (it != easyMap.end()) repo = it->second;
+
             if (repo.empty()) {
+
                 const std::string keyFile = normalizeId(fileName);
+
                 it = easyMap.find(keyFile);
+
                 if (it != easyMap.end()) repo = it->second;
+
             }
+
         }
+
         if (repo.empty()) repo = repoFromOverlayFilename(fileName);
+
         if (repo.empty()) continue;
+
         std::string localVersion = (fileName == "ovlmenu.ovl") ? std::string(APP_VERSION) : getFirstLongEntry(ovlVer);
+
         if (cleanVersionLabels) localVersion = cleanVersionLabel(localVersion);
+
         g_updateTargets.emplace_back(repo, ovlName, localVersion);
+
     }
+
 }
 
 // Финал: собрать текст результата, освободить буферы, state = Done.
+
 static void updateScanFinish() {
+
     if (g_updateJsonDownloaded == 0) {
+
         setUpdateInfoText("Не удалось скачать данные GitHub");
+
     } else {
+
         std::string result = buildUpdatesResultText();
+
         const size_t total = g_updateTargets.size();
+
         const size_t notChecked = (total > g_updateTagParsed) ? (total - g_updateTagParsed) : 0;
+
         if (notChecked > 0) result += "\nНе проверено: " + std::to_string(notChecked);
+
         setUpdateInfoText(result);
+
     }
+
     g_updateScanState.store(UpdateScanState::Done);
+
     g_updateTargets.clear();   g_updateTargets.shrink_to_fit();
+
     g_updatesFound.clear();    g_updatesFound.shrink_to_fit();
+
 }
 
 // Один шаг: ОДИН репозиторий (одна сетевая загрузка). Зовётся каждый кадр.
+
 static void updateScanStep() {
+
     if (g_updateScanState.load() != UpdateScanState::Downloading) return;
+
     if (g_updateTargetIndex >= g_updateTargets.size()) { updateScanFinish(); return; }
 
     const auto& [repo, displayName, localVersionRaw] = g_updateTargets[g_updateTargetIndex];
+
     const std::string jsonPath  = DOWNLOADS_PATH + "gh_" + repo + ".json";
+
     const std::string urlLatest = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases/latest";
+
     const std::string urlList   = "https://api.github.com/repos/Dimasick-git/" + repo + "/releases?per_page=1";
 
     deleteFileOrDirectory(jsonPath);
+
     bool ok = downloadFile(urlLatest, jsonPath, true);
+
     if (!ok) { deleteFileOrDirectory(jsonPath); ok = downloadFile(urlList, jsonPath, true); }
+
     if (ok && isFile(jsonPath)) {
+
         ++g_updateJsonDownloaded;
+
         std::string tag = extractLatestTagFromGitHubReleasesJson(jsonPath);
+
         if (!tag.empty()) {
+
             ++g_updateTagParsed;
+
             g_updateAnyDownloadSuccess = true;
+
             const std::string localVersion = normalizeVersionForCompare(localVersionRaw);
+
             tag = normalizeVersionForCompare(tag);
+
             if (!localVersion.empty() && !tag.empty() && localVersion != tag)
+
                 g_updatesFound.push_back(displayName + " | " + localVersion + " -> " + tag);
+
         }
+
     }
 
     ++g_updateTargetIndex;
+
     setUpdateInfoText("Сканирую... " + std::to_string(g_updateTargetIndex) + "/" +
+
                       std::to_string(g_updateTargets.size()));
+
     if (g_updateTargetIndex >= g_updateTargets.size()) updateScanFinish();
+
 }
 
 // Запуск: только setup (без сети) + state = Downloading. Сам скан тикается
+
 // покадрово из handleInput -- UI остаётся живым.
+
 static void startOverlayUpdateScan() {
+
     if (g_updateScanState.load() == UpdateScanState::Downloading) return; // уже идёт
+
     if (!ensureSocketReady()) {
+
         setUpdateInfoText("Не удалось инициализировать интернет");
+
         g_updateScanState.store(UpdateScanState::Done);
+
         return;
+
     }
+
     updateScanSetup();
+
     if (g_updateTargets.empty()) {
+
         setUpdateInfoText("Нет поддерживаемых оверлеев для проверки");
+
         g_updateScanState.store(UpdateScanState::Done);
+
         return;
+
     }
+
     setUpdateInfoText("Сканирую... 0/" + std::to_string(g_updateTargets.size()));
+
     g_updateScanState.store(UpdateScanState::Downloading);
+
 }
 
 static std::string buildUpdatesResultText() {
@@ -1698,6 +1801,7 @@ static std::string buildUpdatesResultText() {
 static void tickOverlayUpdateScan() {
 
     // Покадровый прогресс скана: один репозиторий за вызов. No-op, если
+
     // скан не запущен (state != Downloading).
 
     updateScanStep();
@@ -1729,8 +1833,11 @@ inline void clearMemory() {
     // не отдаёт capacity обратно malloc'у -- shrink_to_fit отдаёт.
 
     // g_updateSectionLines/g_updateInfoLines НЕ трогаем: это persistent
+
     // UI-state с текстом, который сейчас показывается в "Обновлениях".
+
     // g_updateTargets/g_updatesFound трогаем ТОЛЬКО когда скан НЕ идёт --
+
     // иначе updateScanStep() вылетит за границы массива.
 
     if (g_updateScanState.load() != UpdateScanState::Downloading) {
@@ -3561,6 +3668,8 @@ private:
 
             tsl::elm::ListItem* listItem = new tsl::elm::ListItem(mappedItem);
 
+            listItem->setRadioSelector();
+
             if (item == defaultItem) {
 
                 listItem->setValue(CHECKMARK_SYMBOL);
@@ -4171,6 +4280,8 @@ public:
 
                 listItem->setTextColor(textColor);
 
+                listItem->setRadioLabelSelector();
+
                 listItem->setValue(defaultLangMode);
 
                 if (defaultLangMode == defaulLang) {
@@ -4723,6 +4834,8 @@ public:
 
             auto* listItem = new tsl::elm::ListItem(DEFAULT);
 
+            listItem->setRadioSelector();
+
             if (currentTheme == DEFAULT_STR) {
 
                 listItem->setValue(CHECKMARK_SYMBOL);
@@ -4800,6 +4913,8 @@ public:
                 if (themeName == DEFAULT_STR) continue;
 
                 listItem = new tsl::elm::ListItem(themeName);
+
+                listItem->setRadioSelector();
 
                 if (themeName == currentTheme) {
 
@@ -4883,6 +4998,8 @@ public:
 
             auto* listItem = new tsl::elm::SilentListItem(OPTION_SYMBOL);
 
+            listItem->setRadioSelector();
+
             if (currentSounds == OPTION_SYMBOL) {
 
                 listItem->setValue(CHECKMARK_SYMBOL);
@@ -4944,6 +5061,8 @@ public:
                 dropExtension(soundsName);
 
                 tsl::elm::ListItem* listItem = new tsl::elm::SilentListItem(soundsName);
+
+                listItem->setRadioSelector();
 
                 if (soundsName == currentSounds) {
 
@@ -5069,6 +5188,8 @@ public:
 
             listItem->setTextColor(textColor);
 
+            listItem->setRadioSelector();
+
             if (currentWallpaper == OPTION_SYMBOL) {
 
                 listItem->setValue(CHECKMARK_SYMBOL);
@@ -5134,6 +5255,8 @@ public:
                 listItem = new tsl::elm::ListItem(wallpaperName);
 
                 listItem->setTextColor(textColor);
+
+                listItem->setRadioSelector();
 
                 if (wallpaperName == currentWallpaper) {
 
@@ -5209,7 +5332,9 @@ public:
 
             addHeader(list, WIDGET_SETTINGS);
 
-            createToggleListItem(list, DYNAMIC_COLORS, dynamicWidgetColors, "dynamic_widget_colors");
+            createToggleListItem(list, DYNAMIC_BORDER, dynamicWidgetBorder, "dynamic_widget_border");
+
+            createToggleListItem(list, DYNAMIC_TEMPS, dynamicWidgetColors, "dynamic_widget_colors");
 
             createToggleListItem(list, CENTER_ALIGNMENT, centerWidgetAlignment, "center_widget_alignment");
 
@@ -5583,7 +5708,9 @@ public:
 
                     nullptr, nullptr, {}, "",
 
-                    false, false
+                    true,
+
+                    false
 
                 );
 
@@ -5795,6 +5922,18 @@ public:
 
             createToggleListItem(list, DYNAMIC_LOGO, useDynamicLogo, "dynamic_logo");
 
+            // v2.5.0: стиль Switch 2 (скруглённый курсор/pill-тумблеры/radio-метки)
+
+            // + анимация рамок таблиц пакетов.
+
+            useSwitch2Style = getBoolValue("switch_2_style", true);
+
+            createToggleListItem(list, SWITCH_2_STYLE, useSwitch2Style, "switch_2_style");
+
+            useDynamicTableColors = getBoolValue("dynamic_tables", true);
+
+            createToggleListItem(list, DYNAMIC_TABLES, useDynamicTableColors, "dynamic_tables");
+
             useSelectionBG = getBoolValue("selection_bg", true);
 
             createToggleListItem(list, SELECTION_BACKGROUND, useSelectionBG, "selection_bg", false, true);
@@ -5836,6 +5975,7 @@ public:
             addHeader(list, "ОБНОВЛЕНИЯ");
 
             // Авто-синхронизация часов по NTP перед загрузками -- логически
+
             // относится к обновлениям/загрузкам, поэтому в этой секции.
 
             useAutoNTPSync = getBoolValue("auto_ntp_sync", true);
@@ -5847,7 +5987,9 @@ public:
             createToggleListItem(list, "Сканер обновлений", enableUpdateScanner, "update_scanner");
 
             // Явная кнопка "Проверить сейчас". Скан уходит в ФОНОВЫЙ поток --
+
             // UI не зависает; статус ("Сканирую..."/"Готово") обновляется при
+
             // следующем открытии экрана/перерисовке по g_updateScanState.
 
             {
@@ -6045,7 +6187,9 @@ public:
         applyHomeLedPatternForKeys(keysDown, keysHeld);
 
         // Покадровый прогресс скана обновлений (кнопка "Проверить" -- в этом
+
         // меню). No-op, если скан не запущен. Главный поток, без фриза.
+
         tickOverlayUpdateScan();
 
         // Handle delete item continuous hold behavior
@@ -6115,6 +6259,24 @@ public:
         }
 
         if (handleGoBackAfter()) return true;
+
+        // Recovery guard: if both navigation flags went false while this GUI is on top
+
+        // (can happen after a hide/show cycle that interrupted a transition, or after a
+
+        // rapid back-press chain left stale global state), re-derive them from this
+
+        // instance's own identity.  This is a no-op on every normal path where createUI
+
+        // correctly initialised the flags.
+
+        if (!inSettingsMenu && !inSubSettingsMenu && !returningToSettings) {
+
+            inSettingsMenu    = dropdownSelection.empty();
+
+            inSubSettingsMenu = !dropdownSelection.empty();
+
+        }
 
         if (inSettingsMenu && !inSubSettingsMenu) {
 
@@ -6402,6 +6564,8 @@ public:
 
         auto* listItem = new tsl::elm::ListItem(iStr, "", isMini);
 
+        listItem->setRadioSelector();
+
         if (iStr == priorityValue) {
 
             listItem->setValue(CHECKMARK_SYMBOL);
@@ -6554,7 +6718,7 @@ public:
 
                     selectedListItem = item;
 
-                    if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
+                    //if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
                     return true;
 
@@ -6704,7 +6868,7 @@ public:
 
                             selectedListItem = item;
 
-                            if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
+                            //if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
                             return true;
 
@@ -6768,6 +6932,8 @@ public:
 
             {
 
+                _item->setRadioSelector();
+
                 if (currentCombo.empty()) {
 
                     _item->setValue(CHECKMARK_SYMBOL);
@@ -6825,6 +6991,8 @@ public:
                 convertComboToUnicode(mapped);
 
                 auto* item = new tsl::elm::ListItem(mapped);
+
+                item->setRadioSelector();
 
                 if (combo == currentCombo) {
 
@@ -6916,6 +7084,8 @@ public:
 
             {
 
+                _item->setRadioSelector();
+
                 if (currentCombo.empty()) {
 
                     _item->setValue(CHECKMARK_SYMBOL);
@@ -6981,6 +7151,8 @@ public:
                 convertComboToUnicode(mapped);
 
                 auto* item = new tsl::elm::ListItem(mapped);
+
+                item->setRadioSelector();
 
                 if (combo == currentCombo) {
 
@@ -7220,6 +7392,24 @@ public:
 
         }
 
+        // Recovery guard: if both navigation flags went false while this GUI is on top
+
+        // (can happen after a hide/show cycle that interrupted a transition, or after a
+
+        // rapid back-press chain left stale global state), re-derive them from this
+
+        // instance's own identity.  This is a no-op on every normal path where createUI
+
+        // correctly initialised the flags.
+
+        if (!inSettingsMenu && !inSubSettingsMenu && !returningToSettings) {
+
+            inSettingsMenu    = dropdownSelection.empty();
+
+            inSubSettingsMenu = !dropdownSelection.empty();
+
+        }
+
         if (inSettingsMenu && !inSubSettingsMenu) {
 
             if (!returningToSettings) {
@@ -7343,6 +7533,20 @@ public:
                     inSubSettingsMenu = false;
 
                     returningToSettings = true;
+
+                } else {
+
+                    // mode_combo_ case: clear the sub-menu flag even though we are not
+
+                    // setting returningToSettings. The swapTo/goBack block below handles
+
+                    // routing; without this, inSubSettingsMenu stays true on the parent
+
+                    // SettingsMenu when plain goBack() is used, causing a stale-flag
+
+                    // double-pop on the next B press and a potential stuck state.
+
+                    inSubSettingsMenu = false;
 
                 }
 
@@ -7680,7 +7884,7 @@ public:
 
             constexpr size_t tableStartGap = 20;
 
-            constexpr size_t tableEndGap = 9;
+            constexpr size_t tableEndGap = 9+2;
 
             constexpr size_t tableSpacing = 4;
 
@@ -9156,6 +9360,8 @@ public:
 
                 if (commandMode == OPTION_STR) {
 
+                    listItem->setRadioLabelSelector(footer);
+
                     if (selectedFooterDict[specifiedFooterKey] == itemName) {
 
                         lastSelectedListItem = listItem;
@@ -10334,7 +10540,7 @@ bool drawCommandsMenu(
 
         tableStartGap = 20;
 
-        tableEndGap = 9;
+        tableEndGap = 9+2;
 
         tableColumnOffset = 164;
 
@@ -10902,14 +11108,6 @@ bool drawCommandsMenu(
 
                                 }
 
-                                if (commandName.compare(0, DEVICE_STATE_PATTERN_LEN, DEVICE_STATE_PATTERN) == 0) {
-
-                                    commandState = commandName.substr(DEVICE_STATE_PATTERN_LEN);
-
-                                    continue;
-
-                                }
-
                                 if (parseBoolFlag(commandName, SCROLLABLE_PATTERN, isScrollableTable)) continue;
 
                                 if (commandName.compare(0, START_GAP_PATTERN_LEN, START_GAP_PATTERN) == 0) {
@@ -10939,6 +11137,18 @@ bool drawCommandsMenu(
                                 if (commandName.compare(0, STEPS_PATTERN_LEN, STEPS_PATTERN) == 0) {
 
                                     steps = ult::stoi(commandName.substr(STEPS_PATTERN_LEN));
+
+                                    continue;
+
+                                }
+
+                                break;
+
+                            case 'd':
+
+                                if (commandName.compare(0, DEVICE_STATE_PATTERN_LEN, DEVICE_STATE_PATTERN) == 0) {
+
+                                    commandState = commandName.substr(DEVICE_STATE_PATTERN_LEN);
 
                                     continue;
 
@@ -14901,8 +15111,11 @@ public:
                 }
 
                 // Ensure the updates block always has visible lines/text.
+
                 // Лок на весь блок: фон-поток скана может писать в эти же
+
                 // векторы через setUpdateInfoText, а drawTable их читает.
+
                 addHeader(list, "ОБНОВЛЕНИЯ");
 
                 {
@@ -15523,6 +15736,10 @@ void initializeSettingsAndDirectories() {
 
     ensureDefault("dynamic_logo",             TRUE_STR);
 
+    ensureDefault("switch_2_style",            TRUE_STR);
+
+    ensureDefault("dynamic_tables",            TRUE_STR);
+
     ensureDefault("selection_bg",             TRUE_STR);
 
     ensureDefault("selection_text",           FALSE_STR);
@@ -15560,6 +15777,8 @@ void initializeSettingsAndDirectories() {
     ensureDefault("hide_pcb_temp",            TRUE_STR);
 
     ensureDefault("hide_soc_temp",            TRUE_STR);
+
+    ensureDefault("dynamic_widget_border",    TRUE_STR);
 
     ensureDefault("dynamic_widget_colors",    TRUE_STR);
 
@@ -16316,5 +16535,3 @@ int main(int argc, char* argv[]) {
     return tsl::loop<Overlay, tsl::impl::LaunchFlags::None>(argc, argv);
 
 }
-
-

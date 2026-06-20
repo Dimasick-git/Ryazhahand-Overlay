@@ -214,5 +214,9 @@
     "API_TOGGLE": "API schakelen",
     "CLICK": "klik",
     "TAP": "tik",
-    "HOLD_FOR_4S": "4s vasthouden"
+    "HOLD_FOR_4S": "4s vasthouden",
+    "SWITCH_2_STYLE": "Switch 2-stijl",
+    "DYNAMIC_TABLES": "Dynamische tabellen",
+    "DYNAMIC_BORDER": "Dynamische rand",
+    "DYNAMIC_TEMPS": "Dynamische temperaturen"
 }

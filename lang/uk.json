@@ -214,5 +214,9 @@
     "API_TOGGLE": "Перемкнути API",
     "CLICK": "клік",
     "TAP": "тап",
-    "HOLD_FOR_4S": "утримувати 4 с"
+    "HOLD_FOR_4S": "утримувати 4 с",
+    "SWITCH_2_STYLE": "Стиль Switch 2",
+    "DYNAMIC_TABLES": "Динамічні таблиці",
+    "DYNAMIC_BORDER": "Динамічна рамка",
+    "DYNAMIC_TEMPS": "Динамічні температури"
 }

@@ -214,5 +214,9 @@
     "API_TOGGLE": "API切り替え",
     "CLICK": "クリック",
     "TAP": "タップ",
-    "HOLD_FOR_4S": "4秒長押し"
+    "HOLD_FOR_4S": "4秒長押し",
+    "SWITCH_2_STYLE": "Switch 2スタイル",
+    "DYNAMIC_TABLES": "動的テーブル",
+    "DYNAMIC_BORDER": "動的枠線",
+    "DYNAMIC_TEMPS": "動的温度"
 }

@@ -214,5 +214,9 @@
     "API_TOGGLE": "Alternar API",
     "CLICK": "clic",
     "TAP": "toque",
-    "HOLD_FOR_4S": "mantener 4s"
+    "HOLD_FOR_4S": "mantener 4s",
+    "SWITCH_2_STYLE": "Estilo Switch 2",
+    "DYNAMIC_TABLES": "Tablas dinámicas",
+    "DYNAMIC_BORDER": "Borde dinámico",
+    "DYNAMIC_TEMPS": "Temperaturas dinámicas"
 }

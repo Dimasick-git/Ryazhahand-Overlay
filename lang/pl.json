@@ -214,5 +214,9 @@
     "API_TOGGLE": "Przełącz API",
     "CLICK": "klik",
     "TAP": "stuknięcie",
-    "HOLD_FOR_4S": "przytrzymaj 4s"
+    "HOLD_FOR_4S": "przytrzymaj 4s",
+    "SWITCH_2_STYLE": "Styl Switch 2",
+    "DYNAMIC_TABLES": "Dynamiczne tabele",
+    "DYNAMIC_BORDER": "Dynamiczne obramowanie",
+    "DYNAMIC_TEMPS": "Temp. dynamiczne"
 }

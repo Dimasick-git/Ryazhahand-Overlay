@@ -214,5 +214,9 @@
     "API_TOGGLE": "Переключить API",
     "CLICK": "клик",
     "TAP": "тап",
-    "HOLD_FOR_4S": "удерживать 4 с"
+    "HOLD_FOR_4S": "удерживать 4 с",
+    "SWITCH_2_STYLE": "Стиль Switch 2",
+    "DYNAMIC_TABLES": "Динамические таблицы",
+    "DYNAMIC_BORDER": "Динамическая рамка",
+    "DYNAMIC_TEMPS": "Динамические цвета темп."
 }

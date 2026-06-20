@@ -214,5 +214,9 @@
     "API_TOGGLE": "Basculer API",
     "CLICK": "clic",
     "TAP": "appui",
-    "HOLD_FOR_4S": "maintenir 4s"
+    "HOLD_FOR_4S": "maintenir 4s",
+    "SWITCH_2_STYLE": "Style Switch 2",
+    "DYNAMIC_TABLES": "Tableaux dynamiques",
+    "DYNAMIC_BORDER": "Bord dynamique",
+    "DYNAMIC_TEMPS": "Temp. dynamiques"
 }
