@@ -8360,6 +8360,14 @@ public:
 
         std::vector<std::string> matchedFiles, tempFiles;
 
+        // Tracks whether we've moved past the section's source-declaration commands
+
+        // (file_source, json_file_source, list_file_source, list_source, ini_file_source,
+
+        // json_source) into the per-item execution commands (set-ini-val, set-footer, etc.).
+
+        bool afterSource = false;
+
         for (auto& cmd : selectionCommands) {
 
             // Apply placeholder replacements in-place
@@ -8466,13 +8474,49 @@ public:
 
                     // Apply ALL placeholder replacements using the comprehensive function.
 
-                    // Runs unconditionally — including on _source commands — so any accumulated
+                    //
 
-                    // variable placeholder (ini_file, hex_file, json, list, if_*, math, etc.)
+                    // Always resolved for source-declaring/variable-setting commands (ini_file,
 
-                    // can be used to compose a _source path or value.
+                    // hex_file, list, list_file, json, json_file, and the *_source commands) so
 
-                    applyPlaceholderReplacements(cmd, _hexFilePath, _iniFilePath, _listString, _listFilePath, _jsonString, _jsonFilePath, filePath);
+                    // an accumulated variable placeholder (ini_file, hex_file, json, list, if_*,
+
+                    // math, etc.) can be used to compose a later _source path or value, even
+
+                    // after an earlier _source declaration has already run in this section.
+
+                    //
+
+                    // For every other command (regular execution commands like set-ini-val,
+
+                    // set-footer, cp, mv, etc.) we deliberately STOP resolving placeholders once
+
+                    // we're past the first source declaration: those commands are re-resolved
+
+                    // sequentially against LIVE state by interpretAndExecuteCommands at click
+
+                    // time, so resolving them here would bake in stale values captured at the
+
+                    // moment the selection menu was opened instead of at execution time.
+
+                    const bool isSourceSettingCommand =
+
+                        commandName == "ini_file"          || commandName == "hex_file"         ||
+
+                        commandName == "list"              || commandName == "list_file"        ||
+
+                        commandName == "json"              || commandName == "json_file"        ||
+
+                        commandName == "file_source"       || commandName == "json_file_source" ||
+
+                        commandName == "list_file_source"  || commandName == "list_source"      ||
+
+                        commandName == "ini_file_source"   || commandName == "json_source";
+
+                    if (!afterSource || isSourceSettingCommand)
+
+                        applyPlaceholderReplacements(cmd, _hexFilePath, _iniFilePath, _listString, _listFilePath, _jsonString, _jsonFilePath, filePath);
 
                     // Now handle source declarations
 
@@ -8650,6 +8694,8 @@ public:
 
                         }
 
+                        afterSource = true;
+
                     } else if (commandName == "json_file_source") {
 
                         sourceType = JSON_FILE_STR;
@@ -8690,6 +8736,8 @@ public:
 
                         }
 
+                        afterSource = true;
+
                     } else if (commandName == "list_file_source") {
 
                         sourceType = LIST_FILE_STR;
@@ -8718,6 +8766,8 @@ public:
 
                         }
 
+                        afterSource = true;
+
                     } else if (commandName == "list_source") {
 
                         sourceType = LIST_STR;
@@ -8745,6 +8795,8 @@ public:
                             sourceTypeOff = LIST_STR;
 
                         }
+
+                        afterSource = true;
 
                     } else if (commandName == "ini_file_source") {
 
@@ -8785,6 +8837,8 @@ public:
                             iniPathOff.clear();
 
                         }
+
+                        afterSource = true;
 
                     } else if (commandName == "json_source") {
 
@@ -8837,6 +8891,8 @@ public:
                             }
 
                         }
+
+                        afterSource = true;
 
                     }
 
