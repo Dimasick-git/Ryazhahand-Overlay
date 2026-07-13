@@ -55,7 +55,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 APP_TITLE	:= Ryzhand
 APP_AUTHOR	:= Dimasick-git
-APP_VERSION	:= 2.3.10
+APP_VERSION	:= 2.4.0
 TARGET		:= ovlmenu
 BUILD		:= build
 SOURCES		:= source source/ryazha_led common
