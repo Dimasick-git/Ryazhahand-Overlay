@@ -4224,24 +4224,6 @@ public:
 
             }
 
-            // Звуки -- выбор звукового пака. Аналог "Sounds" из upstream
-
-            // ppkantorski/Ultrahand-Overlay. Список собирается из подкаталогов
-
-            // /config/ryazhahand/sounds/packs/<name>/.
-
-            {
-
-                std::string currentSounds = parseValueFromIniSection(
-
-                    RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_sounds");
-
-                if (currentSounds.empty()) currentSounds = OPTION_SYMBOL;
-
-                addListItem(list, "Звуки", currentSounds, "soundsMenu");
-
-            }
-
             addListItem(list, WIDGET, DROPDOWN_SYMBOL, "widgetMenu");
 
             //addGap(list, 12);

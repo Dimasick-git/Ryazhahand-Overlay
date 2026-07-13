@@ -95,8 +95,8 @@ jobs:
           #      atmosphere/contents/420000000007E51A + E51B/       (nx-ovlloader v2.0.2)
           #      atmosphere/exefs_patches/audio_mastervolume/*.ips  (master vol патчи)
           #      config/ryazhahand/lang/*.json
-          #      config/ryazhahand/sounds/*.wav
-          #      config/ryazhahand/.sounds/default.zip
+          #      config/ryazhahand/sounds/default.zip          (звуковой пак для выбора в UI)
+          #      config/ryazhahand/.loaded_sounds/*.wav         (активный пак default, звучит из коробки)
           #      config/ryazhahand/themes/*.ini
           #      config/ryazhahand/payloads/ultrahand_updater.bin
           #    Юзер распаковывает в корень SD-карты -- работает из коробки.

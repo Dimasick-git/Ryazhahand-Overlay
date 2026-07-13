@@ -4,8 +4,8 @@
 # so that release zip = sd-card-ready (как у ppkantorski sdout.zip).
 #
 # Что копируется (из vendor/ultrahand-upstream/, submodule пинят на v2.4.5):
-#   sounds/*.wav                     -> config/ryazhahand/sounds/  (default pack)
-#   .sounds/default.zip              -> config/ryazhahand/.sounds/default.zip
+#   sounds/default.zip (из репы)     -> config/ryazhahand/sounds/default.zip (пак для UI выбора)
+#                                       + распаковка в config/ryazhahand/.loaded_sounds/ (активный пак)
 #   themes/*.ini                     -> config/ryazhahand/themes/
 #   payloads/ultrahand_updater.bin   -> config/ryazhahand/payloads/
 #   common/audio_mastervolume/*.ips  -> atmosphere/exefs_patches/audio_mastervolume/
@@ -44,7 +44,7 @@ fi
 
 mkdir -p "$OUT/config/ryazhahand/wallpapers"
 mkdir -p "$OUT/config/ryazhahand/sounds"
-mkdir -p "$OUT/config/ryazhahand/.sounds"
+mkdir -p "$OUT/config/ryazhahand/.loaded_sounds"
 mkdir -p "$OUT/config/ryazhahand/themes"
 mkdir -p "$OUT/config/ryazhahand/payloads"
 mkdir -p "$OUT/atmosphere/exefs_patches/audio_mastervolume"
@@ -54,15 +54,23 @@ mkdir -p "$OUT/atmosphere/exefs_patches/audio_mastervolume"
 # в RGBA4444 для tesla-рендера на лету). Юзер кладёт свои *.png в
 # /config/ryazhahand/wallpapers/ и выбирает через UI.
 
-# Default sound pack -- кладём и распакованные WAV'ы (для прямой работы Audio),
-# и zip (для системы sound-pack выбора).
-for f in "$UPSTREAM/sounds"/*.wav; do
-    [ -f "$f" ] || continue
-    cp "$f" "$OUT/config/ryazhahand/sounds/$(basename "$f")"
-done
-if [ -f "$UPSTREAM/.sounds/default.zip" ]; then
-    cp "$UPSTREAM/.sounds/default.zip" "$OUT/config/ryazhahand/.sounds/default.zip"
-    echo "[bundle] + .sounds/default.zip"
+# Default sound pack -- единственный источник дефолтных звуков (лежит в репе,
+# не тянем из upstream). В релиз кладём:
+#   sounds/default.zip     -- сам пак, виден в UI выбора звуков как "default";
+#   .loaded_sounds/*.wav   -- распакованный активный пак, Audio читает отсюда,
+#                             чтобы дефолтный профиль звучал сразу из коробки.
+# Россыпи WAV в sounds/ и папки .sounds/ больше нет.
+DEFAULT_ZIP="$ROOT/config/ryazhahand/sounds/default.zip"
+if [ -f "$DEFAULT_ZIP" ]; then
+    cp "$DEFAULT_ZIP" "$OUT/config/ryazhahand/sounds/default.zip"
+    if command -v unzip >/dev/null; then
+        unzip -oq "$DEFAULT_ZIP" -d "$OUT/config/ryazhahand/.loaded_sounds"
+        echo "[bundle] + sounds/default.zip (+ распаковка в .loaded_sounds/)"
+    else
+        echo "[bundle] WARN: unzip недоступен -- .loaded_sounds/ не заполнен"
+    fi
+else
+    echo "[bundle] WARN: $DEFAULT_ZIP отсутствует -- дефолтный звук не упакован"
 fi
 
 # Themes -- наши Ryazha-темы из config/ryazhahand/themes/ (заменяют

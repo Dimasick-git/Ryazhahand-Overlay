@@ -29,6 +29,8 @@ __pycache__/
 .pics/*.zip
 *.zip
 *.7z
+# ...но дефолтный звуковой пак должен быть в репе (сборка кладёт его в релиз).
+!config/ryazhahand/sounds/default.zip
 
 # Upstream/reference clones (kept locally for study, not committed)
 Atmosphere-CNX-master/
