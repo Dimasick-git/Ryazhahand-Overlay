@@ -4,6 +4,32 @@
 используется workflow'ом релиза (`.github/workflows/release.yml`) для
 автоизвлечения заметок к релизу.
 
+## [v2.4.0] — 2026-07-24
+
+### Добавлено
+- Поддержка контроллеров в стиле **GameCube** (NpadGc) в конфигурации пада оверлея.
+
+### Изменено
+- **Звуки:** единый дефолтный пак `default.zip`, убран дублирующийся пункт выбора и
+  служебная папка `.sounds` — звук работает из коробки, меню чище.
+- **libryazhahand:** синхронизация с upstream libultrahand (856ddbd) с
+  camelCase-правилом переименований (исправляет #12 библиотеки); отключён фоновый
+  PSC-поллер сна — меньше лишних сервисных вызовов, совместимость с RCU-стеком.
+- **vendor/ultrahand-upstream** обновлён до v2.5.3.
+
+### Релизный конвейер
+- Релиз теперь запускается бампом `RELEASE.ini` + записью в changelog (тег создаётся
+  автоматически); ручной путь через тег/workflow_dispatch сохранён.
+
+---
+
+**EN:** GameCube-style controller support (NpadGc); unified default sound pack
+(cleaner menu, works out of the box); libryazhahand synced with upstream libultrahand
+(camelCase rename rule, background PSC sleep poller disabled); vendored
+ultrahand-upstream bumped to v2.5.3; release pipeline can now be triggered by a
+RELEASE.ini bump — tag is created automatically.
+
+
 ## [v2.3.0]
 
 ### Добавлено
