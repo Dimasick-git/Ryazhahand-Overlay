@@ -15,9 +15,15 @@ on:
 permissions:
   contents: write
 
+# Два запуска для одного тега не должны одновременно заменять одни и те же
+# release assets. Запуски для разных тегов по-прежнему независимы.
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
-    name: Релиз ${{ github.ref_name }}
+    name: Релиз ${{ github.event.inputs.tag || github.ref_name }}
     runs-on: ubuntu-latest
     container:
       # Пинимся на тот же образ, что и build.yml -- он проверенно собирает
@@ -27,25 +33,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          # workflow_dispatch должен собирать именно существующий тег, а не
+          # HEAD ветки по умолчанию. При push-теге github.ref уже указывает на него.
+          ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: recursive
           fetch-depth: 0
 
       - name: Mark workspace safe
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Определить тег
+      - name: Определить и проверить тег
         id: tag
+        shell: bash
+        env:
+          TAG_INPUT: ${{ github.event.inputs.tag }}
         run: |
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          TAG="${TAG_INPUT:-${GITHUB_REF#refs/tags/}}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Некорректный тег релиза: $TAG"
+            exit 1
           fi
+          TAG_COMMIT=$(git rev-parse --verify "refs/tags/$TAG^{}")
+          if [ "$TAG_COMMIT" != "$(git rev-parse HEAD)" ]; then
+            echo "::error::Checkout не соответствует тегу $TAG"
+            exit 1
+          fi
+          printf 'tag=%s\n' "$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Установить zip
         run: |
           apt-get update -qq
-          apt-get install -y -qq zip
+          apt-get install -y -qq zip jq
 
       # best-effort, как в build.yml: pkg.devkitpro.org может отдать 403
       # (rate-limit), но образ уже несёт нужные portlibs -- не валим релиз.
@@ -80,8 +99,10 @@ jobs:
 
       - name: Собрать релизные архивы
         id: archive
+        shell: bash
         run: |
-          TAG="${{ steps.tag.outputs.tag }}"
+          set -euo pipefail
+          test -d out || { echo "::error::Каталог out не создан сборкой"; exit 1; }
           mkdir -p release
 
           # В релиз кладём ТОЛЬКО sdout.zip (полный SD-card-ready bundle).
@@ -100,10 +121,8 @@ jobs:
           #      config/ryazhahand/themes/*.ini
           #      config/ryazhahand/payloads/ultrahand_updater.bin
           #    Юзер распаковывает в корень SD-карты -- работает из коробки.
-          if [ -d out ]; then
-            (cd out && zip -r "../release/sdout.zip" .)
-          fi
-
+          (cd out && zip -r "../release/sdout.zip" .)
+          test -s release/sdout.zip || { echo "::error::sdout.zip не был создан"; exit 1; }
           ls -la release/
 
       - name: Получить changelog
@@ -136,26 +155,29 @@ jobs:
           REPO: ${{ github.repository }}
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          # pipefail/-e ВЫКЛ: `grep | head` шлёт SIGPIPE первому grep, и под
-          # дефолтным `bash -eo pipefail` это роняло шаг (хотя rid считался
-          # корректно). Этот шаг не должен валить релиз ни при каких раскладах.
-          set +e +o pipefail
+          set -euo pipefail
           api="https://api.github.com/repos/$REPO"
-          # Если релиз для этого тега уже существует -- удаляем его (тег
-          # остаётся). Следующий шаг пересоздаёт релиз со свежими файлами,
-          # поэтому повторный запуск на том же теге ПЕРЕЗАПИСЫВАЕТ ассеты.
-          rid=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "$api/releases/tags/$TAG" \
-                | grep -o '"id"[[:space:]]*:[[:space:]]*[0-9]*' | head -n1 | tr -dc '0-9')
-          if [ -n "$rid" ]; then
-            echo "Существующий релиз $rid для $TAG -- удаляю (ассеты пересоздадутся)"
-            curl -s -X DELETE -H "Authorization: Bearer $GH_TOKEN" \
-              "$api/releases/$rid" -o /dev/null -w "delete release -> %{http_code}\n"
-          else
-            echo "Релиза для $TAG ещё нет -- будет создан новый"
-          fi
-          exit 0
+          response=$(mktemp)
+          trap 'rm -f "$response"' EXIT
+          status=$(curl --silent --show-error --location --output "$response" \
+            --write-out '%{http_code}' -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" "$api/releases/tags/$TAG")
+          case "$status" in
+            200)
+              rid=$(jq -er '.id' "$response")
+              echo "Существующий релиз $rid для $TAG -- удаляю (ассеты пересоздадутся)"
+              curl --fail --silent --show-error --location -X DELETE \
+                -H "Authorization: Bearer $GH_TOKEN" "$api/releases/$rid"
+              ;;
+            404)
+              echo "Релиза для $TAG ещё нет -- будет создан новый"
+              ;;
+            *)
+              echo "::error::Не удалось получить релиз для $TAG (HTTP $status)"
+              cat "$response"
+              exit 1
+              ;;
+          esac
 
       - name: Создать GitHub Release
         uses: softprops/action-gh-release@v3
