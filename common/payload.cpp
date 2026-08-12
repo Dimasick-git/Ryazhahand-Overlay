@@ -48,6 +48,11 @@ namespace Payload {
                 smc_reboot_to_payload();
         }
 
+        template <typename EristaPath, typename MarikoPath>
+        bool RebootForCurrentHardware(EristaPath&& eristaPath, MarikoPath&& marikoPath) {
+            return util::IsErista() ? eristaPath() : marikoPath();
+        }
+
         // Refactored to use ini_funcs.cpp methods instead of callback
         HekateConfigList ParseHekateIni(const std::string& iniPath, HekateConfigList& existingConfigs) {
             HekateConfigList newConfigs;
@@ -267,82 +272,97 @@ namespace Payload {
     }
 
     bool RebootToHekate() {
-        if (util::IsErista()) {
-            return Reboot([&] (BootStorage *storage) {
-                /* No-Op */
-            });
-        } else {
-            Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
-                .reason = Max77620Rtc::REBOOT_REASON_NOP,
-            }};
-            return Max77620Rtc::Reboot(&rr);
-        }
+        return RebootForCurrentHardware(
+            [] {
+                return Reboot([] (BootStorage *storage) {
+                    /* No-Op */
+                });
+            },
+            [] {
+                Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
+                    .reason = Max77620Rtc::REBOOT_REASON_NOP,
+                }};
+                return Max77620Rtc::Reboot(&rr);
+            }
+        );
     }
 
     bool RebootToHekateConfig(HekateConfig const &config, bool const autoboot_list) {
-        if (util::IsErista()) {
-            return Reboot([&] (BootStorage *storage) {
-                /* Force autoboot and set boot id. */
-                storage->boot_cfg      = BootCfg_ForceAutoBoot;
-                storage->autoboot      = config.index;
-                storage->autoboot_list = autoboot_list;
-            });
-        } else {
-            Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
-                .reason = Max77620Rtc::REBOOT_REASON_SELF,
-                .autoboot_idx = static_cast<u16>(config.index & 0xf),
-                .autoboot_list = autoboot_list,
-            }};
-            return Max77620Rtc::Reboot(&rr);
-        }
+        return RebootForCurrentHardware(
+            [&] {
+                return Reboot([&] (BootStorage *storage) {
+                    /* Force autoboot and set boot id. */
+                    storage->boot_cfg      = BootCfg_ForceAutoBoot;
+                    storage->autoboot      = config.index;
+                    storage->autoboot_list = autoboot_list;
+                });
+            },
+            [&] {
+                Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
+                    .reason = Max77620Rtc::REBOOT_REASON_SELF,
+                    .autoboot_idx = static_cast<u16>(config.index & 0xf),
+                    .autoboot_list = autoboot_list,
+                }};
+                return Max77620Rtc::Reboot(&rr);
+            }
+        );
     }
 
     bool RebootToHekateUMS(UmsTarget const target) {
-        if (util::IsErista()) {
-            return Reboot([&] (BootStorage *storage) {
-                /* Force boot to menu, target UMS and select target. */
-                storage->boot_cfg  = BootCfg_ForceAutoBoot;
-                storage->extra_cfg = ExtraCfg_NyxUms;
-                storage->autoboot  = 0;
-                storage->ums       = target;
-            });
-        } else {
-            Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
-                .reason = Max77620Rtc::REBOOT_REASON_UMS,
-                .ums_idx = target,
-            }};
-            return Max77620Rtc::Reboot(&rr);
-        }
+        return RebootForCurrentHardware(
+            [&] {
+                return Reboot([&] (BootStorage *storage) {
+                    /* Force boot to menu, target UMS and select target. */
+                    storage->boot_cfg  = BootCfg_ForceAutoBoot;
+                    storage->extra_cfg = ExtraCfg_NyxUms;
+                    storage->autoboot  = 0;
+                    storage->ums       = target;
+                });
+            },
+            [&] {
+                Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
+                    .reason = Max77620Rtc::REBOOT_REASON_UMS,
+                    .ums_idx = target,
+                }};
+                return Max77620Rtc::Reboot(&rr);
+            }
+        );
     }
 
     bool RebootToHekateMenu() { // CUSTOM MODIFICATION
-        if (util::IsErista()) {
-            return Reboot([&] (BootStorage *storage) {
-                /* Force boot to menu */
-                storage->boot_cfg  = BootCfg_ForceAutoBoot;
-                storage->autoboot  = 0;
-            });
-        } else {
-            Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
-                .reason = Max77620Rtc::REBOOT_REASON_MENU,
-            }};
-            return Max77620Rtc::Reboot(&rr);
-        }
+        return RebootForCurrentHardware(
+            [] {
+                return Reboot([] (BootStorage *storage) {
+                    /* Force boot to menu */
+                    storage->boot_cfg  = BootCfg_ForceAutoBoot;
+                    storage->autoboot  = 0;
+                });
+            },
+            [] {
+                Max77620Rtc::rtc_reboot_reason_t rr {.dec = {
+                    .reason = Max77620Rtc::REBOOT_REASON_MENU,
+                }};
+                return Max77620Rtc::Reboot(&rr);
+            }
+        );
     }
 
     bool RebootToPayload(PayloadConfig const &config) {
-        if (util::IsErista()) {
-            /* Load payload. */
-            if (!LoadPayload(config.path.c_str(), false))
+        return RebootForCurrentHardware(
+            [&] {
+                /* Load payload. */
+                if (!LoadPayload(config.path.c_str(), false))
+                    return false;
+
+                /* Reboot */
+                RebootToPayload();
+
+                return true;
+            },
+            [] {
                 return false;
-
-            /* Reboot */
-            RebootToPayload();
-
-            return true;
-        } else {
-            return false;
-        }
+            }
+        );
     }
 
 }
