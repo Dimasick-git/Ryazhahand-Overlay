@@ -3690,10 +3690,6 @@ private:
 
             const bool disableLoaderUpdate = isFile(FLAGS_PATH + "NO_LOADER_UPDATES.flag");
 
-            //const bool disableMasterVolumePatchUpdate = isFile(FLAGS_PATH + "NO_MASTER_VOLUME_PATCH.flag");
-
-            //const bool masterVolumePatchAlreadyExists = isDirectory("/atmosphere/exefs_patches/audio_mastervolume/");
-
             const std::string latestVersion = cleanVersionLabel(parseValueFromIniSection(SETTINGS_PATH + "RELEASE.ini", "Release Info", "latest_version"));
 
             const std::string dlSounds = DOWNLOADS_PATH + "sounds/";
@@ -3701,10 +3697,6 @@ private:
             const std::string dlLoader = DOWNLOADS_PATH + "420000000007E51A/";
 
             constexpr const char* atmLoader = "/atmosphere/contents/420000000007E51A/";
-
-            //const std::string dlMasterVol = DOWNLOADS_PATH + "audio_mastervolume/";
-
-            //constexpr const char* atmMasterVol = "/atmosphere/exefs_patches/audio_mastervolume/";
 
             std::vector<std::vector<std::string>> cmds = {{"try:"}};
 
@@ -3722,14 +3714,6 @@ private:
 
                 }
 
-                //if (disableMasterVolumePatchUpdate && masterVolumePatchAlreadyExists) {
-
-                //    cmds.push_back({"delete", dlMasterVol});
-
-                //    cmds.push_back({"cp", atmMasterVol, dlMasterVol});
-
-                //}
-
             };
 
             auto addRestore = [&]() {
@@ -3743,26 +3727,6 @@ private:
                 if (!latestVersion.empty())
 
                     cmds.push_back({"set-json-val", HB_APPSTORE_JSON, "version", latestVersion});
-
-                //if (disableMasterVolumePatchUpdate) {
-
-                //    if (masterVolumePatchAlreadyExists) {
-
-                //        // Restore original patch exactly
-
-                //        cmds.push_back({"delete", atmMasterVol});
-
-                //        cmds.push_back({"mv", dlMasterVol, atmMasterVol});
-
-                //    } else {
-
-                //        // Patch did NOT exist originally → ensure update didn't add it
-
-                //        cmds.push_back({"delete", atmMasterVol});
-
-                //    }
-
-                //}
 
             };
 
@@ -4636,19 +4600,11 @@ public:
 
                             tsl::notification->showNow(NOTIFY_HEADER + WALLPAPER_SUPPORT_DISABLED, 23);
 
-                        //else if (previousSliderMB >= 4 && newMB < 4)
-
-                        //    tsl::notification->showNow(NOTIFY_HEADER + SOUND_SUPPORT_DISABLED, 23);
-
                     } else {
 
                         if (previousSliderMB < 6 && newMB >= 6)
 
                             tsl::notification->showNow(NOTIFY_HEADER + WALLPAPER_SUPPORT_ENABLED, 23);
-
-                        //else if (previousSliderMB < 4 && newMB >= 4)
-
-                        //    tsl::notification->showNow(NOTIFY_HEADER + SOUND_SUPPORT_ENABLED, 23);
 
                     }
 
@@ -10863,12 +10819,6 @@ bool drawCommandsMenu(
                                     return true;
 
                                 } else if (keys & SCRIPT_KEY && !(keys & ~SCRIPT_KEY & ALL_KEYS_MASK)) {
-
-                                    // Gather the prompt commands for the current dropdown section
-
-                                    //const std::vector<std::vector<std::string>> promptCommands = gatherPromptCommands(optionName, options);
-
-                                    //auto options = loadOptionsFromIni(packageIniPath);
 
                                     tsl::changeTo<ScriptOverlay>(std::move(gatherPromptCommands(optionName, std::move(loadOptionsFromIni(packageIniPath)))), PACKAGE_PATH, optionName, "main", true, lastPackageHeader, showWidget);
 
