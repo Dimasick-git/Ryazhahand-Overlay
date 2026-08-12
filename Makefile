@@ -138,9 +138,10 @@ ifeq ($(strip $(NPROC)),)
 endif
 
 # ------------------------------------------------------------
-# Set parallelism flags only if user didn't pass -j manually
+# Configure default parallelism only for the top-level invocation.
+# An explicit user -j remains dominant; recursive make inherits jobserver.
 # ------------------------------------------------------------
-ifeq (,$(filter -j -j%,$(MAKEFLAGS)))
+ifeq ($(MAKELEVEL),0)
 	MAKEFLAGS += -j$(NPROC)
 endif
 
