@@ -276,50 +276,6 @@ static inline void ensureDirExists(const std::string& path) {
 
 }
 
-static inline std::string readFirstLineFile(const std::string& path, const std::string& def) {
-
-    FILE* f = fopen(path.c_str(), "r");
-
-    if (!f) return def;
-
-    char buf[64] = {0};
-
-    if (!fgets(buf, sizeof(buf), f)) {
-
-        fclose(f);
-
-        return def;
-
-    }
-
-    fclose(f);
-
-    buf[strcspn(buf, "\n")] = 0;
-
-    return buf[0] ? std::string(buf) : def;
-
-}
-
-static inline void writeTextFile(const std::string& path, const std::string& value) {
-
-    FILE* f = fopen(path.c_str(), "w");
-
-    if (!f) return;
-
-    fwrite(value.c_str(), 1, value.size(), f);
-
-    fclose(f);
-
-}
-
-static inline void touchFile(const std::string& path) {
-
-    FILE* f = fopen(path.c_str(), "w");
-
-    if (f) fclose(f);
-
-}
-
 class AnimatedList : public tsl::elm::List {
 
 private:
@@ -522,46 +478,6 @@ static HidsysNotificationLedPattern makeSolidHomeLedPattern(u8 intensity) {
 
 }
 
-struct HomeLedStep {
-
-    u8 intensity;
-
-    u8 duration;
-
-};
-
-static HidsysNotificationLedPattern makeCustomHomeLedPattern(u8 baseMiniCycleDuration, const HomeLedStep *steps, u8 stepCount) {
-
-    HidsysNotificationLedPattern p;
-
-    std::memset(&p, 0, sizeof(p));
-
-    p.baseMiniCycleDuration = baseMiniCycleDuration & 0xF;
-
-    if (!steps || stepCount == 0) return p;
-
-    if (stepCount > 16) stepCount = 16;
-
-    p.totalMiniCycles = (stepCount - 1) & 0xF;
-
-    p.totalFullCycles = 0x0;
-
-    p.startIntensity = steps[0].intensity & 0xF;
-
-    for (u8 i = 0; i < stepCount; i++) {
-
-        p.miniCycles[i].ledIntensity = steps[i].intensity & 0xF;
-
-        p.miniCycles[i].transitionSteps = 0x0;
-
-        p.miniCycles[i].finalStepDuration = steps[i].duration & 0xF;
-
-    }
-
-    return p;
-
-}
-
 static HidsysNotificationLedPattern makeBlinkHomeLedPattern(u8 baseMiniCycleDuration, u8 intensityA, u8 durA, u8 intensityB, u8 durB) {
 
     HidsysNotificationLedPattern p;
@@ -634,8 +550,6 @@ static void setHomeLedPatternForAllControllers(const HidsysNotificationLedPatter
 
     }
 
-    bool anySetSuccess = false;
-
     for (s32 i = 0; i < total_entries; i++) {
 
         HidsysUniquePadType pad_type = HidsysUniquePadType_Embedded;
@@ -673,16 +587,6 @@ static void setHomeLedPatternForAllControllers(const HidsysNotificationLedPatter
             rc_set = hidsysSetNotificationLedPattern(&pattern, unique_pad_ids[i]);
 
         }
-
-        if (R_SUCCEEDED(rc_set)) {
-
-            anySetSuccess = true;
-
-        }
-
-    }
-
-    if (!anySetSuccess) {
 
     }
 
@@ -1080,7 +984,6 @@ constexpr auto acq_rel = std::memory_order_acq_rel;
 
 constexpr auto release = std::memory_order_release;
 
-//static std::mutex transitionMutex;
 
 // Placeholder replacement
 
@@ -1884,7 +1787,6 @@ inline void updateSelectionUI(tsl::elm::ListItem* listItem, const std::string& s
 
     lastSelectedListItem = listItem;
 
-    //tsl::shiftItemFocus(listItem);
 
     if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -3908,7 +3810,6 @@ private:
 
             lastSelectedListItem = listItem;
 
-            //tsl::shiftItemFocus(listItem);
 
             lastRunningInterpreter.store(true, std::memory_order_release);
 
@@ -4322,7 +4223,6 @@ public:
 
                         lastSelectedListItem = listItem;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         lastSelectedListItemFooter = defaultLangMode;
 
@@ -4862,7 +4762,6 @@ public:
 
                     lastSelectedListItem = listItem;
 
-                    //tsl::shiftItemFocus(listItem);
 
                     if (lastSelectedListItem)
 
@@ -4936,7 +4835,6 @@ public:
 
                         lastSelectedListItem = listItem;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         if (lastSelectedListItem)
 
@@ -5086,7 +4984,6 @@ public:
 
                         lastSelectedListItem = listItem;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -5204,7 +5101,6 @@ public:
 
                     lastSelectedListItem = listItem;
 
-                    //tsl::shiftItemFocus(listItem);
 
                     if (lastSelectedListItem)
 
@@ -5274,7 +5170,6 @@ public:
 
                         lastSelectedListItem = listItem;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         if (selectedListItem)
 
@@ -6586,7 +6481,6 @@ public:
 
                 lastSelectedListItem = listItem;
 
-                //tsl::shiftItemFocus(listItem);
 
                 if (lastSelectedListItem)
 
@@ -6944,7 +6838,6 @@ public:
 
                         lastSelectedListItem = _item;
 
-                        //tsl::shiftItemFocus(_item);
 
                         if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -7012,7 +6905,6 @@ public:
 
                         lastSelectedListItem = item;
 
-                        //tsl::shiftItemFocus(item);
 
                         if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -7104,7 +6996,6 @@ public:
 
                         lastSelectedListItem = _item;
 
-                        //tsl::shiftItemFocus(_item);
 
                         if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -7180,7 +7071,6 @@ public:
 
                         lastSelectedListItem = item;
 
-                        //tsl::shiftItemFocus(item);
 
                         if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
@@ -8290,7 +8180,6 @@ public:
 
         : filePath(path), specificKey(key), specifiedFooterKey(footerKey), lastPackageHeader(_lastPackageHeader), selectionCommands(commands), showWidget(showWidget) {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         lastSelectedListItem = nullptr;
 
@@ -8300,7 +8189,6 @@ public:
 
     ~SelectionOverlay() {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         lastSelectedListItem = nullptr;
 
@@ -8914,7 +8802,6 @@ public:
 
     virtual tsl::elm::Element* createUI() override {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         inSelectionMenu = true;
 
@@ -9494,7 +9381,6 @@ public:
 
                         lastSelectedListItem = listItem;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         lastRunningInterpreter.store(true, std::memory_order_release);
 
@@ -9511,10 +9397,6 @@ public:
                         auto modifiedCmds = getSourceReplacement(selectionCommands, selectedItem, i, filePath);
 
                         applyPlaceholderReplacementsToCommands(modifiedCmds, filePath);
-
-                        //tsl::elm::g_cachedTop.disabled = true;
-
-                        //tsl::elm::g_cachedBottom.disabled = true;
 
                         tsl::changeTo<ScriptOverlay>(std::move(modifiedCmds), filePath, itemName, "selection", false, currentPackageHeader, showWidget);
 
@@ -9691,10 +9573,6 @@ public:
                     auto modifiedCmds = getSourceReplacement(!state ? selectionCommandsOn : selectionCommandsOff, currentSelectedItems[i], i, filePath);
 
                     applyPlaceholderReplacementsToCommands(modifiedCmds, filePath);
-
-                    //tsl::elm::g_cachedTop.disabled = true;
-
-                    //tsl::elm::g_cachedBottom.disabled = true;
 
                     tsl::changeTo<ScriptOverlay>(std::move(modifiedCmds), filePath, itemName, "selection", false, currentPackageHeader, showWidget);
 
@@ -12402,7 +12280,6 @@ bool drawCommandsMenu(
 
                                     }
 
-                                    //tsl::shiftItemFocus(listItem);
 
                                     returnContextStack.push({
 
@@ -12564,7 +12441,6 @@ bool drawCommandsMenu(
 
                                 lastFooterHighlightDefined = commandFooterHighlightDefined;  // STORE WHETHER IT WAS DEFINED
 
-                                //tsl::shiftItemFocus(listItem);
 
                                 lastCommandMode = commandMode;
 
@@ -12846,7 +12722,6 @@ public:
 
         packagePath(path), dropdownSection(sectionName), currentPage(page), packageName(_packageName), nestedLayer(_nestedlayer), pageHeader(_pageHeader) {
 
-            //std::lock_guard<std::mutex> lock(transitionMutex);
 
             if (!skipJumpReset.load(acquire)) {
 
@@ -12876,7 +12751,6 @@ public:
 
     ~PackageMenu() {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         if (returningToMain || returningToHiddenMain || pendingExitPackage.load(std::memory_order_acquire)) {
 
@@ -12954,7 +12828,6 @@ public:
 
     virtual tsl::elm::Element* createUI() override {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         if (dropdownSection.empty()){
 
@@ -13748,7 +13621,6 @@ public:
 
     MainMenu(const std::string& hiddenMenuMode = "", const std::string& sectionName = "") : hiddenMenuMode(hiddenMenuMode), dropdownSection(sectionName) {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         {
 
@@ -13782,7 +13654,6 @@ public:
 
     ~MainMenu() {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
     }
 
@@ -13804,7 +13675,6 @@ public:
 
     virtual tsl::elm::Element* createUI() override {
 
-        //std::lock_guard<std::mutex> lock(transitionMutex);
 
         // Handle hidden mode flags
 
@@ -14464,7 +14334,6 @@ public:
 
                         returnJumpItemValue = hideOverlayVersions ? "" : displayVersion;
 
-                        //tsl::shiftItemFocus(listItem);
 
                         tsl::changeTo<SettingsMenu>(overlayFileName, OVERLAY_STR, overlayName, overlayVersion, "", !supportsAMS110);
 
