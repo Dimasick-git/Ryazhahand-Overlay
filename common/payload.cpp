@@ -22,7 +22,6 @@
 #include "ams_bpc.h"
 #include "ini_funcs.hpp"  // Changed from "ini.h"
 
-#include <unistd.h>
 #include <cstring>
 #include <dirent.h>
 #include <span>
@@ -91,6 +90,8 @@ namespace Payload {
             "sdmc:/bootloader/payloads/hekate.bin",
             "sdmc:/sept/payload.bin",
         };
+
+        constexpr char const HekateIniDir[] = "sdmc:/bootloader/ini/";
 
         constexpr char const *const PayloadDirs[] = {
             "sdmc:/",
@@ -177,11 +178,8 @@ namespace Payload {
     HekateConfigList LoadIniConfigList() {
         HekateConfigList configs;
 
-        if (chdir("sdmc:/bootloader/ini") != 0)
-            return configs;
-
         /* Open ini folder */
-        auto const dirp = opendir(".");
+        auto const dirp = opendir(HekateIniDir);
         if (dirp == nullptr)
             return configs;
 
@@ -204,15 +202,13 @@ namespace Payload {
             SortEntries(dir_entries, count);
         }
 
-        /* parse config - accumulating into the same list */
+        /* Parse config files with absolute paths, accumulating into the same list. */
         for (auto const &entry : std::span(dir_entries, count)) {
-            auto newConfigs = ParseHekateIni(entry, configs);
+            auto newConfigs = ParseHekateIni(std::string(HekateIniDir) + entry, configs);
             configs.splice(configs.end(), newConfigs);
         }
 
         closedir(dirp);
-
-        chdir("sdmc:/");
 
         return configs;
     }
@@ -223,11 +219,8 @@ namespace Payload {
         /* Iterate through all the payload folders */
         for (const auto& path : PayloadDirs) {
 
-            if (chdir(path) != 0)
-                continue;
-
-            /* Open `path` folder */
-            auto const dirp = opendir(".");
+            /* Open `path` folder without changing the process working directory. */
+            auto const dirp = opendir(path);
             if (dirp == nullptr)
                 continue;
 
@@ -244,8 +237,6 @@ namespace Payload {
 
             closedir(dirp);
         }
-
-        chdir("sdmc:/");
 
         return res;
     }
