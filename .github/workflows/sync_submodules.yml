@@ -30,7 +30,7 @@ jobs:
       image: devkitpro/devkita64:20251231
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 1
@@ -99,8 +99,8 @@ jobs:
         if: steps.bump.outputs.changed == '1'
         shell: bash
         run: |
-          git config user.name "ryazha-sync[bot]"
-          git config user.email "ryazha-sync[bot]@users.noreply.github.com"
+          git config user.name "Dimasick-git"
+          git config user.email "dimaorynchukk@gmail.com"
           LIBSHA=$(git -C lib/libryazhahand rev-parse --short HEAD)
           VENTAG=$(git -C vendor/ultrahand-upstream describe --tags --exact-match 2>/dev/null || \
                    git -C vendor/ultrahand-upstream rev-parse --short HEAD)
