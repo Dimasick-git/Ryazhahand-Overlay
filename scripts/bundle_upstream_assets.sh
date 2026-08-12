@@ -119,32 +119,47 @@ if [ "${UPSTREAM_SKIP_FETCH:-0}" = "1" ]; then
     echo "[bundle] UPSTREAM_SKIP_FETCH=1 -- nx-ovlloader не собирается"
 elif [ -d "$NXOVL/source" ]; then
     echo "[bundle] building nx-ovlloader from vendor/nx-ovlloader..."
-    NXOVL_BUILD="$(mktemp -d)"
-    # Копируем submodule в temp чтобы make не пачкал submodule worktree
-    # (внутри submodule .git -- gitlink файл, его трогать не нужно).
-    cp -r "$NXOVL/." "$NXOVL_BUILD/"
-    # nx-ovlreloader как nested submodule. Если submodule не клонирован
-    # рекурсивно -- скачиваем как fallback.
-    if [ ! -f "$NXOVL_BUILD/external/nx-ovlreloader/Makefile" ]; then
+    # Инициализируем nested submodule в оригинальном worktree ДО копирования:
+    # gitlink внутри временной копии не содержит корректного пути к modules/.
+    if [ ! -f "$NXOVL/external/nx-ovlreloader/Makefile" ]; then
         echo "[bundle]   external/nx-ovlreloader пуст -- инициализирую"
-        (cd "$NXOVL_BUILD" && git submodule update --init --recursive 2>/dev/null) || true
+        git -C "$NXOVL" submodule update --init --recursive
     fi
-    if [ -f "$NXOVL_BUILD/Makefile" ]; then
-        (cd "$NXOVL_BUILD" && make 2>&1 | tail -5) || echo "[bundle] WARN nx-ovlloader build failed"
-        # nx-ovlloader make кладёт артефакты в out/atmosphere/... формате,
-        # либо в корень. Проверим оба.
-        if [ -d "$NXOVL_BUILD/out/atmosphere" ]; then
-            cp -r "$NXOVL_BUILD/out/atmosphere"/. "$OUT/atmosphere/"
-        fi
-        if [ -d "$NXOVL_BUILD/out/switch" ]; then
-            mkdir -p "$OUT/switch"
-            cp -r "$NXOVL_BUILD/out/switch"/. "$OUT/switch/"
-        fi
-        echo "[bundle] + nx-ovlloader (built from submodule)"
-    else
-        echo "[bundle] WARN: vendor/nx-ovlloader Makefile отсутствует"
+    if [ ! -f "$NXOVL/external/nx-ovlreloader/Makefile" ]; then
+        echo "[bundle] ERROR: nested nx-ovlreloader не инициализирован"
+        exit 1
     fi
+
+    NXOVL_BUILD="$(mktemp -d)"
+    # Копируем submodule в temp, чтобы make не пачкал исходный worktree.
+    cp -r "$NXOVL/." "$NXOVL_BUILD/"
+    if ! (cd "$NXOVL_BUILD" && make > build.log 2>&1); then
+        echo "[bundle] ERROR: nx-ovlloader build failed"
+        tail -n 80 "$NXOVL_BUILD/build.log" || true
+        rm -rf "$NXOVL_BUILD"
+        exit 1
+    fi
+    tail -n 5 "$NXOVL_BUILD/build.log"
+
+    # Успешный make обязан создать полный набор загрузчика и reloader-а.
+    # Не подменяем частичную сборку сообщением об успехе: release workflow
+    # опирается на эти компоненты в sdout.zip.
+    for asset in \
+        atmosphere/contents/420000000007E51A/exefs.nsp \
+        atmosphere/contents/420000000007E51B/exefs.nsp \
+        switch/Ryazhahand-Reload/Ryazhahand-Reload.nro; do
+        if [ ! -s "$NXOVL_BUILD/out/$asset" ]; then
+            echo "[bundle] ERROR: missing nx-ovlloader artifact: $asset"
+            rm -rf "$NXOVL_BUILD"
+            exit 1
+        fi
+    done
+
+    cp -r "$NXOVL_BUILD/out/atmosphere"/. "$OUT/atmosphere/"
+    mkdir -p "$OUT/switch"
+    cp -r "$NXOVL_BUILD/out/switch"/. "$OUT/switch/"
     rm -rf "$NXOVL_BUILD"
+    echo "[bundle] + nx-ovlloader (built from submodule)"
 else
     # Fallback: submodule не инициализирован -- качаем upstream release zip.
     # Происходит когда юзер клонировал без --recursive.

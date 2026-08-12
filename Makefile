@@ -278,7 +278,9 @@ $(BUILD):
 	@# master volume, nx-ovlloader (из submodule vendor/nx-ovlloader/).
 	@# Submodule vendor/ultrahand-upstream/ -- snapshot upstream Tesla
 	@# фреймворка, используется как источник assets (license-совместимо).
-	+@bash $(CURDIR)/scripts/bundle_upstream_assets.sh out/ || true
+	@# Ошибка сборки nx-ovlloader теперь блокирует основной build: иначе CI
+	@# мог бы подтвердить ovlmenu.ovl с неполным SD-card bundle.
+	+@bash $(CURDIR)/scripts/bundle_upstream_assets.sh out/
 
 #---------------------------------------------------------------------------------
 clean:
