@@ -12,6 +12,12 @@ on:
 permissions:
   contents: write
 
+# Не допускаем параллельных запусков schedule и workflow_dispatch:
+# оба обновляют один и тот же JSON и отправляют коммит в main.
+concurrency:
+  group: update-hbappstore
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
