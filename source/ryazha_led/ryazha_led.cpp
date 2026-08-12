@@ -86,12 +86,12 @@ bool isLiteDetected() {
     SetSysProductModel model = SetSysProductModel_Invalid;
     Result rc = setsysGetProductModel(&model);
     if (R_SUCCEEDED(rc)) {
-        // SetSysProductModel_Hoag соответствует Switch Lite.
+        // SetSysProductModel_Hoag соответствует Switch Lite. Кэшируем только
+        // успешный ответ: при временной ошибке сервиса следующая попытка сможет
+        // корректно определить Lite вместо фиксации ложного результата.
         g_liteDetected = (model == SetSysProductModel_Hoag);
-    } else {
-        g_liteDetected = false;
+        g_liteCached = true;
     }
-    g_liteCached = true;
     return g_liteDetected;
 }
 

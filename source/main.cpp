@@ -2814,6 +2814,28 @@ static void setRyzhandConfig(const std::string& key, const std::string& value) {
 
 }
 
+// Loads and normalizes the global combo excluded from per-entry combo lists.
+
+static std::string getGlobalDefaultKeyCombo() {
+
+    const auto iniData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
+
+    const auto sectionIt = iniData.find(RYZHAND_PROJECT_NAME);
+
+    if (sectionIt == iniData.end()) return "";
+
+    const auto comboIt = sectionIt->second.find(KEY_COMBO_STR);
+
+    if (comboIt == sectionIt->second.end()) return "";
+
+    std::string globalDefault = comboIt->second;
+
+    trim(globalDefault);
+
+    return globalDefault;
+
+}
+
 // Handles the wallpaper-reload side-effect block that follows interpreter
 
 // completion in PackageMenu and MainMenu.
@@ -6757,17 +6779,7 @@ public:
 
             const std::string currentCombo = getValue(KEY_COMBO_STR);
 
-            // Get global default combo
-
-            auto uhData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
-
-            auto uhIt = uhData.find(RYZHAND_PROJECT_NAME);
-
-            std::string globalDefault = (uhIt != uhData.end() && uhIt->second.count(KEY_COMBO_STR))
-
-                ? uhIt->second.at(KEY_COMBO_STR) : "";
-
-            trim(globalDefault);
+            const std::string globalDefault = getGlobalDefaultKeyCombo();
 
             // No combo option
 
@@ -6907,17 +6919,7 @@ public:
 
             const std::string currentCombo = comboList[idx];
 
-            // Get global default
-
-            auto uhData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
-
-            auto uhIt = uhData.find(RYZHAND_PROJECT_NAME);
-
-            std::string globalDefault = (uhIt != uhData.end() && uhIt->second.count(KEY_COMBO_STR))
-
-                ? uhIt->second.at(KEY_COMBO_STR) : "";
-
-            trim(globalDefault);
+            const std::string globalDefault = getGlobalDefaultKeyCombo();
 
             // No combo option
 
