@@ -166,39 +166,9 @@ std::string packageRootLayerColor;
 
  */
 
-std::vector<std::string> getOverlayNames() {
+void removeKeyComboFromOthers(const std::string& keyCombo) {
 
-    std::vector<std::string> names;
-
-    const auto iniData = ult::getParsedDataFromIniFile(ult::OVERLAYS_INI_FILEPATH);
-
-    for (const auto& [sectionName, _] : iniData) {
-
-        names.push_back(sectionName);
-
-    }
-
-    return names;
-
-}
-
-std::vector<std::string> getPackageNames() {
-
-    std::vector<std::string> names;
-
-    const auto iniData = ult::getParsedDataFromIniFile(ult::PACKAGES_INI_FILEPATH);
-
-    for (const auto& [sectionName, _] : iniData) {
-
-        names.push_back(sectionName);
-
-    }
-
-    return names;
-
-}
-
-void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& currentOverlay) {
+    const auto targetKeys = tsl::hlp::comboStringToKeys(keyCombo);
 
     // Declare variables once for reuse across both scopes
 
@@ -220,15 +190,9 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
 
         bool overlaysModified = false;
 
-        const auto overlayNames = getOverlayNames();
+        for (auto& overlayEntry : overlaysIniData) {
 
-        for (const auto& overlayName : overlayNames) {
-
-            auto overlayIt = overlaysIniData.find(overlayName);
-
-            if (overlayIt == overlaysIniData.end()) continue; // Skip if overlay not in INI
-
-            auto& overlaySection = overlayIt->second;
+            auto& overlaySection = overlayEntry.second;
 
             // 1. Remove from main key_combo field if it matches
 
@@ -238,7 +202,7 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
 
                 existingCombo = keyComboIt->second;
 
-                if (!existingCombo.empty() && tsl::hlp::comboStringToKeys(existingCombo) == tsl::hlp::comboStringToKeys(keyCombo)) {
+                if (!existingCombo.empty() && tsl::hlp::comboStringToKeys(existingCombo) == targetKeys) {
 
                     overlaySection["key_combo"] = "";
 
@@ -268,7 +232,7 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
 
             for (size_t i = 0; i < comboList.size(); ++i) {
 
-                if (!comboList[i].empty() && tsl::hlp::comboStringToKeys(comboList[i]) == tsl::hlp::comboStringToKeys(keyCombo)) {
+                if (!comboList[i].empty() && tsl::hlp::comboStringToKeys(comboList[i]) == targetKeys) {
 
                     comboList[i] = "";  // Clear ALL instances
 
@@ -312,15 +276,9 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
 
         bool packagesModified = false;
 
-        auto packageNames = getPackageNames();
+        for (auto& packageEntry : packagesIniData) {
 
-        for (const auto& packageName : packageNames) {
-
-            auto packageIt = packagesIniData.find(packageName);
-
-            if (packageIt == packagesIniData.end()) continue; // Skip if package not in INI
-
-            auto& packageSection = packageIt->second;
+            auto& packageSection = packageEntry.second;
 
             auto keyComboIt = packageSection.find("key_combo");
 
@@ -328,7 +286,7 @@ void removeKeyComboFromOthers(const std::string& keyCombo, const std::string& cu
 
                 existingCombo = keyComboIt->second; // Reusing the same variable
 
-                if (!existingCombo.empty() && tsl::hlp::comboStringToKeys(existingCombo) == tsl::hlp::comboStringToKeys(keyCombo)) {
+                if (!existingCombo.empty() && tsl::hlp::comboStringToKeys(existingCombo) == targetKeys) {
 
                     packageSection["key_combo"] = "";
 

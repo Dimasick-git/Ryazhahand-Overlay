@@ -3598,7 +3598,7 @@ private:
 
                         // Remove this key combo from any overlays using it (both key_combo and mode_combos)
 
-                        removeKeyComboFromOthers(item, "");
+                        removeKeyComboFromOthers(item);
 
                         // Reload the overlay key combos to reflect changes
 
@@ -6836,7 +6836,7 @@ public:
 
                         if (combo != currentCombo) {
 
-                            removeKeyComboFromOthers(combo, entryName);
+                            removeKeyComboFromOthers(combo);
 
                             setIniFileValue(settingsIniPath, entryName, KEY_COMBO_STR, combo);
 
@@ -6931,7 +6931,7 @@ public:
 
                         const std::string newStr = "(" + joinIniList(combos) + ")";
 
-                        removeKeyComboFromOthers(newStr, entryName);
+                        removeKeyComboFromOthers(newStr);
 
                         setIniFileValue(settingsIniPath, entryName, "mode_combos", newStr);
 
@@ -6994,7 +6994,7 @@ public:
 
                         if (combo != comboList[idx]) {
 
-                            removeKeyComboFromOthers(combo, entryName);
+                            removeKeyComboFromOthers(combo);
 
                             const std::string comboStr = parseValueFromIniSection(settingsIniPath, entryName, "mode_combos");
 
