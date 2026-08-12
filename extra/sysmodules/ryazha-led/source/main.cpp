@@ -222,7 +222,9 @@ static void buildOffPattern() {
     memset(&g_pattern, 0, sizeof(g_pattern));
 }
 
-static void scanForControllers() {
+// Возвращает true только если появился хотя бы один новый контроллер.
+static bool scanForControllers() {
+    bool added = false;
     static const HidNpadIdType ids[] = {
         HidNpadIdType_No1, HidNpadIdType_No2,
         HidNpadIdType_No3, HidNpadIdType_No4,
@@ -239,9 +241,13 @@ static void scanForControllers() {
             for (int k = 0; k < g_numPads; k++) {
                 if (g_pads[k].id == pads[j].id) { seen = true; break; }
             }
-            if (!seen) g_pads[g_numPads++] = pads[j];
+            if (!seen) {
+                g_pads[g_numPads++] = pads[j];
+                added = true;
+            }
         }
     }
+    return added;
 }
 
 static void applyHidsysPattern() {
@@ -451,7 +457,6 @@ static void applyRegular() {
         // открыто) -- сысмодуль держит LED погашенным, чтобы не конфликтовать.
         case LED_ONPRESS:                   buildOffPattern();                 break;
     }
-    scanForControllers();
     applyHidsysPattern();
 }
 
@@ -538,14 +543,16 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     while (true) {
+        bool shouldApply = false;
         if (checkReload()) {
             loadConfig();
-            applyConfig();
+            shouldApply = true;
         }
-        // На обычной Switch периодически переапплаим pattern: если
-        // подключили новый Joy-Con после старта -- LED получит его
-        // через scanForControllers внутри applyRegular.
-        if (!g_isLite) applyRegular();
+        // Сканируем контроллеры раз в 500 мс, но не перезаписываем NVRAM
+        // уже подключённых pad'ов без причины: pattern нужен только после
+        // reload либо появления нового Joy-Con/Pro Controller.
+        if (!g_isLite && scanForControllers()) shouldApply = true;
+        if (!g_isLite && shouldApply) applyRegular();
         svcSleepThread(500000000ULL);  // 500 ms
     }
 
