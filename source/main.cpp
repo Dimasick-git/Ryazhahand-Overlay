@@ -13489,9 +13489,7 @@ bool triggerBootCommands = true;
 
 bool inOverlay = false;
 
-bool isComboReturnFrom = false;    // set when --comboReturnFrom was passed; gated on useLaunchRecall in loadInitialGui
-
-bool isComboReturnPackage = false; // set when --comboReturnPackage was passed; gated on useLaunchRecall in loadInitialGui
+bool isComboReturnPackage = false; // set when --comboReturnPackage was passed
 
 /**
 
@@ -15854,7 +15852,7 @@ public:
 
         initializeSettingsAndDirectories();
 
-        // Combo-return handling, gated on useLaunchRecall.
+        // Combo-return handling.
 
         // All side-effect work was intentionally deferred from main() to here so it
 
@@ -15862,19 +15860,7 @@ public:
 
         // has already run, so we drive toPackages directly instead of going through the INI.
 
-        //if (isComboReturnFrom && !ult::useLaunchRecall) {
-
-        //    comboReturnOverlayFilename.clear();
-
-        //    comboReturnOverlayMode.clear();
-
-        //    setRyzhandConfig(IN_HIDDEN_OVERLAY_STR, FALSE_STR);
-
-        //}
-
         if (isComboReturnPackage) {
-
-            //if (ult::useLaunchRecall) {
 
             {
 
@@ -15889,10 +15875,6 @@ public:
                 if (parseValueFromIniSection(PACKAGES_INI_FILEPATH, comboReturnPackageName, HIDE_STR) == TRUE_STR)
 
                     setRyzhandConfig(IN_HIDDEN_PACKAGE_STR, TRUE_STR);
-
-            //} else {
-
-            //    comboReturnPackageName.clear();
 
             }
 
@@ -16291,8 +16273,6 @@ int main(int argc, char* argv[]) {
             }
 
         } else if (strcmp(argv[arg], "--comboReturnFrom") == 0 && arg + 1 < argc) {
-
-            isComboReturnFrom = true;
 
             comboReturnOverlayFilename = argv[++arg];
 
