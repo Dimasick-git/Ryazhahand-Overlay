@@ -96,9 +96,8 @@ extern "C" {
         // pscPmModuleAcknowledge(ReadyShutdown), а наш сысмодуль внутри
         // forceLedOff() блокировался на hidsysSetNotificationLedPattern,
         // который уже выгружался -> deadlock -> atmosphere fatal timeout.
-        // Откатил. Авто-погасание при sleep сделаю через __appExit
-        // (вызывается HOS при graceful shutdown) + applet event poll
-        // в loop'е (без активной psc:m подписки -- никто на нас не ждёт).
+        // Поэтому psc:m не используем, а __appExit только освобождает сервисы:
+        // последний LED pattern намеренно сохраняется для следующего boot.
     }
 
     void __appExit(void) {
@@ -479,11 +478,10 @@ static void applyConfig() {
 // hidsysSetNotificationLedPattern параллельно с тем как hidsys уже
 // сворачивался → deadlock → atmosphere fatal "ошибка при выключении".
 //
-// Авто-погасание LED при shutdown теперь делается в __appExit (HOS
-// вызывает его при graceful unload) -- этого достаточно для нормальной
-// смены состояния. При sleep mode LED продолжает действовать по
-// настройке -- HOS сам обесточивает Joy-Con при sleep, поэтому LED
-// физически отключается даже если pattern остался в hidsys NVRAM.
+// При shutdown не переписываем LED pattern: __appExit освобождает только
+// сервисы, а сохранённый Joy-Con NVRAM pattern нужен для мгновенного
+// восстановления после следующего boot. В sleep HOS сам обесточивает
+// Joy-Con, поэтому LED физически отключается без дополнительного IPC.
 
 int main(int /*argc*/, char** /*argv*/) {
     detectHardware();
