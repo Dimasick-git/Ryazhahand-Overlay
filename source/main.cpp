@@ -4091,7 +4091,6 @@ public:
 
             addListItem(list, WIDGET, DROPDOWN_SYMBOL, "widgetMenu");
 
-            //addGap(list, 12);
 
             addListItem(list, MISCELLANEOUS, DROPDOWN_SYMBOL, "miscMenu");
 
@@ -4410,7 +4409,6 @@ public:
 
             addTable(list, tableData, "", 164, 20, 1, 4);
 
-            //addGap(list, 3);
 
             tableData.clear();
 
@@ -6550,7 +6548,6 @@ public:
 
                     selectedListItem = item;
 
-                    //if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
                     return true;
 
@@ -6630,7 +6627,6 @@ public:
 
                 }
 
-                //if (!hideForceSupport && requiresLNY2 && requiresAMS110Handling) {
 
                 if (requiresLNY2 && requiresAMS110Handling) {
 
@@ -6700,7 +6696,6 @@ public:
 
                             selectedListItem = item;
 
-                            //if (lastSelectedListItem) lastSelectedListItem->triggerClickAnimation();
 
                             return true;
 
@@ -9850,7 +9845,6 @@ public:
 
                 }
 
-                //lastSelectedListItem = nullptr;
 
                 tsl::goBack();
 
@@ -13059,7 +13053,6 @@ public:
 
                     }
 
-                    //wasSimulated = true;
 
                 }
 
@@ -13099,35 +13092,9 @@ public:
 
                     {
 
-                        //bool expected = false;
-
-                        //if (tsl::elm::s_swapPending.compare_exchange_strong(
-
-                        //        expected, true, std::memory_order_acq_rel)) {
-
-                        //    tsl::swapTo<PackageMenu>(packagePath, dropdownSection, destPage, packageName, nestedLayer, pageHeader);
-
-                        //    resetSlideState();
-
-                        //    //if (!wasSimulated)
-
-                        //    //    triggerNavigationFeedback();
-
-                        //    //else {
-
-                        //    //    triggerRumbleClick.store(true, release);
-
-                        //    //    signalHaptics();
-
-                        //    //}
-
-                        //    triggerNavigationFeedback();
-
-                        //}
 
                         // Ensure pkgPageCursors has an entry for this nesting level
 
-                        //if (usePageRecall) {
 
                         {
 
@@ -13201,7 +13168,6 @@ public:
 
                 inPackageMenu = false;
 
-                //if (usePageRecall) pkgPageCursors.clear();
 
                 pkgPageCursors.clear(); // returning to main menu: discard all package page cursors
 
@@ -13241,7 +13207,6 @@ public:
 
                 // Discard page cursors for the level we just left
 
-                //if (usePageRecall && (pkgPageCursors.size() > static_cast<size_t>(nestedMenuCount + 1)))
 
                 if (pkgPageCursors.size() > static_cast<size_t>(nestedMenuCount + 1))
 
@@ -13307,7 +13272,6 @@ public:
 
                 // Discard page cursors for the level we just left
 
-                //if (usePageRecall && pkgPageCursors.size() > static_cast<size_t>(nestedMenuCount + 1))
 
                 if (pkgPageCursors.size() > static_cast<size_t>(nestedMenuCount + 1))
 
@@ -14325,7 +14289,6 @@ public:
 
         if (drawHiddenTab && !inHiddenMode.load(std::memory_order_acquire) && !hideHidden) {
 
-            //addGap(list, 12);
 
             tsl::elm::ListItem* listItem = new tsl::elm::ListItem(HIDDEN, DROPDOWN_SYMBOL);
 
@@ -14873,7 +14836,6 @@ public:
 
             if (drawHiddenTab && !inHiddenMode.load(std::memory_order_acquire) && !hideHidden) {
 
-                //addGap(list, 12);
 
                 tsl::elm::ListItem* listItem = new tsl::elm::ListItem(HIDDEN, DROPDOWN_SYMBOL);
 
@@ -15201,7 +15163,6 @@ public:
 
                         }
 
-                        //wasSimulated = true;
 
                     }
 
@@ -15255,37 +15216,6 @@ public:
 
                         {
 
-                            //bool expected = false;
-
-                            //if (tsl::elm::s_swapPending.compare_exchange_strong(
-
-                            //        expected, true, std::memory_order_acq_rel)) {
-
-                            //    currentMenu = onLeftPage ? (usePageSwap ? OVERLAYS_STR : PACKAGES_STR)
-
-                            //                             : (usePageSwap ? PACKAGES_STR : OVERLAYS_STR);
-
-                            //    resetNavState();
-
-                            //    tsl::swapTo<MainMenu>();
-
-                            //
-
-                            //    //if (!wasSimulated)
-
-                            //    //    triggerNavigationFeedback();
-
-                            //    //else {
-
-                            //    //    triggerRumbleClick.store(true, release);
-
-                            //    //    signalHaptics();
-
-                            //    //}
-
-                            //    triggerNavigationFeedback();
-
-                            //}
 
                             currentMenu = onLeftPage ? (usePageSwap ? OVERLAYS_STR : PACKAGES_STR)
 
@@ -15293,7 +15223,6 @@ public:
 
                             // Save cursor for the page we're leaving; restore cursor for the page we're entering
 
-                            //if (usePageRecall) {
 
                             {
 
@@ -15689,9 +15618,7 @@ void initializeSettingsAndDirectories() {
 
     setDefaultValue("page_swap",              FALSE_STR, usePageSwap);        // also set by parseOverlaySettings
 
-    //setDefaultValue("page_recall",            TRUE_STR,  usePageRecall);
 
-    //setDefaultValue("launch_recall",          TRUE_STR,  useLaunchRecall);
 
     setDefaultValue("right_alignment",        FALSE_STR, useRightAlignment);  // also set by parseOverlaySettings
 
