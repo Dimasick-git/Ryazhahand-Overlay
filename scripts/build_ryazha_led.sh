@@ -42,7 +42,7 @@ fi
 
 if [ ! -d "$SRC" ]; then
     echo "[!] vendored Ryazha-LED source '$SRC' не найден" >&2
-    exit 0
+    exit 1
 fi
 
 if [ -z "${DEVKITPRO:-}" ] || [ ! -d "${DEVKITPRO:-}" ]; then
@@ -56,8 +56,8 @@ trap 'rm -rf "$BUILD_TMP"' EXIT
 cp -r "$SRC/." "$BUILD_TMP/"
 
 if ! (cd "$BUILD_TMP" && make -s 2>&1 | tail -20); then
-    echo "[!] Ryazha-LED sysmodule сборка упала -- пропускаем" >&2
-    exit 0
+    echo "[!] Ryazha-LED sysmodule сборка упала" >&2
+    exit 1
 fi
 
 # Раскладка по out/. TARGET в Makefile = $(notdir $(CURDIR)) = ryazha-led,
@@ -66,8 +66,8 @@ TID="0100000000000ED1"
 NSP="$BUILD_TMP/ryazha-led.nsp"
 
 if [ ! -f "$NSP" ]; then
-    echo "[!] $NSP не появился после сборки -- пропускаем" >&2
-    exit 0
+    echo "[!] $NSP не появился после сборки" >&2
+    exit 1
 fi
 
 mkdir -p "$DEST/atmosphere/contents/$TID/flags"

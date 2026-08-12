@@ -273,7 +273,7 @@ $(BUILD):
 	@# Switch / OLED -> hidsys notification LED. Раньше тут крутились
 	@# два отдельных sysmodule'а (0895 и FED) -- теперь оба слиты в
 	@# 0100000000000ED1. LED_SKIP_FETCH=1 пропускает шаг для offline.
-	+@bash $(CURDIR)/scripts/build_ryazha_led.sh out/ || true
+	+@bash $(CURDIR)/scripts/build_ryazha_led.sh out/
 	@# Bundle assets для Ryzhand: sounds, themes, payload, IPS-патчи
 	@# master volume, nx-ovlloader (из submodule vendor/nx-ovlloader/).
 	@# Submodule vendor/ultrahand-upstream/ -- snapshot upstream Tesla
