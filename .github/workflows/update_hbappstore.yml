@@ -29,12 +29,13 @@ jobs:
 
       - name: Fetch and format download count
         run: |
-          set -e
+          set -euo pipefail
           JSON_URL="https://switch.cdn.fortheusers.org/repo.json"
 
-          # Fetch download count
-          count=$(curl -s "$JSON_URL" \
-            | jq '.packages | map(select(.name == "RyzhandOverlay"))[0].app_dls // 0')
+          # Fetch download count. Не продолжаем с пустыми или устаревшими
+          # данными при ошибке сети либо некорректном JSON.
+          count=$(curl --fail --silent --show-error --location --retry 3 "$JSON_URL" \
+            | jq -e '.packages | map(select(.name == "RyzhandOverlay"))[0].app_dls // 0')
 
           # Format as compact number (k for thousands)
           if [ "$count" -ge 1000 ]; then
@@ -54,9 +55,11 @@ jobs:
           git add .github/hbappstore.json
           git diff-index --quiet HEAD || git commit -m "Update download count"
           
-          # Fetch latest remote changes and rebase to avoid push rejection
+          # Fetch latest remote changes and rebase to avoid push rejection.
+          # Не маскируем конфликт: workflow должен завершиться ошибкой, а не
+          # пытаться отправить незавершённый rebase.
           git fetch origin main
-          git rebase origin/main || echo "Rebase completed or nothing to rebase"
+          git rebase origin/main
           
-          # Push changes
-          git push origin main
+          # Push the checked-out commit explicitly to the tracked main branch.
+          git push origin HEAD:main
