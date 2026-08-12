@@ -260,7 +260,7 @@ all: $(BUILD)
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile MAKEFLAGS="$(filter-out -j% -j,$(MAKEFLAGS)) -j"
+	+@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 	@rm -rf out/
 	@mkdir -p out/switch/.overlays/
