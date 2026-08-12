@@ -818,7 +818,7 @@ static void applyRyzhaLedFromSettings(const ryz::led::Settings& s) {
 
             // Базовый паттерн -- выключенный; импульс будет приходить
 
-            // от onButtonPress(). Гасим, чтобы между нажатиями не светило.
+            // от applyHomeLedPatternForKeys(). Гасим, чтобы между нажатиями не светило.
 
             p = makeOffHomeLedPattern();
 

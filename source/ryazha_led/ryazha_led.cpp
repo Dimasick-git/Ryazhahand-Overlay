@@ -16,7 +16,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <ctime>
 #include <sys/stat.h>
 
 namespace ryz::led {
@@ -78,8 +77,6 @@ Target parseTarget(const char* v) {
     if (!strcmp(v, "lite_all")) return Target::LiteAll;
     return Target::Auto;
 }
-
-uint64_t g_lastPressTickNs = 0;
 
 } // namespace
 
@@ -225,24 +222,6 @@ bool save(const Settings& s) {
     if (lrf) fclose(lrf);
 
     return true;
-}
-
-void onButtonPress(uint64_t keysDown) {
-    if (keysDown == 0) return;
-
-    // Cheap throttle — не чаще 8 раз в секунду, чтобы не молотить FS.
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    uint64_t nowNs = (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
-    if (nowNs - g_lastPressTickNs < 125000000ull) return;
-    g_lastPressTickNs = nowNs;
-
-    // Подаём сигнал sysmodule на короткий импульс. Sysmodule сам решит как.
-    FILE* t = fopen("sdmc:/config/ryazhahand/led.pulse", "w");
-    if (t) {
-        fprintf(t, "%llu", (unsigned long long)nowNs);
-        fclose(t);
-    }
 }
 
 const char* modeName(Mode m) {

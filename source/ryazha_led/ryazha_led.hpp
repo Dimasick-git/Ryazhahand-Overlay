@@ -60,10 +60,6 @@ Settings load();
 // (touch /config/ryazhahand/led.reload).
 bool save(const Settings& s);
 
-// Применить мгновенный импульс OnPress (короткое свечение).
-// Безопасно вызывать из UI-loop при нажатии кнопки.
-void onButtonPress(uint64_t keysDown);
-
 // Строковые названия режимов и целей для UI.
 const char* modeName(Mode m);
 const char* targetName(Target t);

@@ -70,7 +70,6 @@ struct Settings {
 bool isLiteDetected();                  // авто-детект Switch Lite
 Settings load();                        // прочитать led.ini (defaults если файла нет)
 bool save(const Settings& s);           // записать led.ini + триггер reload
-void onButtonPress(uint64_t keysDown);  // мгновенный импульс OnPress из UI-loop
 const char* modeName(Mode m);           // локализованное имя для UI
 const char* targetName(Target t);       // локализованное имя для UI
 ```
