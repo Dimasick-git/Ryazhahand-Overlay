@@ -2858,6 +2858,22 @@ static bool handleGoBackAfter() {
 
 }
 
+// Applies UI reload requests in the same order in PackageMenu and MainMenu.
+
+static bool handlePendingUiRefreshes() {
+
+    if (ult::refreshWallpaperNow.exchange(false, std::memory_order_acq_rel))
+
+        handleWallpaperReload();
+
+    if (ult::refreshCombos.exchange(false, std::memory_order_acq_rel))
+
+        tsl::hlp::loadEntryKeyCombos();
+
+    return handleGoBackAfter();
+
+}
+
 // Handles the full interpreter-completion block shared by PackageMenu and
 
 // MainMenu: updates the list-item footer/checkmark/toggle, closes the thread,
@@ -12961,15 +12977,7 @@ public:
 
         }
 
-        if (ult::refreshWallpaperNow.exchange(false, std::memory_order_acq_rel))
-
-            handleWallpaperReload();
-
-        if (ult::refreshCombos.exchange(false, std::memory_order_acq_rel))
-
-            tsl::hlp::loadEntryKeyCombos();
-
-        if (handleGoBackAfter()) return true;
+        if (handlePendingUiRefreshes()) return true;
 
         if (!returningToPackage && !isTouching) {
 
@@ -15041,15 +15049,7 @@ public:
 
         }
 
-        if (ult::refreshWallpaperNow.exchange(false, std::memory_order_acq_rel))
-
-            handleWallpaperReload();
-
-        if (ult::refreshCombos.exchange(false, std::memory_order_acq_rel))
-
-            tsl::hlp::loadEntryKeyCombos();
-
-        if (handleGoBackAfter()) return true;
+        if (handlePendingUiRefreshes()) return true;
 
         if (refreshPage.load(acquire) && !isTouching) {
 
