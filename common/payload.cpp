@@ -231,7 +231,7 @@ namespace Payload {
 
                 /* Get payloads */
                 std::string const name(dent->d_name);
-                if (name.size() >= 4 && name.substr(name.size() - 4) == ".bin")
+                if (name.size() >= 4 && name.compare(name.size() - 4, 4, ".bin") == 0)
                     res.emplace_back(name.substr(0, name.size() - 4), (path + name));
             }
 
