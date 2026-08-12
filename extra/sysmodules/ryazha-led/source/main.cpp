@@ -175,14 +175,6 @@ Result liteGpioOpen() {
     return rc;
 }
 
-void liteGpioClose() {
-    if (g_gpioInit) {
-        serviceClose(&g_gpioPad);
-        serviceClose(&g_gpioSrv);
-        g_gpioInit = false;
-    }
-}
-
 Result liteGpioSetValue(GpioValue value) {
     if (!g_gpioInit) return MAKERESULT(Module_Libnx, LibnxError_NotInitialized);
     const struct { u32 value; } in = { (u32)value };
@@ -557,6 +549,4 @@ int main(int /*argc*/, char** /*argv*/) {
         svcSleepThread(500000000ULL);  // 500 ms
     }
 
-    if (g_isLite) liteGpioClose();
-    return 0;
 }
