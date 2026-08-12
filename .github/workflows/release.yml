@@ -103,6 +103,15 @@ jobs:
         run: |
           set -euo pipefail
           test -d out || { echo "::error::Каталог out не создан сборкой"; exit 1; }
+          # Makefile допускает локальную минимальную сборку без bundle, однако
+          # GitHub Release обязан включать весь готовый SD bundle. Проверяем
+          # артефакты nx-ovlloader до упаковки, чтобы не выпускать урезанный zip.
+          for asset in \
+            atmosphere/contents/420000000007E51A/exefs.nsp \
+            atmosphere/contents/420000000007E51B/exefs.nsp \
+            switch/Ryazhahand-Reload/Ryazhahand-Reload.nro; do
+            test -s "out/$asset" || { echo "::error::Отсутствует обязательный release-артефакт: $asset"; exit 1; }
+          done
           mkdir -p release
 
           # В релиз кладём ТОЛЬКО sdout.zip (полный SD-card-ready bundle).
