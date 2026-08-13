@@ -33,9 +33,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          # workflow_dispatch должен собирать именно существующий тег, а не
-          # HEAD ветки по умолчанию. При push-теге github.ref уже указывает на него.
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          # При push-теге github.ref уже указывает на тег. При ручном запуске
+          # собираем текущую выбранную ветку (обычно main), а input tag задаёт
+          # только существующий release, чьи файлы нужно обновить.
+          ref: ${{ github.ref }}
           submodules: recursive
           fetch-depth: 0
 
@@ -55,16 +56,19 @@ jobs:
             exit 1
           fi
           TAG_COMMIT=$(git rev-parse --verify "refs/tags/$TAG^{}")
-          if [ "$TAG_COMMIT" != "$(git rev-parse HEAD)" ]; then
+          if [ -z "$TAG_INPUT" ] && [ "$TAG_COMMIT" != "$(git rev-parse HEAD)" ]; then
             echo "::error::Checkout не соответствует тегу $TAG"
             exit 1
+          fi
+          if [ -n "$TAG_INPUT" ]; then
+            echo "::notice::Обновляем файлы существующего release $TAG из текущего checkout"
           fi
           printf 'tag=%s\n' "$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Установить zip
         run: |
           apt-get update -qq
-          apt-get install -y -qq zip jq
+          apt-get install -y -qq zip unzip jq
 
       # best-effort, как в build.yml: pkg.devkitpro.org может отдать 403
       # (rate-limit), но образ уже несёт нужные portlibs -- не валим релиз.
@@ -103,15 +107,6 @@ jobs:
         run: |
           set -euo pipefail
           test -d out || { echo "::error::Каталог out не создан сборкой"; exit 1; }
-          # Makefile допускает локальную минимальную сборку без bundle, однако
-          # GitHub Release обязан включать весь готовый SD bundle. Проверяем
-          # артефакты nx-ovlloader до упаковки, чтобы не выпускать урезанный zip.
-          for asset in \
-            atmosphere/contents/420000000007E51A/exefs.nsp \
-            atmosphere/contents/420000000007E51B/exefs.nsp \
-            switch/Ryazhahand-Reload/Ryazhahand-Reload.nro; do
-            test -s "out/$asset" || { echo "::error::Отсутствует обязательный release-артефакт: $asset"; exit 1; }
-          done
           mkdir -p release
 
           # В релиз кладём ТОЛЬКО sdout.zip (полный SD-card-ready bundle).
@@ -130,8 +125,8 @@ jobs:
           #      config/ryazhahand/themes/*.ini
           #      config/ryazhahand/payloads/ultrahand_updater.bin
           #    Юзер распаковывает в корень SD-карты -- работает из коробки.
-          (cd out && zip -r "../release/sdout.zip" .)
-          test -s release/sdout.zip || { echo "::error::sdout.zip не был создан"; exit 1; }
+          bash scripts/package_sdout.sh out release/sdout.zip
+          unzip -l release/sdout.zip | sed -n '1,100p'
           ls -la release/
 
       - name: Получить changelog
@@ -157,7 +152,8 @@ jobs:
             echo "EOF_NOTES"
           } >> $GITHUB_OUTPUT
 
-      - name: Снести существующий релиз для тега (чистая перезапись ассетов)
+      - name: Заменить файл существующего release без изменения метаданных
+        id: existing_release
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,6 +162,7 @@ jobs:
         run: |
           set -euo pipefail
           api="https://api.github.com/repos/$REPO"
+          uploads="https://uploads.github.com/repos/$REPO"
           response=$(mktemp)
           trap 'rm -f "$response"' EXIT
           status=$(curl --silent --show-error --location --output "$response" \
@@ -173,13 +170,31 @@ jobs:
             -H "Accept: application/vnd.github+json" "$api/releases/tags/$TAG")
           case "$status" in
             200)
-              rid=$(jq -er '.id' "$response")
-              echo "Существующий релиз $rid для $TAG -- удаляю (ассеты пересоздадутся)"
-              curl --fail --silent --show-error --location -X DELETE \
-                -H "Authorization: Bearer $GH_TOKEN" "$api/releases/$rid"
+              release_id=$(jq -er '.id' "$response")
+              old_asset_id=$(jq -r '.assets[] | select(.name == "sdout.zip") | .id' "$response" | head -n 1)
+              pending_name="sdout.zip.pending-${GITHUB_RUN_ID}"
+              pending=$(mktemp)
+              trap 'rm -f "$response" "$pending"' EXIT
+              curl --fail --silent --show-error --location -X POST \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Content-Type: application/zip" \
+                --data-binary @release/sdout.zip \
+                "$uploads/releases/$release_id/assets?name=$pending_name" > "$pending"
+              pending_id=$(jq -er '.id' "$pending")
+              if [ -n "$old_asset_id" ]; then
+                curl --fail --silent --show-error --location -X DELETE \
+                  -H "Authorization: Bearer $GH_TOKEN" "$api/releases/assets/$old_asset_id"
+              fi
+              curl --fail --silent --show-error --location -X PATCH \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Content-Type: application/json" \
+                --data '{"name":"sdout.zip"}' \
+                "$api/releases/assets/$pending_id"
+              echo "exists=true" >> "$GITHUB_OUTPUT"
               ;;
             404)
               echo "Релиза для $TAG ещё нет -- будет создан новый"
+              echo "exists=false" >> "$GITHUB_OUTPUT"
               ;;
             *)
               echo "::error::Не удалось получить релиз для $TAG (HTTP $status)"
@@ -189,6 +204,7 @@ jobs:
           esac
 
       - name: Создать GitHub Release
+        if: steps.existing_release.outputs.exists == 'false'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.tag }}

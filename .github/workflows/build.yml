@@ -78,9 +78,15 @@ jobs:
           echo "============== grep error markers ======================="
           grep -nE 'error:|undefined reference|fatal error|multiple definition' build.log | tail -n 50 || true
 
-      - name: Подготовить артефакты
+      - name: Собрать SD-ready архив
+        shell: bash
         run: |
           mkdir -p artifacts
+          bash scripts/package_sdout.sh out artifacts/sdout.zip
+          unzip -l artifacts/sdout.zip | sed -n '1,80p'
+
+      - name: Подготовить артефакты
+        run: |
           # Сохраняем имя ovlmenu.ovl как есть -- так его ожидает Tesla-loader
           # и Tesla overlay экосистема. out/ уже содержит правильную
           # SD-структуру (switch/.overlays/ovlmenu.ovl + atmosphere/contents/
@@ -95,4 +101,7 @@ jobs:
           name: ovlmenu-${{ github.sha }}
           path: artifacts/
           if-no-files-found: error
+          # upload-artifact по умолчанию исключает скрытые пути, но именно в
+          # них находятся switch/.overlays и config/ryazhahand/.loaded_sounds.
+          include-hidden-files: true
           retention-days: 30
