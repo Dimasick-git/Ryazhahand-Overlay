@@ -204,17 +204,34 @@ static void buildSolidPattern(u8 intensity4) {
     g_pattern.miniCycles[0].finalStepDuration = 0xF;
 }
 
-static void buildBlinkPattern(u8 intensity4, u8 baseDur) {
+static void buildPulsePattern(u8 intensity4) {
     memset(&g_pattern, 0, sizeof(g_pattern));
-    g_pattern.baseMiniCycleDuration = baseDur ? baseDur : 0x4;
-    g_pattern.totalMiniCycles       = 0x2;
-    g_pattern.startIntensity        = intensity4 & 0xF;
+    g_pattern.baseMiniCycleDuration = 0x4;  // 50 ms
+    g_pattern.totalMiniCycles       = 0x2;  // 3 mini-cycles
+    g_pattern.startIntensity        = 0x0;
+
+    // Быстрый, но видимо плавный одиночный импульс с длинной паузой.
+    g_pattern.miniCycles[0].ledIntensity      = intensity4 & 0xF;
+    g_pattern.miniCycles[0].transitionSteps   = 0x4;
+    g_pattern.miniCycles[0].finalStepDuration = 0x2;
+    g_pattern.miniCycles[1].ledIntensity      = 0x0;
+    g_pattern.miniCycles[1].transitionSteps   = 0x4;
+    g_pattern.miniCycles[1].finalStepDuration = 0xF;
+}
+
+static void buildFadePattern(u8 intensity4) {
+    memset(&g_pattern, 0, sizeof(g_pattern));
+    // Эталонный "breathing" pattern из switch-examples notification-led:
+    // 100 ms * 15 step = 1.5 s на подъём и столько же на спад.
+    g_pattern.baseMiniCycleDuration = 0x8;
+    g_pattern.totalMiniCycles       = 0x2;  // 3 mini-cycles, как в примере libnx
+    g_pattern.startIntensity        = 0x2;
     g_pattern.miniCycles[0].ledIntensity      = intensity4 & 0xF;
     g_pattern.miniCycles[0].transitionSteps   = 0xF;
-    g_pattern.miniCycles[0].finalStepDuration = 0xF;
-    g_pattern.miniCycles[1].ledIntensity      = 0x0;
+    g_pattern.miniCycles[0].finalStepDuration = 0x0;
+    g_pattern.miniCycles[1].ledIntensity      = 0x2;
     g_pattern.miniCycles[1].transitionSteps   = 0xF;
-    g_pattern.miniCycles[1].finalStepDuration = 0xF;
+    g_pattern.miniCycles[1].finalStepDuration = 0x0;
 }
 
 static void buildOffPattern() {
@@ -445,18 +462,13 @@ static void liteRunLoop() {
 }
 
 static void applyRegular() {
-    // Контроллеры могут подключиться позже старта sysmodule либо временно
-    // пропасть из hidsys. Перед каждой подачей pattern пересканируем их:
-    // это сохраняет автономный Pulse/Fade после boot и reconnect.
-    scanForControllers();
-
     // 0..100 % -> 0..15 (4-битная градация hidsys)
     const u8 intensity4 = (u8)((g_cfg.brightness * 15 + 50) / 100);
     switch (g_cfg.mode) {
-        case LED_OFF:                       buildOffPattern();                 break;
-        case LED_SOLID:                     buildSolidPattern(intensity4);     break;
-        case LED_PULSE:                     buildBlinkPattern(intensity4, 0x4); break;
-        case LED_FADE:                      buildBlinkPattern(intensity4, 0x8); break;
+        case LED_OFF:                       buildOffPattern();             break;
+        case LED_SOLID:                     buildSolidPattern(intensity4); break;
+        case LED_PULSE:                     buildPulsePattern(intensity4); break;
+        case LED_FADE:                      buildFadePattern(intensity4);  break;
         // OnPress на обычной Switch ведёт оверлей (hidsys per-key, пока меню
         // открыто) -- сысмодуль держит LED погашенным, чтобы не конфликтовать.
         case LED_ONPRESS:                   buildOffPattern();                 break;
@@ -546,12 +558,18 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     while (true) {
-        if (checkReload()) loadConfig();
+        bool shouldApply = false;
+        if (checkReload()) {
+            loadConfig();
+            shouldApply = true;
+        }
 
-        // hidsys pattern на Joy-Con не должен зависеть от UI-события. Повторная
-        // подача каждые 500 мс одновременно поддерживает автономную Pulse/Fade
-        // анимацию и восстанавливает LED после reconnect контроллера.
-        if (!g_isLite) applyRegular();
+        // Joy-Con исполняет notification pattern самостоятельно. Повторная
+        // отправка каждые 500 мс перезапускает его с первого кадра и поэтому
+        // ломает Pulse/Fade. Переотправляем только после reload или появления
+        // нового контроллера; уже подключённый pad продолжает цикл автономно.
+        if (!g_isLite && scanForControllers()) shouldApply = true;
+        if (!g_isLite && shouldApply) applyRegular();
         svcSleepThread(500000000ULL);  // 500 ms
     }
 
