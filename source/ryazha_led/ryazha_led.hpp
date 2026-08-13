@@ -56,8 +56,8 @@ bool isLiteDetected();
 // Загрузить настройки с диска. Если файл не существует — заполняет defaults.
 Settings load();
 
-// Сохранить настройки на диск и подать сигнал reload sysmodule
-// (touch /config/ryazhahand/led.reload).
+// Сохранить настройки в канонический led.ini. Sysmodule сам замечает
+// изменение значений; отдельный sync-файл не создаётся.
 bool save(const Settings& s);
 
 // Строковые названия режимов и целей для UI.

@@ -5261,19 +5261,13 @@ public:
 
                 //
 
-                // ryz::led::save() пишет:
-
-                //   /config/ryazhahand/led.ini    -- наш канонический
-
-                //   /config/ryazhahand/led.reload -- touch для hot-reload
-
-                //   /config/led-control/...       -- back-compat liteswitch
-
-                //   /config/ryazhahand-led/mode   -- back-compat legacy
-
-                //                                    hidsys-loop в overlay
-
-                // На Off везде уходит в disabled -- лампа физически гаснет.
+                // ryz::led::save() пишет только канонический
+                // /config/ryazhahand/led.ini. Встроенный sysmodule сам
+                // сравнивает изменения конфигурации; sidecar trigger и
+                // legacy mode/reset больше не используются.
+                //
+                // На Lite дополнительно сохраняется её совместимый конфиг,
+                // который не трогает hidsys на обычной Switch/OLED.
 
                 addHeader(list, "СВЕЧЕНИЕ LED");
 
@@ -5335,9 +5329,10 @@ public:
 
                     cur.mode = static_cast<Mode>(index);
 
+                    // Постоянный LED применяет только Ryazha-LED sysmodule,
+                    // который увидит изменённый led.ini. Никаких параллельных
+                    // hidsys pattern из UI здесь не отправляем.
                     ryz::led::save(cur);
-
-                    applyRyzhaLedFromSettings(cur);   // мгновенное применение к Joy-Con HOME ring
 
                 });
 
@@ -5393,9 +5388,8 @@ public:
 
                     cur.brightness = static_cast<uint8_t>(std::min<int>(index * 5, 100));
 
+                    // Яркость так же применяет только Ryazha-LED sysmodule.
                     ryz::led::save(cur);
-
-                    applyRyzhaLedFromSettings(cur);
 
                 });
 
@@ -16028,20 +16022,6 @@ public:
 
         }
 
-        if (firstBoot && homeLedEnabled) {
-
-            constexpr u64 TIMEOUT_NS = 1500ULL * 1000ULL * 1000ULL; // 1.5s
-
-            const auto p = (!reloadingBoot)
-
-                ? makeBlinkHomeLedPattern(0x2, 0xF, 0x2, 0x0, 0x2) // start: medium blink
-
-                : makeBlinkHomeLedPattern(0x1, 0xF, 0x1, 0x0, 0x1); // restart: fast blink
-
-            setHomeLedPatternForAllControllers(p, TIMEOUT_NS);
-
-        }
-
         //settingsInitialized.exchange(true, acq_rel);
 
         // Default behavior - load main menu
@@ -16118,19 +16098,9 @@ public:
 
         unpackDeviceInfo();
 
-        // Применить LED состояние (Off/Solid/Pulse/Fade) сразу после старта.
-
-        // Раньше LED работал только когда юзер ткнёт в слайдер, а сразу после
-
-        // загрузки overlay был "тёмный" даже если в конфиге сохранён Solid.
-
-        {
-
-            const auto ledS = ryz::led::load();
-
-            applyRyzhaLedFromSettings(ledS);
-
-        }
+        // Постоянное LED-состояние принадлежит Ryazha-LED sysmodule. Overlay
+        // только читает и сохраняет led.ini; это исключает гонку двух hidsys
+        // отправителей и не перезапускает автономный Fade при открытии меню.
 
         // Pre-warm Audio engine, чтобы первый звук не тормозил на 200-400ms
 

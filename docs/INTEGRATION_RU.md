@@ -66,8 +66,8 @@ Ryzhand работает как ovlloader-launcher: на главном экра
 
 LED-стек теперь объединён в один sysmodule `ryazha-led` (title `0100000000000ED1`), который ставится из `extra/sysmodules/ryazha-led/` вместе с оверлеем:
 
-- **Оверлейная сторона** — `source/led/led_control.{hpp,cpp}` — записывает настройки в `/config/ryazhahand/led.ini` и сигнальный файл `led.reload`.
-- **Sysmodule-сторона** — `ryazha-led.nsp` слушает touch на `led.reload`, перечитывает INI и автодетектом дёргает либо `hidsysSetNotificationLedPattern` (Joy-Con / OLED), либо GPIO PWM HOME (Switch Lite).
+- **Оверлейная сторона** — `source/ryazha_led/ryazha_led.{hpp,cpp}` — записывает только канонический `/config/ryazhahand/led.ini`.
+- **Sysmodule-сторона** — `ryazha-led.nsp` сам отслеживает изменение значений INI и автодетектом применяет либо `hidsysSetNotificationLedPattern` (Joy-Con / OLED), либо GPIO PWM HOME (Switch Lite). Отдельный trigger-файл не используется.
 
 Раньше использовались два отдельных модуля (`sys-notif-LED`, `liteswitch-led`) — сейчас единый.
 

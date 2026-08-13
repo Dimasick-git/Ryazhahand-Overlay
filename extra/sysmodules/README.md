@@ -11,7 +11,7 @@ Atmosphere и работают парой с UI-секцией "Свечение
 - **Source:** вендорится прямо в `ryazha-led/source/`, собирается на
   CI скриптом `scripts/build_ryazha_led.sh`.
 - **Конфиг:** `/config/ryazhahand/led.ini` (пишется UI оверлея).
-- **Reload-trigger:** `/config/ryazhahand/led.reload` (touch-файл).
+- **Обновление:** sysmodule самостоятельно замечает изменение значений INI; отдельный reload-файл отсутствует.
 
 ### Как работает
 

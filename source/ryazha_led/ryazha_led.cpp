@@ -24,7 +24,6 @@ namespace {
 
 constexpr const char* CONFIG_DIR     = "sdmc:/config/ryazhahand";
 constexpr const char* CONFIG_FILE    = "sdmc:/config/ryazhahand/led.ini";
-constexpr const char* RELOAD_TRIGGER = "sdmc:/config/ryazhahand/led.reload";
 
 bool g_liteCached = false;
 bool g_liteDetected = false;
@@ -191,35 +190,18 @@ bool save(const Settings& s) {
 
     fclose(f);
 
-    // touch reload trigger для sys-notif-LED (Xc987) -- он опрашивает
-    // /config/ryazhahand/led.reload.
-    FILE* t = fopen(RELOAD_TRIGGER, "w");
-    if (t) fclose(t);
+    // `led.ini` — единственный контракт между overlay и встроенным
+    // sysmodule. Sidecar-файлы `led.reload` и legacy `mode/reset` могли
+    // одновременно запускать несколько hidsys-команд и перезапускать Fade.
+    // Sysmodule сам сравнивает содержимое INI, поэтому отдельный trigger не
+    // нужен. Убираем stale-маркеры, оставшиеся от предыдущих сборок.
+    remove("sdmc:/config/ryazhahand/led.reload");
+    remove("sdmc:/config/ryazhahand-led/mode");
+    remove("sdmc:/config/ryazhahand-led/reset");
 
-    // Дополнительно пишем настройки в формате liteswitch (Zach van Welzen)
-    // чтобы один UI обслуживал и обычную Switch (через sys-notif-LED), и
-    // Switch Lite (через liteswitch). На обычной Switch lite-config просто
-    // не используется, на Lite -- наоборот, sys-notif-LED не активируется.
+    // Lite-конфиг сохраняем: его читает только Lite-совместимый путь и он
+    // не отправляет hidsys pattern на обычную Switch/OLED.
     writeLiteConfig(s);
-
-    // Legacy ledCfgDir совместимость: старый UI homeLedToggleItem писал в
-    // /config/ryazhahand-led/mode значения disabled / smart / battery. Этот
-    // file читает наш собственный hidsys-loop (см. applyHomeLedPatternForKeys
-    // и initialiseLedThread в main.cpp). При mode=Off в нашем enum должны
-    // явно записать "disabled" сюда -- иначе lampa зажигается через
-    // hidsys по событиям, даже если sys-notif-LED корректно потушил.
-    mkdir("sdmc:/config/ryazhahand-led", 0777);
-    FILE* lmf = fopen("sdmc:/config/ryazhahand-led/mode", "w");
-    if (lmf) {
-        if (s.mode == Mode::Off) {
-            fputs("disabled", lmf);
-        } else {
-            fputs("smart", lmf);
-        }
-        fclose(lmf);
-    }
-    FILE* lrf = fopen("sdmc:/config/ryazhahand-led/reset", "w");
-    if (lrf) fclose(lrf);
 
     return true;
 }

@@ -20,7 +20,9 @@
  *
  * Конфиг единый для всех платформ:
  *   sdmc:/config/ryazhahand/led.ini   (пишется Ryazha-LED UI оверлея)
- *   sdmc:/config/ryazhahand/led.reload (touch-файл, hot-reload)
+ *
+ * Sysmodule сам отслеживает изменение содержимого INI. Отдельного touch-
+ * файла нет: он мог оставаться на SD и повторно перезапускать анимацию.
  *
  * Формат led.ini (упрощённо -- мы читаем только то что умеем):
  *   mode           = off | solid | pulse | fade | onpress
@@ -221,17 +223,40 @@ static void buildPulsePattern(u8 intensity4) {
 
 static void buildFadePattern(u8 intensity4) {
     memset(&g_pattern, 0, sizeof(g_pattern));
-    // Эталонный "breathing" pattern из switch-examples notification-led:
-    // 100 ms * 15 step = 1.5 s на подъём и столько же на спад.
-    g_pattern.baseMiniCycleDuration = 0x8;
-    g_pattern.totalMiniCycles       = 0x2;  // 3 mini-cycles, как в примере libnx
-    g_pattern.startIntensity        = 0x2;
-    g_pattern.miniCycles[0].ledIntensity      = intensity4 & 0xF;
-    g_pattern.miniCycles[0].transitionSteps   = 0xF;
-    g_pattern.miniCycles[0].finalStepDuration = 0x0;
-    g_pattern.miniCycles[1].ledIntensity      = 0x2;
-    g_pattern.miniCycles[1].transitionSteps   = 0xF;
-    g_pattern.miniCycles[1].finalStepDuration = 0x0;
+
+    const u8 peak = intensity4 & 0xF;
+    if (peak == 0) return;
+
+    // Один переход 0 -> peak на 15 PWM-step давал лишь две длинные рампы:
+    // на некоторых Joy-Con это видно как ступени. Разбиваем цикл на 16
+    // близких по яркости целей. 25 ms * 15 = 375 ms на mini-cycle;
+    // подъём и спад по 8 mini-cycle дают около 6,2 s на полный breathing.
+    constexpr u8 kBaseDuration   = 0x2; // 25 ms
+    constexpr u8 kTransitionSteps = 0xF;
+    constexpr int kHalfCycles     = 8;
+
+    g_pattern.baseMiniCycleDuration = kBaseDuration;
+    g_pattern.totalMiniCycles       = 0xF; // 16 mini-cycles
+    g_pattern.totalFullCycles       = 0x0; // repeat forever
+    g_pattern.startIntensity        = 0x0;
+
+    for (int i = 0; i < kHalfCycles; i++) {
+        // 0 -> peak: округление сохраняет равномерный рост даже при
+        // четырёхбитной шкале intensity.
+        const u8 target = (u8)((peak * (i + 1) + kHalfCycles / 2) / kHalfCycles);
+        g_pattern.miniCycles[i].ledIntensity      = target;
+        g_pattern.miniCycles[i].transitionSteps   = kTransitionSteps;
+        g_pattern.miniCycles[i].finalStepDuration = 0x0;
+    }
+
+    for (int i = 0; i < kHalfCycles; i++) {
+        // peak -> 0 без повторной peak-паузы между двумя полуциклами.
+        const u8 target = (u8)((peak * (kHalfCycles - 1 - i) + kHalfCycles / 2) / kHalfCycles);
+        const int index = kHalfCycles + i;
+        g_pattern.miniCycles[index].ledIntensity      = target;
+        g_pattern.miniCycles[index].transitionSteps   = kTransitionSteps;
+        g_pattern.miniCycles[index].finalStepDuration = 0x0;
+    }
 }
 
 static void buildOffPattern() {
@@ -290,14 +315,6 @@ struct Settings {
 
 static Settings g_cfg = { LED_OFF, 80, 500 };
 
-static bool checkReload() {
-    FILE* f = fopen("sdmc:/config/ryazhahand/led.reload", "r");
-    if (!f) return false;
-    fclose(f);
-    remove("sdmc:/config/ryazhahand/led.reload");
-    return true;
-}
-
 static LedMode parseMode(const char* v) {
     if (!strcmp(v, "solid"))   return LED_SOLID;
     if (!strcmp(v, "pulse"))   return LED_PULSE;
@@ -332,6 +349,14 @@ static void loadConfig() {
     fclose(f);
     if (g_cfg.brightness > 100) g_cfg.brightness = 100;
     if (g_cfg.pulseIntervalMs < 50) g_cfg.pulseIntervalMs = 50;
+}
+
+static bool reloadConfigIfChanged() {
+    const Settings previous = g_cfg;
+    loadConfig();
+    return previous.mode != g_cfg.mode ||
+           previous.brightness != g_cfg.brightness ||
+           previous.pulseIntervalMs != g_cfg.pulseIntervalMs;
 }
 
 // ─── Платформа-зависимое применение ─────────────────────────────────────────
@@ -453,8 +478,7 @@ static void liteRunLoop() {
 
         if (++sinceCheck >= 50) {           // ~200 мс
             sinceCheck = 0;
-            if (checkReload()) {
-                loadConfig();
+            if (reloadConfigIfChanged()) {
                 tMs = 0; havePress = false;
             }
         }
@@ -559,15 +583,13 @@ int main(int /*argc*/, char** /*argv*/) {
 
     while (true) {
         bool shouldApply = false;
-        if (checkReload()) {
-            loadConfig();
-            shouldApply = true;
-        }
+        if (reloadConfigIfChanged()) shouldApply = true;
 
         // Joy-Con исполняет notification pattern самостоятельно. Повторная
         // отправка каждые 500 мс перезапускает его с первого кадра и поэтому
-        // ломает Pulse/Fade. Переотправляем только после reload или появления
-        // нового контроллера; уже подключённый pad продолжает цикл автономно.
+        // ломает Pulse/Fade. Переотправляем только когда действительно
+        // изменился led.ini или появился новый контроллер; уже подключённый
+        // pad продолжает цикл автономно.
         if (!g_isLite && scanForControllers()) shouldApply = true;
         if (!g_isLite && shouldApply) applyRegular();
         svcSleepThread(500000000ULL);  // 500 ms
