@@ -62,6 +62,8 @@ neo_sys-notif-LED-main/
 # Anchored to root so committed assets under config/ryazhahand/ are NOT ignored.
 /kips/
 /payloads/
+!/payloads/
+!/payloads/ryzhand_updater.bin
 /sounds/
 /themes/
 /tools/
