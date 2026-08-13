@@ -12,10 +12,10 @@
 ### Изменено
 - **Звуки:** единый дефолтный пак `default.zip`, убран дублирующийся пункт выбора и
   служебная папка `.sounds` — звук работает из коробки, меню чище.
-- **libryazhahand:** синхронизация с upstream libultrahand (856ddbd) с
+- **libryazhahand:** синхронизация с upstream libryazhahand (856ddbd) с
   camelCase-правилом переименований (исправляет #12 библиотеки); отключён фоновый
   PSC-поллер сна — меньше лишних сервисных вызовов, совместимость с RCU-стеком.
-- **vendor/ultrahand-upstream** обновлён до v2.5.3.
+- **vendor/ryazhahand-upstream** обновлён до v2.5.3.
 
 ### Релизный конвейер
 - Релиз теперь запускается бампом `RELEASE.ini` + записью в changelog (тег создаётся
@@ -24,9 +24,9 @@
 ---
 
 **EN:** GameCube-style controller support (NpadGc); unified default sound pack
-(cleaner menu, works out of the box); libryazhahand synced with upstream libultrahand
+(cleaner menu, works out of the box); libryazhahand synced with upstream libryazhahand
 (camelCase rename rule, background PSC sleep poller disabled); vendored
-ultrahand-upstream bumped to v2.5.3; release pipeline can now be triggered by a
+ryazhahand-upstream bumped to v2.5.3; release pipeline can now be triggered by a
 RELEASE.ini bump — tag is created automatically.
 
 
@@ -55,5 +55,5 @@ RELEASE.ini bump — tag is created automatically.
 
 ## [v2.2.x]
 
-- Базовая ветка форка Ultrahand-Overlay (ppkantorski): файловые операции на SD,
+- Базовая ветка форка Ryzhand-Overlay (ppkantorski): файловые операции на SD,
   HTTPS-загрузка, правка `.ini`, hex/IPS/pchtxt патчи, запуск сторонних `.ovl`.

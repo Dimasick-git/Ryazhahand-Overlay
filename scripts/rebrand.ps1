@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# Применение ребрендинга Ultrahand -> Ryzhand / Ryazhahand.
+# Применение ребрендинга Ryzhand -> Ryzhand / Ryazhahand.
 #
 # Правила (порядок важен -- длинные паттерны раньше коротких):
 # <UPPERHAND> -> <UPPERRYZ>

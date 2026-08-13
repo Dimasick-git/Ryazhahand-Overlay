@@ -1,6 +1,6 @@
 # Интеграция с экосистемой Ryazha
 
-Ryzhand Overlay — часть семейства проектов одного автора. Все они построены на общей библиотеке [libryazhahand](https://github.com/Dimasick-git/libryazhahand) (форк libultrahand/libtesla).
+Ryzhand Overlay — часть семейства проектов одного автора. Все они построены на общей библиотеке [libryazhahand](https://github.com/Dimasick-git/libryazhahand) (форк libryazhahand/libtesla).
 
 ## Связанные оверлеи и модули
 
@@ -31,7 +31,7 @@ Ryzhand Overlay — часть семейства проектов одного 
  |
  v
  +-------------------+
- | libryazhahand | <- общий fork libultrahand
+ | libryazhahand | <- общий fork libryazhahand
  +-------------------+
 ```
 
@@ -47,7 +47,7 @@ include ${TOPDIR}/lib/libryazhahand/ryazhahand.mk
 - Единый Tesla-runtime (`tsl::`) во всех оверлеях.
 - Общие утилиты `ult::` (download, INI, JSON, hex).
 - Один стиль UI: одинаковые header'ы, list items, цвета.
-- Одно место для багфиксов и upstream-синков с `ppkantorski/libultrahand`.
+- Одно место для багфиксов и upstream-синков с `ppkantorski/libryazhahand`.
 
 libryazhahand подключён как git submodule в `lib/libryazhahand/`. Обновление — стандартное:
 
@@ -71,9 +71,9 @@ LED-стек теперь объединён в один sysmodule `ryazha-led` 
 
 Раньше использовались два отдельных модуля (`sys-notif-LED`, `liteswitch-led`) — сейчас единый.
 
-## Синхронизация с ppkantorski/libultrahand
+## Синхронизация с ppkantorski/libryazhahand
 
-В `libryazhahand` есть скрипт `scripts/sync_from_upstream.py` который пуллит коммиты с upstream'а и применяет к нашему дереву с inline-ребрендингом (`Ultrahand` → `Ryzhand` в визуальных строках, namespace `tsl::` не трогается). Запуск только вручную после code-review (cron убран, чтобы не ломал нашу subdir-структуру).
+В `libryazhahand` есть скрипт `scripts/sync_from_upstream.py` который пуллит коммиты с upstream'а и применяет к нашему дереву с inline-ребрендингом (`Ryzhand` → `Ryzhand` в визуальных строках, namespace `tsl::` не трогается). Запуск только вручную после code-review (cron убран, чтобы не ломал нашу subdir-структуру).
 
 ---
 Автор: **Dimasick-git**

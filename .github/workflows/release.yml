@@ -123,7 +123,7 @@ jobs:
           #      config/ryazhahand/sounds/default.zip          (звуковой пак для выбора в UI)
           #      config/ryazhahand/.loaded_sounds/*.wav         (активный пак default, звучит из коробки)
           #      config/ryazhahand/themes/*.ini
-          #      config/ryazhahand/payloads/ultrahand_updater.bin
+          #      config/ryazhahand/payloads/ryazhahand_updater.bin
           #    Юзер распаковывает в корень SD-карты -- работает из коробки.
           bash scripts/package_sdout.sh out release/sdout.zip
           unzip -l release/sdout.zip | sed -n '1,100p'

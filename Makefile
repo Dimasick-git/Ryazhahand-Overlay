@@ -62,7 +62,7 @@ SOURCES		:= source source/ryazha_led common
 INCLUDES	:= source source/ryazha_led common include
 NO_ICON		:= 1
 
-# Подключаем libryazhahand (наш форк libultrahand). Подмодуль в lib/libryazhahand.
+# Подключаем libryazhahand (наш форк libryazhahand). Подмодуль в lib/libryazhahand.
 include ${TOPDIR}/lib/libryazhahand/ryazhahand.mk
 
 
@@ -276,7 +276,7 @@ $(BUILD):
 	+@bash $(CURDIR)/scripts/build_ryazha_led.sh out/
 	@# Bundle assets для Ryzhand: sounds, themes, payload, IPS-патчи
 	@# master volume, nx-ovlloader (из submodule vendor/nx-ovlloader/).
-	@# Submodule vendor/ultrahand-upstream/ -- snapshot upstream Tesla
+	@# Submodule vendor/ryazhahand-upstream/ -- snapshot upstream Tesla
 	@# фреймворка, используется как источник assets (license-совместимо).
 	@# Ошибка сборки nx-ovlloader теперь блокирует основной build: иначе CI
 	@# мог бы подтвердить ovlmenu.ovl с неполным SD-card bundle.

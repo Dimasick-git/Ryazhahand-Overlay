@@ -3,7 +3,7 @@
 # Автосинк сабмодулей каждые 6 часов:
 #   lib/libryazhahand        -> origin/main (сам синкается с апстримом своим
 #                               workflow'ом с 3-way merge кастомов)
-#   vendor/ultrahand-upstream -> последний релизный тег апстрима (ассеты:
+#   vendor/ryazhahand-upstream -> последний релизный тег апстрима (ассеты:
 #                               звуки, темы, payloads для sdout.zip)
 #
 # Перед пушем -- ПОЛНАЯ сборка ovlmenu.ovl в том же контейнере, что и build.yml:
@@ -49,16 +49,16 @@ jobs:
           # 1) libryazhahand -> origin/main
           git -C lib/libryazhahand fetch origin main --depth 1
           git -C lib/libryazhahand checkout -q FETCH_HEAD
-          # 2) vendor/ultrahand-upstream -> последний релизный тег
-          git -C vendor/ultrahand-upstream fetch --tags --depth 1 origin 2>/dev/null || \
-            git -C vendor/ultrahand-upstream fetch --tags origin
-          LATEST_TAG=$(git -C vendor/ultrahand-upstream tag --sort=-creatordate | head -1)
+          # 2) vendor/ryazhahand-upstream -> последний релизный тег
+          git -C vendor/ryazhahand-upstream fetch --tags --depth 1 origin 2>/dev/null || \
+            git -C vendor/ryazhahand-upstream fetch --tags origin
+          LATEST_TAG=$(git -C vendor/ryazhahand-upstream tag --sort=-creatordate | head -1)
           if [ -n "$LATEST_TAG" ]; then
             echo "vendor latest tag: $LATEST_TAG"
-            git -C vendor/ultrahand-upstream checkout -q "refs/tags/$LATEST_TAG"
+            git -C vendor/ryazhahand-upstream checkout -q "refs/tags/$LATEST_TAG"
           fi
           # есть ли что коммитить?
-          if git diff --quiet -- lib/libryazhahand vendor/ultrahand-upstream; then
+          if git diff --quiet -- lib/libryazhahand vendor/ryazhahand-upstream; then
             echo "changed=0" >> "$GITHUB_OUTPUT"
             echo "Сабмодули уже на актуальных коммитах."
           else
@@ -102,9 +102,9 @@ jobs:
           git config user.name "Dimasick-git"
           git config user.email "dimaorynchukk@gmail.com"
           LIBSHA=$(git -C lib/libryazhahand rev-parse --short HEAD)
-          VENTAG=$(git -C vendor/ultrahand-upstream describe --tags --exact-match 2>/dev/null || \
-                   git -C vendor/ultrahand-upstream rev-parse --short HEAD)
-          git add lib/libryazhahand vendor/ultrahand-upstream
+          VENTAG=$(git -C vendor/ryazhahand-upstream describe --tags --exact-match 2>/dev/null || \
+                   git -C vendor/ryazhahand-upstream rev-parse --short HEAD)
+          git add lib/libryazhahand vendor/ryazhahand-upstream
           git commit -m "chore(sync): bump libryazhahand ${LIBSHA}, vendor ${VENTAG} (проверено сборкой)"
           git push origin HEAD:main
 

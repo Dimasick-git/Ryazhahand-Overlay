@@ -8,6 +8,7 @@ set -euo pipefail
 
 out_dir=${1:-out}
 archive=${2:-sdout.zip}
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 if [ ! -d "$out_dir" ]; then
     echo "[package] ERROR: output directory does not exist: $out_dir" >&2
@@ -22,11 +23,42 @@ for asset in \
     atmosphere/contents/420000000007E51B/exefs.nsp \
     switch/Ryazhahand-Reload/Ryazhahand-Reload.nro \
     config/ryazhahand/sounds/default.zip \
-    config/ryazhahand/.loaded_sounds/tick.wav; do
+    config/ryazhahand/.loaded_sounds/tick.wav \
+    config/ryazhahand/payloads/ryzhand_updater.bin; do
     if [ ! -s "$out_dir/$asset" ]; then
         echo "[package] ERROR: required SD bundle asset is missing: $asset" >&2
         exit 1
     fi
+done
+
+# При чистой установке интерфейс должен стартовать по-русски, а меню выбора
+# обязано видеть все поставляемые локали и темы. Проверяем именно полный набор
+# исходных пользовательских файлов, а не один контрольный пример.
+test -f "$out_dir/config/ryazhahand/config.ini" || {
+    echo "[package] ERROR: default config.ini is missing" >&2
+    exit 1
+}
+grep -Eq '^default_lang=ru$' "$out_dir/config/ryazhahand/config.ini" || {
+    echo "[package] ERROR: default language must be ru" >&2
+    exit 1
+}
+
+for language in "$repo_root"/lang/*.json; do
+    [ -f "$language" ] || continue
+    bundled="$out_dir/config/ryazhahand/lang/$(basename "$language")"
+    test -s "$bundled" || {
+        echo "[package] ERROR: bundled language is missing: $(basename "$language")" >&2
+        exit 1
+    }
+done
+
+for theme in "$repo_root"/config/ryazhahand/themes/*.ini; do
+    [ -f "$theme" ] || continue
+    bundled="$out_dir/config/ryazhahand/themes/$(basename "$theme")"
+    test -s "$bundled" || {
+        echo "[package] ERROR: bundled theme is missing: $(basename "$theme")" >&2
+        exit 1
+    }
 done
 
 archive_dir=$(dirname "$archive")

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# Copy upstream Ultrahand-Overlay assets + nx-ovlloader release into our out/
+# Copy upstream Ryzhand-Overlay assets + nx-ovlloader release into our out/
 # so that release zip = sd-card-ready (как у ppkantorski sdout.zip).
 #
-# Что копируется (из vendor/ultrahand-upstream/, submodule пинят на v2.4.5):
+# Что копируется (из vendor/ryazhahand-upstream/, submodule пинят на v2.4.5):
 #   sounds/default.zip (из репы)     -> config/ryazhahand/sounds/default.zip (пак для UI выбора)
 #                                       + распаковка в config/ryazhahand/.loaded_sounds/ (активный пак)
 #   themes/*.ini                     -> config/ryazhahand/themes/
-#   payloads/ultrahand_updater.bin   -> config/ryazhahand/payloads/
+#   payloads/ryazhahand_updater.bin   -> config/ryazhahand/payloads/
 #   common/audio_mastervolume/*.ips  -> atmosphere/exefs_patches/audio_mastervolume/
 #
 # НЕ копируем upstream-овский wallpapers/atmosphere.rgba -- наша система
@@ -28,7 +28,7 @@ set -eo pipefail
 
 OUT="${1:-out}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-UPSTREAM="$ROOT/vendor/ultrahand-upstream"
+UPSTREAM="$ROOT/vendor/ryazhahand-upstream"
 
 if [ "${UPSTREAM_SKIP_ASSETS:-0}" = "1" ]; then
     echo "[bundle] UPSTREAM_SKIP_ASSETS=1 -- skipping all bundle steps"
@@ -36,7 +36,7 @@ if [ "${UPSTREAM_SKIP_ASSETS:-0}" = "1" ]; then
 fi
 
 if [ ! -d "$UPSTREAM/wallpapers" ]; then
-    echo "[bundle] WARN: vendor/ultrahand-upstream/ не инициализирован."
+    echo "[bundle] WARN: vendor/ryazhahand-upstream/ не инициализирован."
     echo "[bundle]       Запусти: git submodule update --init --recursive"
     echo "[bundle]       Пропускаю bundle-фазу (out/ останется минимальной)."
     exit 0
@@ -96,11 +96,15 @@ for name in config.ini theme.ini overlays.ini packages.ini; do
 done
 echo "[bundle] + default config (config/theme/overlays/packages).ini"
 
-# Updater payload.
-if [ -f "$UPSTREAM/payloads/ultrahand_updater.bin" ]; then
-    cp "$UPSTREAM/payloads/ultrahand_updater.bin" \
-       "$OUT/config/ryazhahand/payloads/ultrahand_updater.bin"
-    echo "[bundle] + payloads/ultrahand_updater.bin"
+# Собственный updater payload. Храним его в репозитории под именем Ryzhand,
+# чтобы bundle и runtime URL не зависели от legacy-названия upstream-артефакта.
+UPDATER_PAYLOAD="$ROOT/payloads/ryzhand_updater.bin"
+if [ -f "$UPDATER_PAYLOAD" ]; then
+    cp "$UPDATER_PAYLOAD" "$OUT/config/ryazhahand/payloads/ryzhand_updater.bin"
+    echo "[bundle] + payloads/ryzhand_updater.bin"
+else
+    echo "[bundle] ERROR: $UPDATER_PAYLOAD отсутствует" >&2
+    exit 1
 fi
 
 # IPS patches для master volume (4 файла, по одному на каждую версию HOS).

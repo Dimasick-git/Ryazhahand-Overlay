@@ -445,6 +445,11 @@ static void liteRunLoop() {
 }
 
 static void applyRegular() {
+    // Контроллеры могут подключиться позже старта sysmodule либо временно
+    // пропасть из hidsys. Перед каждой подачей pattern пересканируем их:
+    // это сохраняет автономный Pulse/Fade после boot и reconnect.
+    scanForControllers();
+
     // 0..100 % -> 0..15 (4-битная градация hidsys)
     const u8 intensity4 = (u8)((g_cfg.brightness * 15 + 50) / 100);
     switch (g_cfg.mode) {
@@ -541,16 +546,12 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     while (true) {
-        bool shouldApply = false;
-        if (checkReload()) {
-            loadConfig();
-            shouldApply = true;
-        }
-        // Сканируем контроллеры раз в 500 мс, но не перезаписываем NVRAM
-        // уже подключённых pad'ов без причины: pattern нужен только после
-        // reload либо появления нового Joy-Con/Pro Controller.
-        if (!g_isLite && scanForControllers()) shouldApply = true;
-        if (!g_isLite && shouldApply) applyRegular();
+        if (checkReload()) loadConfig();
+
+        // hidsys pattern на Joy-Con не должен зависеть от UI-события. Повторная
+        // подача каждые 500 мс одновременно поддерживает автономную Pulse/Fade
+        // анимацию и восстанавливает LED после reconnect контроллера.
+        if (!g_isLite) applyRegular();
         svcSleepThread(500000000ULL);  // 500 ms
     }
 
