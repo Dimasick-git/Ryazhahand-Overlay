@@ -1546,6 +1546,22 @@ constexpr uint32_t ULTR_SIGNATURE  = 0x52544C55; // "ULTR"
 
  */
 
+// libnx убрал языковые записи NACP в union lang_data; в прежних версиях они лежат
+// прямо в NacpStruct. Обращаемся так, чтобы собиралось на обеих: контейнер CI может
+// нести libnx старее установленного локально.
+namespace nacpcompat {
+    struct Fallback {};
+    struct Preferred : Fallback {};
+    template <typename T>
+    inline auto langArray(T& nacp, Preferred) -> decltype(nacp.lang_data.lang)& { return nacp.lang_data.lang; }
+    template <typename T>
+    inline auto langArray(T& nacp, Fallback) -> decltype(nacp.lang)& { return nacp.lang; }
+}
+
+// Первая языковая запись NACP: в ней лежит название оверлея.
+template <typename T>
+inline auto& nacpFirstLang(T& nacp) { return nacpcompat::langArray(nacp, nacpcompat::Preferred{})[0]; }
+
 std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const std::string& filePath) {
 
     FILE* file = fopen(filePath.c_str(), "rb");
@@ -1694,9 +1710,11 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
     // --- Extract strings ---
 
-    const char* nameEnd = static_cast<const char*>(std::memchr(nacp.lang_data.lang[0].name, '\0', sizeof(nacp.lang_data.lang[0].name)));
+    const auto& firstLang = nacpFirstLang(nacp);
 
-    const size_t nameLen = nameEnd ? (nameEnd - nacp.lang_data.lang[0].name) : sizeof(nacp.lang_data.lang[0].name);
+    const char* nameEnd = static_cast<const char*>(std::memchr(firstLang.name, '\0', sizeof(firstLang.name)));
+
+    const size_t nameLen = nameEnd ? (nameEnd - firstLang.name) : sizeof(firstLang.name);
 
     const char* versionEnd = static_cast<const char*>(std::memchr(nacp.display_version, '\0', sizeof(nacp.display_version)));
 
@@ -1706,7 +1724,7 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
         ResultSuccess,
 
-        std::string(nacp.lang_data.lang[0].name, nameLen),
+        std::string(firstLang.name, nameLen),
 
         std::string(nacp.display_version, versionLen),
 
