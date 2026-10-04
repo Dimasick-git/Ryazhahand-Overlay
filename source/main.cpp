@@ -1447,7 +1447,14 @@ static void ensureUpdateInfoVectorsInitialized() {
 
 static void setUpdateInfoText(const std::string& text) {
 
-    ensureUpdateInfoMinLines(8);
+    ensureUpdateInfoVectorsInitialized();
+
+    // A status message is stored as one logical entry; drawTable performs
+    // wrapping and explicit-newline expansion itself. Keeping eight backing
+    // entries here produced seven empty rows and a giant blank card.
+    g_updateSectionLines.resize(1);
+
+    g_updateInfoLines.resize(1);
 
     // Render the updates text in the left column (section) so wrapping always produces lines.
 
@@ -2564,7 +2571,7 @@ public:
 
         if (!errorMsg.empty() && logicalLines.empty()) {
 
-            auto* errorItem = new tsl::elm::ListItem(errorMsg);
+            auto* errorItem = new tsl::elm::CompactListItem(errorMsg);
 
             errorItem->setValue(filePath);
 
@@ -3534,7 +3541,7 @@ private:
 
     void addListItem(tsl::elm::List* list, const std::string& title, const std::string& value, const std::string& targetMenu) {
 
-        auto* listItem = new tsl::elm::ListItem(title);
+        auto* listItem = new tsl::elm::CompactListItem(title);
 
         listItem->setValue(value);
 
@@ -3606,7 +3613,7 @@ private:
 
                 convertComboToUnicode(mappedItem);
 
-            tsl::elm::ListItem* listItem = new tsl::elm::ListItem(mappedItem);
+            tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(mappedItem);
 
             listItem->setRadioSelector();
 
@@ -3664,7 +3671,7 @@ private:
 
     void addUpdateButton(tsl::elm::List* list, const std::string& title, const std::string& versionLabel) {
 
-        auto* listItem = new tsl::elm::ListItem(title);
+        auto* listItem = new tsl::elm::CompactListItem(title);
 
         listItem->setValue(versionLabel, true);
 
@@ -3833,7 +3840,7 @@ private:
 
                               const bool invertLogic = false, const bool useReloadMenu = false, const bool useReloadMenu2 = false, const bool isMini = true) {
 
-        auto* toggleListItem = new tsl::elm::ToggleListItem(title, invertLogic ? !state : state, ON, OFF, isMini);
+        auto* toggleListItem = new tsl::elm::CompactToggleListItem(title, invertLogic ? !state : state, ON, OFF, isMini);
 
         // Green when enabled, red when disabled.
 
@@ -3841,7 +3848,7 @@ private:
 
             const bool initialActualState = invertLogic ? !state : state;
 
-            toggleListItem->setValueColor(initialActualState ? tsl::Color{0, 255, 0, 255} : tsl::Color{255, 0, 0, 255});
+            toggleListItem->setValueColor(initialActualState ? tsl::onTextColor : tsl::offTextColor);
 
         }
 
@@ -3853,7 +3860,7 @@ private:
 
             const bool actualState = invertLogic ? !newState : newState;
 
-            listItem->setValueColor(actualState ? tsl::Color{0, 255, 0, 255} : tsl::Color{255, 0, 0, 255});
+            listItem->setValueColor(actualState ? tsl::onTextColor : tsl::offTextColor);
 
             setRyzhandConfig(iniKey, actualState ? TRUE_STR : FALSE_STR);
 
@@ -3999,6 +4006,8 @@ public:
 
             addHeader(list, MAIN_SETTINGS);
 
+            addDescription(list, SETTINGS_OVERVIEW_DESC);
+
             // Load INI once and extract all values
 
             auto ryazhahandIniData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
@@ -4101,6 +4110,8 @@ public:
 
             addHeader(list, UI_SETTINGS);
 
+            addDescription(list, UI_OVERVIEW_DESC);
+
             {
 
                 std::string currentTextColor = parseValueFromIniSection(THEME_CONFIG_INI_PATH, "theme", "text_color");
@@ -4160,7 +4171,7 @@ public:
 
                 if (defaultLangMode != "en" && !isFile(langFile))  {index++; continue;}
 
-                tsl::elm::ListItem* listItem = new tsl::elm::ListItem(*defaultLanguagesRepresentation[index]);
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(*defaultLanguagesRepresentation[index]);
 
                 listItem->setTextColor(textColor);
 
@@ -4281,7 +4292,7 @@ public:
 
             if (txtFiles.empty()) {
 
-                auto* emptyItem = new tsl::elm::ListItem(NO_TXT_FILES_FOUND);
+                auto* emptyItem = new tsl::elm::CompactListItem(NO_TXT_FILES_FOUND);
 
                 emptyItem->setTextColor(textColor);
 
@@ -4293,7 +4304,7 @@ public:
 
                 for (const auto& filename : txtFiles) {
 
-                    auto* listItem = new tsl::elm::ListItem(filename);
+                    auto* listItem = new tsl::elm::CompactListItem(filename);
 
                     listItem->setTextColor(textColor);
 
@@ -4338,6 +4349,8 @@ public:
             const std::string hekateVersion = extractVersionFromBinary("sdmc:/bootloader/update.bin");
 
             addHeader(list, DEVICE_INFO);
+
+            addDescription(list, DEVICE_OVERVIEW_DESC);
 
             SetSysProductModel model = SetSysProductModel_Invalid;
 
@@ -4415,12 +4428,6 @@ public:
 
             tableData.clear();
 
-            tableData = {{"", "CPU      GPU      SOC"}};
-
-            addTable(list, tableData, "", 163, 9, 3, 0, DEFAULT_STR, "section", "section", RIGHT_STR, true);
-
-            tableData.clear();
-
             // Branchless validation check - single bitwise OR instead of 6 comparisons
 
             if ((cpuSpeedo0 | cpuSpeedo2 | socSpeedo0 | cpuIDDQ | gpuIDDQ | socIDDQ) != 0) {
@@ -4445,7 +4452,9 @@ public:
 
             }
 
-            addTable(list, tableData, "", 164, 20, 1, 4);
+            tableData.insert(tableData.begin(), {"", "CPU      GPU      SOC"});
+
+            addTable(list, tableData, "", 164, 16, 24, 4);
 
 
             tableData.clear();
@@ -4466,7 +4475,7 @@ public:
 
             const char* ramColor = freeRamMB >= 9.0f ? "healthy_ram" : (freeRamMB >= 5.0f ? "neutral_ram" : "bad_ram");
 
-            auto* systemMemoryHeader = new tsl::elm::CategoryHeader(SYSTEM_RAM);
+            auto* systemMemoryHeader = new tsl::elm::CompactCategoryHeader(SYSTEM_RAM);
 
             systemMemoryHeader->setValue(ramString, getRawColor(ramColor, tsl::infoTextColor));
 
@@ -4658,7 +4667,7 @@ public:
 
             // Add an "Exit Overlay System" menu item
 
-            auto* exitItem = new tsl::elm::ListItem(EXIT_OVERLAY_SYSTEM, "", true);
+            auto* exitItem = new tsl::elm::CompactListItem(EXIT_OVERLAY_SYSTEM, "", true);
 
             exitItem->enableTouchHolding();
 
@@ -4702,11 +4711,13 @@ public:
 
             addHeader(list, THEME);
 
+            addDescription(list, THEME_OVERVIEW_DESC);
+
             std::string currentTheme = parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_theme");
 
             currentTheme = currentTheme.empty() ? DEFAULT_STR : currentTheme;
 
-            auto* listItem = new tsl::elm::ListItem(DEFAULT);
+            auto* listItem = new tsl::elm::CompactListItem(DEFAULT);
 
             listItem->setRadioSelector();
 
@@ -4785,7 +4796,7 @@ public:
 
                 if (themeName == DEFAULT_STR) continue;
 
-                listItem = new tsl::elm::ListItem(themeName);
+                listItem = new tsl::elm::CompactListItem(themeName);
 
                 listItem->setRadioSelector();
 
@@ -4854,6 +4865,8 @@ public:
 
             addHeader(list, SOUNDS);
 
+            addDescription(list, SOUNDS_OVERVIEW_DESC);
+
             std::string currentSounds = parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_sounds");
 
             if (currentSounds.empty()) {
@@ -4868,7 +4881,7 @@ public:
 
             }
 
-            auto* listItem = new tsl::elm::SilentListItem(OPTION_SYMBOL);
+            auto* listItem = new tsl::elm::CompactSilentListItem(OPTION_SYMBOL);
 
             listItem->setRadioSelector();
 
@@ -4932,7 +4945,7 @@ public:
 
                 dropExtension(soundsName);
 
-                tsl::elm::ListItem* listItem = new tsl::elm::SilentListItem(soundsName);
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactSilentListItem(soundsName);
 
                 listItem->setRadioSelector();
 
@@ -4993,13 +5006,13 @@ public:
 
             if (filesList.empty()) {
 
-                auto* hint = new tsl::elm::ListItem("Нет ZIP-паков");
+                auto* hint = new tsl::elm::CompactListItem("Нет ZIP-паков");
 
                 hint->setValue(SOUNDS_PATH);
 
                 list->addItem(hint);
 
-                auto* hint2 = new tsl::elm::ListItem("Положите *.zip сюда");
+                auto* hint2 = new tsl::elm::CompactListItem("Положите *.zip сюда");
 
                 hint2->setValue("default.zip");
 
@@ -5015,13 +5028,15 @@ public:
 
             addHeader(list, WALLPAPER);
 
+            addDescription(list, WALLPAPER_OVERVIEW_DESC);
+
             std::string currentWallpaper = parseValueFromIniSection(RYZHAND_CONFIG_INI_PATH, RYZHAND_PROJECT_NAME, "current_wallpaper");
 
             currentWallpaper = currentWallpaper.empty() ? OPTION_SYMBOL : currentWallpaper;
 
             tsl::Color textColor = getCurrentTextColor();
 
-            auto* filterButton = new tsl::elm::ListItem("Цветовой фильтр");
+            auto* filterButton = new tsl::elm::CompactListItem("Цветовой фильтр");
 
             filterButton->setTextColor(textColor);
 
@@ -5055,7 +5070,7 @@ public:
 
             list->addItem(filterButton);
 
-            auto* listItem = new tsl::elm::ListItem(OPTION_SYMBOL);
+            auto* listItem = new tsl::elm::CompactListItem(OPTION_SYMBOL);
 
             listItem->setTextColor(textColor);
 
@@ -5122,7 +5137,7 @@ public:
 
                 if (wallpaperName == DEFAULT_STR) continue;
 
-                listItem = new tsl::elm::ListItem(wallpaperName);
+                listItem = new tsl::elm::CompactListItem(wallpaperName);
 
                 listItem->setTextColor(textColor);
 
@@ -5187,6 +5202,8 @@ public:
 
             addHeader(list, WIDGET_ITEMS);
 
+            addDescription(list, WIDGET_OVERVIEW_DESC);
+
             createToggleListItem(list, CLOCK, hideClock, "hide_clock", true);
 
             createToggleListItem(list, SOC_TEMPERATURE, hideSOCTemp, "hide_soc_temp", true);
@@ -5226,6 +5243,8 @@ public:
             };
 
             addHeader(list, FEATURES);
+
+            addDescription(list, FEATURES_OVERVIEW_DESC);
 
             useLaunchCombos = getBoolValue("launch_combos", true); // TRUE_STR default
 
@@ -5603,7 +5622,7 @@ public:
 
             {
 
-                auto* clearItem = new tsl::elm::ListItem("Очистить историю", "");
+                auto* clearItem = new tsl::elm::CompactListItem("Очистить историю", "");
 
                 clearItem->setClickListener([clearItem](u64 keys) {
 
@@ -5779,6 +5798,8 @@ public:
 
             addHeader(list, "ИНТЕРФЕЙС");
 
+            addDescription(list, INTERFACE_OVERVIEW_DESC);
+
             // -- внешний вид --
 
             useDynamicLogo = getBoolValue("dynamic_logo", true); // TRUE_STR default
@@ -5837,6 +5858,8 @@ public:
 
             addHeader(list, "ОБНОВЛЕНИЯ");
 
+            addDescription(list, UPDATES_OVERVIEW_DESC);
+
             // Авто-синхронизация часов по NTP перед загрузками -- логически
 
             // относится к обновлениям/загрузкам, поэтому в этой секции.
@@ -5857,7 +5880,7 @@ public:
 
             {
 
-                auto* scanNowItem = new tsl::elm::ListItem("Проверить обновления");
+                auto* scanNowItem = new tsl::elm::CompactListItem("Проверить обновления");
 
                 const auto st = g_updateScanState.load();
 
@@ -6377,7 +6400,7 @@ public:
 
         if (currentValue.empty() && !initialState) currentValue = FALSE_STR;
 
-        auto* toggleListItem = new tsl::elm::ToggleListItem(label, initialState, ON, OFF);
+        auto* toggleListItem = new tsl::elm::CompactToggleListItem(label, initialState, ON, OFF);
 
         toggleListItem->setState(currentValue != FALSE_STR);
 
@@ -6425,7 +6448,7 @@ public:
 
     ) {
 
-        auto* listItem = new tsl::elm::ListItem(iStr, "", isMini);
+        auto* listItem = new tsl::elm::CompactListItem(iStr, "", isMini);
 
         listItem->setRadioSelector();
 
@@ -6486,7 +6509,7 @@ public:
 
         addGap(list, 12);
 
-        auto* deleteListItem = new tsl::elm::ListItem(isOverlay ? DELETE_OVERLAY : DELETE_PACKAGE);
+        auto* deleteListItem = new tsl::elm::CompactListItem(isOverlay ? DELETE_OVERLAY : DELETE_PACKAGE);
 
         deleteListItem->setValue(HOLD_A_SYMBOL, true);
 
@@ -6607,7 +6630,7 @@ public:
 
                 if (!currentCombo.empty()) convertComboToUnicode(displayCombo);
 
-                auto* item = new tsl::elm::ListItem(KEY_COMBO);
+                auto* item = new tsl::elm::CompactListItem(KEY_COMBO);
 
                 item->setValue(displayCombo);
 
@@ -6627,7 +6650,7 @@ public:
 
             {
 
-                auto* item = new tsl::elm::ListItem(SORT_PRIORITY);
+                auto* item = new tsl::elm::CompactListItem(SORT_PRIORITY);
 
                 item->setValue(getValue(PRIORITY_STR));
 
@@ -6649,7 +6672,7 @@ public:
 
                 if (!modeList.empty()) {
 
-                    auto* item = new tsl::elm::ListItem(LAUNCH_MODES);
+                    auto* item = new tsl::elm::CompactListItem(LAUNCH_MODES);
 
                     item->setValue(DROPDOWN_SYMBOL);
 
@@ -6670,7 +6693,7 @@ public:
 
             } else if (entryMode == PACKAGE_STR) {
 
-                auto* item = new tsl::elm::ListItem(OPTIONS);
+                auto* item = new tsl::elm::CompactListItem(OPTIONS);
 
                 item->setValue(DROPDOWN_SYMBOL);
 
@@ -6692,7 +6715,7 @@ public:
 
             if (!modeList.empty()) {
 
-                auto* systemMemoryHeader = new tsl::elm::CategoryHeader(MODE);
+                auto* systemMemoryHeader = new tsl::elm::CompactCategoryHeader(MODE);
 
                 systemMemoryHeader->setValue(KEY_COMBO, tsl::headerTextColor);
 
@@ -6712,7 +6735,7 @@ public:
 
                     convertComboToUnicode(comboDisplay);
 
-                    auto* item = new tsl::elm::ListItem(displayName);
+                    auto* item = new tsl::elm::CompactListItem(displayName);
 
                     item->setValue(comboDisplay);
 
@@ -6777,7 +6800,7 @@ public:
 
             // No combo option
 
-            auto* _item = new tsl::elm::ListItem(OPTION_SYMBOL);
+            auto* _item = new tsl::elm::CompactListItem(OPTION_SYMBOL);
 
             {
 
@@ -6838,7 +6861,7 @@ public:
 
                 convertComboToUnicode(mapped);
 
-                auto* item = new tsl::elm::ListItem(mapped);
+                auto* item = new tsl::elm::CompactListItem(mapped);
 
                 item->setRadioSelector();
 
@@ -6917,7 +6940,7 @@ public:
 
             // No combo option
 
-            auto* _item = new tsl::elm::ListItem(OPTION_SYMBOL);
+            auto* _item = new tsl::elm::CompactListItem(OPTION_SYMBOL);
 
             {
 
@@ -6986,7 +7009,7 @@ public:
 
                 convertComboToUnicode(mapped);
 
-                auto* item = new tsl::elm::ListItem(mapped);
+                auto* item = new tsl::elm::CompactListItem(mapped);
 
                 item->setRadioSelector();
 
@@ -7501,7 +7524,7 @@ private:
 
     void addListItem(tsl::elm::List* list, const std::string& line) {
 
-        auto* listItem = new tsl::elm::ListItem(line);
+        auto* listItem = new tsl::elm::CompactListItem(line);
 
         listItem->setKeepTag(true);
 
@@ -9226,7 +9249,7 @@ public:
 
                 }
 
-                tsl::elm::ListItem* listItem = new tsl::elm::ListItem(itemName, "", isMini);
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(itemName, "", isMini);
 
                 // for handling footers that use translations / replacements
 
@@ -9375,7 +9398,7 @@ public:
 
             } else if (commandMode == TOGGLE_STR) {
 
-                auto* toggleListItem = new tsl::elm::ToggleListItem(itemName, false, ON, OFF, isMini, true);
+                auto* toggleListItem = new tsl::elm::CompactToggleListItem(itemName, false, ON, OFF, isMini, true);
 
                 toggleListItem->enableShortHoldKey();
 
@@ -10722,7 +10745,7 @@ bool drawCommandsMenu(
 
                             cleanOptionName = optionName.substr(1);
 
-                            listItem = new tsl::elm::ListItem(cleanOptionName, "", isMini);
+                            listItem = new tsl::elm::CompactListItem(cleanOptionName, "", isMini);
 
                             listItem->enableShortHoldKey();
 
@@ -10738,7 +10761,7 @@ bool drawCommandsMenu(
 
                             // Create reference to PackageMenu with dropdownSection set to optionName
 
-                            listItem = new tsl::elm::ListItem(cleanOptionName, footer, isMini);
+                            listItem = new tsl::elm::CompactListItem(cleanOptionName, footer, isMini);
 
                             listItem->enableShortHoldKey();
 
@@ -11624,6 +11647,14 @@ bool drawCommandsMenu(
 
                 if (commandMode == TABLE_STR) {
 
+                    // A background-less table without rows is a spacer directive.
+                    // Rendering it as a TableDrawer applies table start padding on
+                    // top of its requested gap and creates giant empty regions.
+                    if (tableData.empty() && hideTableBackground) {
+                        addGap(list, static_cast<s32>(std::min<size_t>(tableEndGap, 18)));
+                        continue;
+                    }
+
                     if (useHeaderIndent) {
 
                         tableColumnOffset = 164;
@@ -12020,7 +12051,7 @@ bool drawCommandsMenu(
 
                         cleanOptionName = optionName;
 
-                        listItem = new tsl::elm::ListItem(cleanOptionName, footer, isMini);
+                        listItem = new tsl::elm::CompactListItem(cleanOptionName, footer, isMini);
 
                         listItem->enableShortHoldKey();
 
@@ -12032,7 +12063,7 @@ bool drawCommandsMenu(
 
                         cleanOptionName = optionName;
 
-                        listItem = new tsl::elm::ListItem(cleanOptionName, "", isMini);
+                        listItem = new tsl::elm::CompactListItem(cleanOptionName, "", isMini);
 
                         listItem->enableShortHoldKey();
 
@@ -12319,7 +12350,7 @@ bool drawCommandsMenu(
 
                         cleanOptionName = optionName;
 
-                        tsl::elm::ListItem* listItem = new tsl::elm::ListItem(cleanOptionName, "", isMini);
+                        tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(cleanOptionName, "", isMini);
 
                         listItem->enableShortHoldKey();
 
@@ -12442,7 +12473,7 @@ bool drawCommandsMenu(
 
                         cleanOptionName = optionName;
 
-                        auto* toggleListItem = new tsl::elm::ToggleListItem(cleanOptionName, false, ON, OFF, isMini, true);
+                        auto* toggleListItem = new tsl::elm::CompactToggleListItem(cleanOptionName, false, ON, OFF, isMini, true);
 
                         toggleListItem->enableShortHoldKey();
 
@@ -14062,7 +14093,7 @@ public:
 
                 const bool newStarred = !overlayStarred;
 
-                tsl::elm::ListItem* listItem = new tsl::elm::SilentListItem(newOverlayName, "");
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactSilentListItem(newOverlayName, "");
 
                 listItem->enableShortHoldKey();
 
@@ -14292,7 +14323,7 @@ public:
         if (drawHiddenTab && !inHiddenMode.load(std::memory_order_acquire) && !hideHidden) {
 
 
-            tsl::elm::ListItem* listItem = new tsl::elm::ListItem(HIDDEN, DROPDOWN_SYMBOL);
+            tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(HIDDEN, DROPDOWN_SYMBOL);
 
             listItem->setClickListener([](uint64_t keys) {
 
@@ -14634,7 +14665,7 @@ public:
 
                 displayName += packageName;
 
-                tsl::elm::ListItem* listItem = new tsl::elm::ListItem(displayName, "");
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(displayName, "");
 
                 listItem->enableShortHoldKey();
 
@@ -14839,7 +14870,7 @@ public:
             if (drawHiddenTab && !inHiddenMode.load(std::memory_order_acquire) && !hideHidden) {
 
 
-                tsl::elm::ListItem* listItem = new tsl::elm::ListItem(HIDDEN, DROPDOWN_SYMBOL);
+                tsl::elm::ListItem* listItem = new tsl::elm::CompactListItem(HIDDEN, DROPDOWN_SYMBOL);
 
                 listItem->setClickListener([](uint64_t keys) {
 
@@ -14941,7 +14972,7 @@ public:
 
                 {
 
-                    ensureUpdateInfoMinLines(8);
+                    ensureUpdateInfoMinLines(1);
 
                     if (!g_updateSectionLines.empty() && g_updateSectionLines[0].empty()) {
 
@@ -14963,9 +14994,16 @@ public:
 
                     std::vector<std::vector<std::string>> dummyTableData;
 
-                    drawTable(list, dummyTableData, g_updateSectionLines, g_updateInfoLines, ult::stoi(USERGUIDE_OFFSET), 20, 9, 4,
-
-                              DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR, false, false, true);
+                    // This is a free-form status card, not a two-column data table.
+                    // Let the renderer wrap the translated UTF-8 text first so both
+                    // the element and its border are sized from the real line count.
+                    // A small accent inset keeps long messages away from the border;
+                    // disabling table scrolling prevents the card from swallowing
+                    // focus/touch gestures intended for the package list below it.
+                    drawTable(list, dummyTableData, g_updateSectionLines, g_updateInfoLines,
+                              ult::stoi(USERGUIDE_OFFSET), 22, 14, 5,
+                              DEFAULT_STR, DEFAULT_STR, DEFAULT_STR, LEFT_STR,
+                              false, true, false, false, AUTO_STR, false);
 
                 }
 

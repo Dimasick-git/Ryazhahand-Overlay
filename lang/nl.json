@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2-stijl",
     "DYNAMIC_TABLES": "Dynamische tabellen",
     "DYNAMIC_BORDER": "Dynamische rand",
-    "DYNAMIC_TEMPS": "Dynamische temperaturen"
+    "DYNAMIC_TEMPS": "Dynamische temperaturen",
+    "SETTINGS_OVERVIEW_DESC": "Bediening, taal, systeemtools en uiterlijk op één plek.",
+    "UI_OVERVIEW_DESC": "Kies kleuren, thema's, geluiden, achtergrond en widgetindeling.",
+    "THEME_OVERVIEW_DESC": "Kies een visueel thema. Wijzigingen worden direct toegepast.",
+    "SOUNDS_OVERVIEW_DESC": "Kies het feedbackpakket voor navigatie en acties.",
+    "WALLPAPER_OVERVIEW_DESC": "Kies de achtergrondafbeelding en stel het kleurfilter af.",
+    "WIDGET_OVERVIEW_DESC": "Kies welke indicatoren zichtbaar zijn en hoe de widget wordt uitgelijnd.",
+    "FEATURES_OVERVIEW_DESC": "Systeemgedrag, controllerfeedback, meldingen en extra hulpmiddelen.",
+    "INTERFACE_OVERVIEW_DESC": "Stel selectie, tabellen, overgangen, gebaren en paneelzijde af.",
+    "UPDATES_OVERVIEW_DESC": "Automatisch controleren is optioneel. Handmatig scannen blokkeert het menu niet.",
+    "DEVICE_OVERVIEW_DESC": "Hardware, firmware, opslag en geheugen dat voor overlays beschikbaar is."
 }

@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Styl Switch 2",
     "DYNAMIC_TABLES": "Dynamiczne tabele",
     "DYNAMIC_BORDER": "Dynamiczne obramowanie",
-    "DYNAMIC_TEMPS": "Temp. dynamiczne"
+    "DYNAMIC_TEMPS": "Temp. dynamiczne",
+    "SETTINGS_OVERVIEW_DESC": "Sterowanie, język, narzędzia systemowe i wygląd w jednym miejscu.",
+    "UI_OVERVIEW_DESC": "Wybierz kolory, motywy, dźwięki, tapetę i układ widżetu.",
+    "THEME_OVERVIEW_DESC": "Wybierz motyw. Zmiany są stosowane natychmiast.",
+    "SOUNDS_OVERVIEW_DESC": "Wybierz pakiet dźwięków nawigacji i działań.",
+    "WALLPAPER_OVERVIEW_DESC": "Wybierz obraz tła i dostosuj jego filtr kolorów.",
+    "WIDGET_OVERVIEW_DESC": "Wybierz widoczne wskaźniki i wyrównanie widżetu.",
+    "FEATURES_OVERVIEW_DESC": "Działanie systemu, reakcje kontrolera, powiadomienia i dodatkowe narzędzia.",
+    "INTERFACE_OVERVIEW_DESC": "Dostosuj zaznaczenie, tabele, przejścia, gesty i stronę panelu.",
+    "UPDATES_OVERVIEW_DESC": "Automatyczne sprawdzanie jest opcjonalne. Ręczne skanowanie nie blokuje menu.",
+    "DEVICE_OVERVIEW_DESC": "Sprzęt, firmware, pamięć masowa i RAM dostępny dla nakładek."
 }

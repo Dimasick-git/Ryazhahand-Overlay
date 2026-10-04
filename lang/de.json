@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2 Stil",
     "DYNAMIC_TABLES": "Dynamische Tabellen",
     "DYNAMIC_BORDER": "Dynamischer Rand",
-    "DYNAMIC_TEMPS": "Dynamische Temperaturen"
+    "DYNAMIC_TEMPS": "Dynamische Temperaturen",
+    "SETTINGS_OVERVIEW_DESC": "Steuerung, Sprache, Systemwerkzeuge und Darstellung an einem Ort.",
+    "UI_OVERVIEW_DESC": "Farben, Designs, Klänge, Hintergrund und Widget-Layout wählen.",
+    "THEME_OVERVIEW_DESC": "Ein Design auswählen. Änderungen werden sofort angewendet.",
+    "SOUNDS_OVERVIEW_DESC": "Feedback-Paket für Navigation und Aktionen auswählen.",
+    "WALLPAPER_OVERVIEW_DESC": "Hintergrundbild auswählen und seinen Farbfilter einstellen.",
+    "WIDGET_OVERVIEW_DESC": "Sichtbare Anzeigen und Ausrichtung des Widgets festlegen.",
+    "FEATURES_OVERVIEW_DESC": "Systemverhalten, Controller-Feedback, Meldungen und Zusatzwerkzeuge.",
+    "INTERFACE_OVERVIEW_DESC": "Auswahl, Tabellen, Übergänge, Gesten und Panel-Seite einstellen.",
+    "UPDATES_OVERVIEW_DESC": "Automatische Prüfungen sind optional. Manuelles Suchen blockiert das Menü nicht.",
+    "DEVICE_OVERVIEW_DESC": "Hardware, Firmware, Speicher und der für Overlays verfügbare Arbeitsspeicher."
 }

@@ -4,6 +4,57 @@
 используется workflow'ом релиза (`.github/workflows/release.yml`) для
 автоизвлечения заметок к релизу.
 
+## [v2.5.1] — 2026-10-04
+
+### Добавлено
+- Краткие описания на обзорных страницах настроек (управление, язык, системные
+  инструменты, оформление) — на всех 14 языках. Скрипт
+  `scripts/fill_translations.py` заполняет такие строки сразу во всех переводах.
+- `payloads/ryzhand_updater.bin` входит в SD-бандл — обновление запускается из оверлея.
+
+### Исправлено
+- **Сборка с новым libnx:** `NacpStruct` переехал на `lang_data`, из-за чего чтение
+  названий и версий оверлеев перестало компилироваться.
+- Запуск дефолтного звукового пака.
+- Загрузчики больше не меняют рабочий каталог глобально.
+
+### Изменено
+- **Ryazha-LED:** восстановлены автономные hidsys-паттерны, стабилизировано
+  управление затуханием, убраны лишние HID-обновления; сборка падает, если
+  sysmodule не собрался.
+- **Миграция на Ryzhand завершена:** vendor-сабмодуль переименован в
+  `ryazhahand-upstream`, ребрендинг доведён до конца.
+- **SD-бандл и релизные ассеты объединены:** в релиз идёт только `sdout.zip`, его
+  полнота проверяется (`scripts/package_sdout.sh`), сборка nx-ovlloader обязательна.
+- **Комбинации клавиш:** конфиг консолидирован, детект Switch Lite повторяется при
+  неудаче.
+- **libryazhahand** обновлён до `9a75b98`: подвижные полноэкранные виджеты,
+  компактные описания в списках, восстановление настройки npad после перезапуска
+  HID, терпимость к отсутствию loader-info вне nx-ovlloader, акцентная кромка и
+  глиф батареи в рамке оверлея.
+- **Сборка:** make-jobserver передаётся во вложенные скрипты, параллельность
+  ограничена верхним уровнем.
+
+### Убрано
+- Неиспользуемые хелперы оверлея, LED pulse API, мёртвый код обновления и устаревшие
+  комментарии навигации.
+
+### Релизный конвейер
+- Ужесточена проверка release-workflow и защита от параллельных запусков обновления
+  HB App Store.
+
+---
+
+**EN:** Compact descriptions on the settings overview pages in all 14 languages (plus
+a script that fills such strings across every translation); updater payload shipped in
+the SD bundle; build fixed for the new libnx (`NacpStruct` moved to `lang_data`);
+Ryazha-LED autonomous hidsys patterns restored with steadier fade control; Ryzhand
+rebrand completed (vendor submodule renamed); SD bundle and release assets unified
+around a verified `sdout.zip`; key-combo config consolidated with retried Switch Lite
+detection; libryazhahand bumped to `9a75b98`; dead code removed.
+
+---
+
 ## [v2.4.0] — 2026-07-24
 
 ### Добавлено

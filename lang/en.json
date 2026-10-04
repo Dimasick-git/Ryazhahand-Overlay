@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2 Style",
     "DYNAMIC_TABLES": "Dynamic Tables",
     "DYNAMIC_BORDER": "Dynamic Border",
-    "DYNAMIC_TEMPS": "Dynamic Temps"
+    "DYNAMIC_TEMPS": "Dynamic Temps",
+    "SETTINGS_OVERVIEW_DESC": "Controls, language, system tools and appearance in one place.",
+    "UI_OVERVIEW_DESC": "Choose colors, themes, sounds, wallpaper and widget layout.",
+    "THEME_OVERVIEW_DESC": "Choose a visual theme. Changes are applied immediately.",
+    "SOUNDS_OVERVIEW_DESC": "Choose the feedback pack used for navigation and actions.",
+    "WALLPAPER_OVERVIEW_DESC": "Choose the background image and tune its color filter.",
+    "WIDGET_OVERVIEW_DESC": "Choose which indicators are shown and how the widget is aligned.",
+    "FEATURES_OVERVIEW_DESC": "System behavior, controller feedback, notifications and extra tools.",
+    "INTERFACE_OVERVIEW_DESC": "Tune selection, tables, transitions, gestures and panel side.",
+    "UPDATES_OVERVIEW_DESC": "Automatic checks are optional. Manual scanning never freezes the menu.",
+    "DEVICE_OVERVIEW_DESC": "Hardware, firmware, storage and the memory available to overlays."
 }

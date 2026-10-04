@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2 스타일",
     "DYNAMIC_TABLES": "동적 테이블",
     "DYNAMIC_BORDER": "동적 테두리",
-    "DYNAMIC_TEMPS": "동적 온도"
+    "DYNAMIC_TEMPS": "동적 온도",
+    "SETTINGS_OVERVIEW_DESC": "조작, 언어, 시스템 도구와 화면 스타일을 한곳에서 설정합니다.",
+    "UI_OVERVIEW_DESC": "색상, 테마, 소리, 배경화면과 위젯 배치를 선택합니다.",
+    "THEME_OVERVIEW_DESC": "화면 테마를 선택합니다. 변경 사항은 즉시 적용됩니다.",
+    "SOUNDS_OVERVIEW_DESC": "탐색과 동작에 사용할 피드백 사운드 팩을 선택합니다.",
+    "WALLPAPER_OVERVIEW_DESC": "배경 이미지를 선택하고 색상 필터를 조정합니다.",
+    "WIDGET_OVERVIEW_DESC": "표시할 정보와 위젯 정렬 방식을 선택합니다.",
+    "FEATURES_OVERVIEW_DESC": "시스템 동작, 컨트롤러 피드백, 알림과 추가 도구를 설정합니다.",
+    "INTERFACE_OVERVIEW_DESC": "선택 표시, 표, 전환, 제스처와 패널 위치를 조정합니다.",
+    "UPDATES_OVERVIEW_DESC": "자동 확인은 선택 사항입니다. 수동 검색 중에도 메뉴가 멈추지 않습니다.",
+    "DEVICE_OVERVIEW_DESC": "하드웨어, 펌웨어, 저장소와 오버레이에서 사용할 수 있는 메모리입니다."
 }

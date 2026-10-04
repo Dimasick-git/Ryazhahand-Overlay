@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Stile Switch 2",
     "DYNAMIC_TABLES": "Tabelle dinamiche",
     "DYNAMIC_BORDER": "Bordo dinamico",
-    "DYNAMIC_TEMPS": "Temp. dinamiche"
+    "DYNAMIC_TEMPS": "Temp. dinamiche",
+    "SETTINGS_OVERVIEW_DESC": "Controlli, lingua, strumenti di sistema e aspetto in un unico posto.",
+    "UI_OVERVIEW_DESC": "Scegli colori, temi, suoni, sfondo e disposizione del widget.",
+    "THEME_OVERVIEW_DESC": "Scegli un tema grafico. Le modifiche vengono applicate subito.",
+    "SOUNDS_OVERVIEW_DESC": "Scegli il pacchetto di feedback per navigazione e azioni.",
+    "WALLPAPER_OVERVIEW_DESC": "Scegli l'immagine di sfondo e regola il filtro colore.",
+    "WIDGET_OVERVIEW_DESC": "Scegli gli indicatori visibili e l'allineamento del widget.",
+    "FEATURES_OVERVIEW_DESC": "Comportamento del sistema, feedback del controller, notifiche e strumenti extra.",
+    "INTERFACE_OVERVIEW_DESC": "Regola selezione, tabelle, transizioni, gesti e lato del pannello.",
+    "UPDATES_OVERVIEW_DESC": "Il controllo automatico è facoltativo. La scansione manuale non blocca il menu.",
+    "DEVICE_OVERVIEW_DESC": "Hardware, firmware, archiviazione e memoria disponibile per gli overlay."
 }

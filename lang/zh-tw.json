@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2 樣式",
     "DYNAMIC_TABLES": "動態表格",
     "DYNAMIC_BORDER": "動態邊框",
-    "DYNAMIC_TEMPS": "動態溫度"
+    "DYNAMIC_TEMPS": "動態溫度",
+    "SETTINGS_OVERVIEW_DESC": "在一處設定控制、語言、系統工具和外觀。",
+    "UI_OVERVIEW_DESC": "選擇顏色、主題、聲音、桌布和小工具配置。",
+    "THEME_OVERVIEW_DESC": "選擇視覺主題，變更會立即生效。",
+    "SOUNDS_OVERVIEW_DESC": "選擇用於導覽和操作回饋的聲音包。",
+    "WALLPAPER_OVERVIEW_DESC": "選擇背景影像並調整其色彩濾鏡。",
+    "WIDGET_OVERVIEW_DESC": "選擇要顯示的指標和小工具的對齊方式。",
+    "FEATURES_OVERVIEW_DESC": "設定系統行為、控制器回饋、通知和附加工具。",
+    "INTERFACE_OVERVIEW_DESC": "調整選取效果、表格、轉場、手勢和面板位置。",
+    "UPDATES_OVERVIEW_DESC": "自動檢查為選用項目，手動掃描不會卡住選單。",
+    "DEVICE_OVERVIEW_DESC": "顯示硬體、韌體、儲存空間及疊加層可用記憶體。"
 }

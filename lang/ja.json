@@ -218,5 +218,15 @@
     "SWITCH_2_STYLE": "Switch 2スタイル",
     "DYNAMIC_TABLES": "動的テーブル",
     "DYNAMIC_BORDER": "動的枠線",
-    "DYNAMIC_TEMPS": "動的温度"
+    "DYNAMIC_TEMPS": "動的温度",
+    "SETTINGS_OVERVIEW_DESC": "操作、言語、システムツール、外観をまとめて設定します。",
+    "UI_OVERVIEW_DESC": "色、テーマ、サウンド、壁紙、ウィジェット配置を選びます。",
+    "THEME_OVERVIEW_DESC": "外観テーマを選択します。変更はすぐに適用されます。",
+    "SOUNDS_OVERVIEW_DESC": "ナビゲーションと操作に使うフィードバック音を選びます。",
+    "WALLPAPER_OVERVIEW_DESC": "背景画像を選択し、カラーフィルターを調整します。",
+    "WIDGET_OVERVIEW_DESC": "表示する情報とウィジェットの配置を選びます。",
+    "FEATURES_OVERVIEW_DESC": "システム動作、コントローラー反応、通知、追加ツールを設定します。",
+    "INTERFACE_OVERVIEW_DESC": "選択表示、表、切り替え、ジェスチャー、パネル位置を調整します。",
+    "UPDATES_OVERVIEW_DESC": "自動確認は任意です。手動スキャン中もメニューは停止しません。",
+    "DEVICE_OVERVIEW_DESC": "ハードウェア、ファームウェア、ストレージ、オーバーレイ用メモリを表示します。"
 }

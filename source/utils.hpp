@@ -1694,9 +1694,9 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
     // --- Extract strings ---
 
-    const char* nameEnd = static_cast<const char*>(std::memchr(nacp.lang[0].name, '\0', sizeof(nacp.lang[0].name)));
+    const char* nameEnd = static_cast<const char*>(std::memchr(nacp.lang_data.lang[0].name, '\0', sizeof(nacp.lang_data.lang[0].name)));
 
-    const size_t nameLen = nameEnd ? (nameEnd - nacp.lang[0].name) : sizeof(nacp.lang[0].name);
+    const size_t nameLen = nameEnd ? (nameEnd - nacp.lang_data.lang[0].name) : sizeof(nacp.lang_data.lang[0].name);
 
     const char* versionEnd = static_cast<const char*>(std::memchr(nacp.display_version, '\0', sizeof(nacp.display_version)));
 
@@ -1706,7 +1706,7 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
         ResultSuccess,
 
-        std::string(nacp.lang[0].name, nameLen),
+        std::string(nacp.lang_data.lang[0].name, nameLen),
 
         std::string(nacp.display_version, versionLen),
 
@@ -1720,13 +1720,19 @@ std::tuple<Result, std::string, std::string, bool, bool> getOverlayInfo(const st
 
 void addHeader(auto& list, const std::string& headerText) {
 
-    list->addItem(new tsl::elm::CategoryHeader(headerText));
+    list->addItem(new tsl::elm::CompactCategoryHeader(headerText));
+
+}
+
+void addDescription(auto& list, const std::string& descriptionText) {
+
+    list->addItem(new tsl::elm::CompactDescription(descriptionText));
 
 }
 
 void addBasicListItem(auto& list, const std::string& itemText, bool isMini = false) {
 
-    list->addItem(new tsl::elm::ListItem(itemText, "", isMini));
+    list->addItem(new tsl::elm::CompactListItem(itemText, "", isMini));
 
 }
 
@@ -2456,7 +2462,9 @@ void drawTable(
 
     const u32 itemHeight = static_cast<u32>(
 
-        16 * cacheExpSec.size()
+        (cacheExpSec.empty() ? 0 : startGap)
+
+        + 16 * cacheExpSec.size()
 
         + newlineGap * (cacheExpSec.empty() ? 0 : cacheExpSec.size() - 1)
 
@@ -2558,7 +2566,7 @@ void drawTable(
 
             // reducing drawString calls from O(total) to O(visible) every frame.
 
-            static constexpr s32 kRowH     = 16;   // lineHeight / fontSize constant
+            static constexpr s32 kRowH     = 16;
 
             static constexpr s32 kClipTop  = 88+10;
 
