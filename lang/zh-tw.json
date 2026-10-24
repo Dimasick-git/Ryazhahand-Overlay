@@ -133,6 +133,7 @@
     "SELECTION_VALUE": "選中值",
     "LIBRYZHAND_TITLES": "libryazhahand 標題",
     "LIBRYZHAND_VERSIONS": "libryazhahand 版本",
+    "GLASS_BLUR": "GPU 模糊",
     "PACKAGE_TITLES": "外掛包標題",
     "RYZHAND_HAS_STARTED": "Ryzhand 已啟動",
     "NEW_UPDATE_IS_AVAILABLE": "有新版本！",

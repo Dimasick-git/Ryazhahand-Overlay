@@ -141,6 +141,7 @@
     "SELECTION_VALUE": "Значение",
     "LIBRYZHAND_TITLES": "Имена libryazhahand",
     "LIBRYZHAND_VERSIONS": "Версии libryazhahand",
+    "GLASS_BLUR": "Размытие GPU",
     "PACKAGE_TITLES": "Имена пакетов",
     "RYZHAND_HAS_STARTED": "Ryzhand запущен",
     "NEW_UPDATE_IS_AVAILABLE": "Доступно обновление!",

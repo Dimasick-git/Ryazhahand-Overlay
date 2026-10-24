@@ -141,6 +141,7 @@
     "SELECTION_VALUE": "Selection Value",
     "LIBRYZHAND_TITLES": "libryazhahand Titles",
     "LIBRYZHAND_VERSIONS": "libryazhahand Versions",
+    "GLASS_BLUR": "GPU Blur",
     "PACKAGE_TITLES": "Package Titles",
     "RYZHAND_HAS_STARTED": "Ryzhand has started.",
     "RYZHAND_HAS_RESTARTED": "Ryzhand has restarted.",

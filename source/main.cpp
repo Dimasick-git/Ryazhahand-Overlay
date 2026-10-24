@@ -3513,6 +3513,16 @@ public:
 
 };
 
+static inline bool useGlassBlur = true;
+
+// Версии в списках: переключатели «Версии libryazhahand» / «Версии пакетов» (настройки темы) заменили в интерфейсе
+
+// прежние hide_*_versions — выключенные, они прячут версии. Ключи hide_*_versions в config.ini по-прежнему работают.
+
+static inline bool overlayVersionsShown() { return !hideOverlayVersions && useLibryazhahandVersions; }
+
+static inline bool packageVersionsShown() { return !hidePackageVersions && usePackageVersions; }
+
 class RyzhandSettingsMenu : public tsl::Gui {
 
 private:
@@ -3933,6 +3943,16 @@ private:
             } else if (iniKey == "hide_overlay_versions" || iniKey == "hide_package_versions") {
 
                 returnJumpItemValue = "";
+
+            } else if (iniKey == "libryazhahand_versions" || iniKey == "package_versions") {
+
+                if (!actualState) returnJumpItemValue = "";
+
+            } else if (iniKey == "glass_blur") {
+
+                // Стекло этого же меню — сразу; другие оверлеи прочтут glass_blur при запуске.
+
+                if (ryzGlassSetEnabled) ryzGlassSetEnabled(actualState);
 
             } else if (iniKey == "auto_ntp_sync") {
 
@@ -5997,6 +6017,10 @@ public:
             usePackageVersions = getBoolValue("package_versions", true); // TRUE_STR default
 
             createToggleListItem(list, PACKAGE_VERSIONS, usePackageVersions, "package_versions", false, true);
+            // Стекло (libglass): кадр выводит видеочип, под меню и оверлеями — живой размытый кадр игры. Выключено —
+            // как раньше, без видеочипа.
+            useGlassBlur = getBoolValue("glass_blur", true); // TRUE_STR default
+            createToggleListItem(list, GLASS_BLUR, useGlassBlur, "glass_blur", false, false);
 
         }
 
@@ -14099,7 +14123,7 @@ public:
 
                 listItem->enableLongHoldKey();
 
-                if (!hideOverlayVersions) {
+                if (overlayVersionsShown()) {
 
                     displayVersion = getFirstLongEntry(overlayVersion);
 
@@ -14107,7 +14131,7 @@ public:
 
                     listItem->setValue(displayVersion, true);
 
-                    listItem->setValueColor(usingLibRyzhand ? (useLibryazhahandVersions ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor) : tsl::overlayVersionTextColor);
+                    listItem->setValueColor(usingLibRyzhand ? tsl::ultOverlayVersionTextColor : tsl::overlayVersionTextColor);
 
                 }
 
@@ -14119,7 +14143,7 @@ public:
 
                     jumpItemName = newOverlayName;
 
-                    jumpItemValue = hideOverlayVersions ? "" : displayVersion;
+                    jumpItemValue = overlayVersionsShown() ? displayVersion : "";
 
                     jumpItemExactMatch.store(true, std::memory_order_release);
 
@@ -14141,7 +14165,7 @@ public:
 
                     jumpItemName = newOverlayName;
 
-                    jumpItemValue = hideOverlayVersions ? "" : displayVersion;
+                    jumpItemValue = overlayVersionsShown() ? displayVersion : "";
 
                     jumpItemExactMatch.store(true, std::memory_order_release);
 
@@ -14263,7 +14287,7 @@ public:
 
                         jumpItemName = buildOverlayReturnName(!newStarred, overlayFileName, overlayName);
 
-                        jumpItemValue = hideOverlayVersions ? "" : displayVersion;
+                        jumpItemValue = overlayVersionsShown() ? displayVersion : "";
 
                         jumpItemExactMatch.store(true, std::memory_order_release);
 
@@ -14279,7 +14303,7 @@ public:
 
                         returnJumpItemName = buildOverlayReturnName(newStarred, overlayFileName, overlayName);
 
-                        returnJumpItemValue = hideOverlayVersions ? "" : displayVersion;
+                        returnJumpItemValue = overlayVersionsShown() ? displayVersion : "";
 
 
                         tsl::changeTo<SettingsMenu>(overlayFileName, OVERLAY_STR, overlayName, overlayVersion, "", !supportsAMS110);
@@ -14294,7 +14318,7 @@ public:
 
                         returnJumpItemName = buildOverlayReturnName(newStarred, overlayFileName, overlayName);
 
-                        returnJumpItemValue = hideOverlayVersions ? "" : displayVersion;
+                        returnJumpItemValue = overlayVersionsShown() ? displayVersion : "";
 
                         return true;
 
@@ -14673,7 +14697,7 @@ public:
 
                 std::string displayVersion;
 
-                if (!hidePackageVersions) {
+                if (packageVersionsShown()) {
 
                     displayVersion.reserve(64);
 
@@ -14703,7 +14727,7 @@ public:
 
                     jumpItemName = displayName;
 
-                    jumpItemValue = hidePackageVersions ? "" : displayVersion;
+                    jumpItemValue = packageVersionsShown() ? displayVersion : "";
 
                     jumpItemExactMatch.store(false, std::memory_order_release);
 
@@ -14835,7 +14859,7 @@ public:
 
                         returnJumpItemName = buildReturnName(newStarred, packageName, newPackageName);
 
-                        returnJumpItemValue = hidePackageVersions ? "" : displayVersion;
+                        returnJumpItemValue = packageVersionsShown() ? displayVersion : "";
 
                         jumpItemName = jumpItemValue = "";
 

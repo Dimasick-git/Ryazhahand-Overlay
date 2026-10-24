@@ -133,6 +133,7 @@
     "SELECTION_VALUE": "Auswahlwert",
     "LIBRYZHAND_TITLES": "libryazhahand Titel",
     "LIBRYZHAND_VERSIONS": "libryazhahand Versionen",
+    "GLASS_BLUR": "GPU-Unschärfe",
     "PACKAGE_TITLES": "Paket-Titel",
     "RYZHAND_HAS_STARTED": "Ryzhand wurde gestartet.",
     "NEW_UPDATE_IS_AVAILABLE": "Neues Update verfügbar!",

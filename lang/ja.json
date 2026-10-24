@@ -133,6 +133,7 @@
     "SELECTION_VALUE": "選択値",
     "LIBRYZHAND_TITLES": "libryazhahandタイトル",
     "LIBRYZHAND_VERSIONS": "libryazhahandバージョン",
+    "GLASS_BLUR": "GPUぼかし",
     "PACKAGE_TITLES": "パッケージタイトル",
     "RYZHAND_HAS_STARTED": "Ryzhand起動完了",
     "NEW_UPDATE_IS_AVAILABLE": "更新あり！",

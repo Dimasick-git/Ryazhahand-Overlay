@@ -133,6 +133,7 @@
     "SELECTION_VALUE": "선택 값",
     "LIBRYZHAND_TITLES": "libryazhahand 제목",
     "LIBRYZHAND_VERSIONS": "libryazhahand 버전",
+    "GLASS_BLUR": "GPU 블러",
     "PACKAGE_TITLES": "패키지 제목",
     "RYZHAND_HAS_STARTED": "Ryzhand 시작됨",
     "NEW_UPDATE_IS_AVAILABLE": "새 업데이트 있음!",
