@@ -62,6 +62,9 @@ SOURCES		:= source source/ryazha_led common
 INCLUDES	:= source source/ryazha_led common include
 NO_ICON		:= 1
 
+# Стекло под интерфейсом (libglass): кадр выводит видеочип, под меню — живой размытый кадр игры.
+USING_GLASS_DIRECTIVE := 1
+
 # Подключаем libryazhahand (наш форк libryazhahand). Подмодуль в lib/libryazhahand.
 include ${TOPDIR}/lib/libryazhahand/ryazhahand.mk
 
