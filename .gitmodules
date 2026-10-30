@@ -1,6 +1,7 @@
 [submodule "lib/libryazhahand"]
 	path = lib/libryazhahand
 	url = https://github.com/Dimasick-git/libryazhahand-deko.git
+	branch = emulation
 [submodule "vendor/ryazhahand-upstream"]
 	path = vendor/ryazhahand-upstream
 	url = https://github.com/ppkantorski/Ultrahand-Overlay

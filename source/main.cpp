@@ -5720,6 +5720,26 @@ public:
 
             createToggleListItem(list, HAPTIC_FEEDBACK, useHapticFeedback, "haptic_feedback");
 
+            // Громкость игры и музыки — через микшер RyazhTune.
+            auto* tune_mixer = new tsl::elm::CompactListItem("Громкость игры и музыки", "RyazhTune");
+            tune_mixer->setClickListener([tune_mixer](u64 keys) {
+                if (!(keys & HidNpadButton_A)) return false;
+                const std::string overlay = OVERLAY_PATH + "RyazhTune-Overlay.ovl";
+                if (!isFile(overlay)) {
+                    tune_mixer->setValue("RyazhTune не установлен", true);
+                    return true;
+                }
+                auto iniData = getParsedDataFromIniFile(RYZHAND_CONFIG_INI_PATH);
+                iniData[RYZHAND_PROJECT_NAME][IN_OVERLAY_STR] = TRUE_STR;
+                saveIniFileData(RYZHAND_CONFIG_INI_PATH, iniData);
+                launchComboHasTriggered.store(true, std::memory_order_release);
+                ult::launchingOverlay.store(true, std::memory_order_release);
+                tsl::setNextOverlay(overlay);
+                tsl::Overlay::get()->close(true);
+                return true;
+            });
+            list->addItem(tune_mixer);
+
             // ═══ УПРАВЛЕНИЕ ═══
 
             // PR #309 backport: время удержания A для confirm-команд.
